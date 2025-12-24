@@ -1,3 +1,4 @@
+import Header from "@/components/custom components/Header";
 import { Button } from "@/components/ui/button";
 import { Carousel_005 } from "@/components/ui/skiper-ui/skiper51";
 
@@ -23,6 +24,8 @@ export default function Home() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen py-2 relative">
+      <Header />
+
       <Carousel_005
         className={"mt-20 min-h-screen"}
         images={images}
@@ -33,12 +36,12 @@ export default function Home() {
       />
 
       <main className="flex items-center justify-center">
-        <div className="text-center space-y-6 text-white">
+        <div className="text-center space-y-6 ">
           <h1 className="text-5xl font-bold tracking-wide">
             Welcome to Cafe Online
           </h1>
 
-          <p className="text-white/80 max-w-md mx-auto">
+          <p className="max-w-md mx-auto">
             Experience premium coffee and handcrafted flavors.
           </p>
 
