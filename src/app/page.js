@@ -1,4 +1,5 @@
 import Header from "@/components/custom components/Header";
+import HeroSection from "@/components/custom components/HeroSection";
 import { Button } from "@/components/ui/button";
 import { Carousel_005 } from "@/components/ui/skiper-ui/skiper51";
 
@@ -23,33 +24,22 @@ export default function Home() {
   ];
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen py-2 relative">
+    <div className="flex flex-col items-center justify-center min-h-screen py-2 relative cotainer">
+      {/* Header */}
       <Header />
 
+      {/* Carousel */}
       <Carousel_005
-        className={"mt-20 min-h-screen"}
+        className="w-full"
         images={images}
         showPagination={true}
+        showNavigation={false}
         loop={true}
         autoplay={true}
-        spaceBetween={0}
       />
 
-      <main className="flex items-center justify-center">
-        <div className="text-center space-y-6 ">
-          <h1 className="text-5xl font-bold tracking-wide">
-            Welcome to Cafe Online
-          </h1>
-
-          <p className="max-w-md mx-auto">
-            Experience premium coffee and handcrafted flavors.
-          </p>
-
-          <Button className="bg-yellow-500 text-black hover:bg-yellow-400">
-            Explore Menu
-          </Button>
-        </div>
-      </main>
+      {/* Hero Section */}
+      <HeroSection/>
     </div>
   );
 }

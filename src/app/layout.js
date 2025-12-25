@@ -26,14 +26,15 @@ export default function RootLayout({ children }) {
         <div className="fixed inset-0 z-10">
           <Image
             src="/marble.jpg"
-            alt="Marble Background"
+            alt="Marble luxury Background"
             fill
             quality={75}
-            priority
+            priority={true}
             className="object-cover"
           />
+          <div className="absolute inset-0 bg-black/40" />
         </div>
-        <main className="relative z-10">{children}</main>
+        <main className="relative z-10 w-full min-h-screen container mx-auto">{children}</main>
       </body>
     </html>
   );

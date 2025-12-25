@@ -1,29 +1,74 @@
-import { Phone, UtensilsCrossed } from 'lucide-react'
-import React from 'react'
+"use client"
+
+import React, { useEffect, useState } from 'react'
+import { Phone, ShoppingCart } from 'lucide-react'
 import { Button } from '../ui/button';
 import Logo from './Logo';
+import Link from 'next/link';
 
-const Header = () => {
+const Header = ({ cartCount = 3 }) => {
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
-    <header className="w-full px-6 py-4 bg-transparent backdrop-blur-sm fixed top-0 left-0 z-50">
-      <div className='flex items-center justify-between'>
+    <>
+      <header
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-in-out border-b border-transparent ${isScrolled
+          ? 'h-20 bg-black/80 backdrop-blur-md border-white/10 shadow-xl'
+          : 'h-24 bg-transparent'
+          }`}
+      >
+        <div className="container mx-auto px-4 h-full flex items-center justify-between relative">
 
-        {/* Contact Number */}
-        <Button className='bg-gold hover:bg-gold-dark text-black px-2 py-4 transition-all duration-300 shadow-[0_0_30px_rgba(197,160,89,0.3)] hover:shadow-[0_0_40px_rgba(197,160,89,0.5)] group'>
-          <a
-            href="tel:0300-1234567"
-            className="flex items-center gap-2 transition-colors duration-300"
-          >
-            <Phone className="w-5 h-5" />
-            <span className="hidden sm:inline">0300-1234567</span>
-          </a>
-        </Button>
+          {/* LEFT: Contact Number */}
+          <div className="flex-1 flex justify-start">
+            <Button
+              variant="ghost"
+              className="group bg-gold/90 hover:bg-gold text-black rounded-full px-4 py-6 transition-all duration-300 shadow-[0_0_20px_rgba(197,160,89,0.3)] hover:shadow-[0_0_30px_rgba(197,160,89,0.6)]"
+            >
+              <a href="tel:0300-1234567" className="flex items-center gap-2 font-bold">
+                <Phone className="w-5 h-5 fill-black" />
+                <span className="hidden sm:inline tracking-wide">0300-1234567</span>
+              </a>
+            </Button>
+          </div>
 
-        {/* Logo / Brand Name */}
-        <Logo />
-      </div>
+          {/* CENTER: Hanging Logo */}
+          <div className={`absolute left-1/2 top-0 -translate-x-1/2 transition-all duration-500 z-50 ${isScrolled ? 'translate-y-2 scale-90' : 'translate-y-4 scale-100'
+            }`}>
+            <Link href="/">
+              <div className="rounded-full p-2 bg-black/20 backdrop-blur-sm border border-gold/30 shadow-2xl cursor-pointer">
+                <Logo />
+              </div>
+            </Link>
+          </div>
 
-    </header>
+          {/* RIGHT: Cart Icon */}
+          <div className="flex-1 flex justify-end">
+            <Button
+              variant="ghost"
+              onClick={() => console.log("Open Cart")}
+              className="relative w-14 h-14 rounded-full hover:bg-white/10 transition-all duration-300 group cursor-pointer"
+            >
+              <ShoppingCart className="w-6! h-6! text-white group-hover:text-(--color-gold) transition-colors" />
+
+              {cartCount > 0 && (
+                <span className="absolute top-1 right-1 w-6 h-6 bg-gold text-black text-xs font-bold flex items-center justify-center rounded-full animate-bounce shadow-lg border border-black">
+                  {cartCount}
+                </span>
+              )}
+            </Button>
+          </div>
+        </div>
+      </header>
+    </>
   )
 }
 
