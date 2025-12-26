@@ -1,15 +1,17 @@
-import { Geist, Geist_Mono } from "next/font/google";
+import { Montserrat, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import Image from "next/image";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const playfair = Playfair_Display({
   subsets: ["latin"],
+  variable: "--font-playfair",
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const montserrat = Montserrat({
   subsets: ["latin"],
+  variable: "--font-montserrat",
+  display: "swap",
 });
 
 export const metadata = {
@@ -21,7 +23,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${playfair.variable} ${montserrat.variable} antialiased`}
       >
         <div className="fixed inset-0 z-10">
           <Image
@@ -34,7 +36,7 @@ export default function RootLayout({ children }) {
           />
           <div className="absolute inset-0 bg-black/40" />
         </div>
-        <main className="relative z-10 w-full min-h-screen container mx-auto">{children}</main>
+        <main className="relative z-10 w-full min-h-screen">{children}</main>
       </body>
     </html>
   );

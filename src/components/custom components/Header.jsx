@@ -31,9 +31,9 @@ const Header = ({ cartCount = 3 }) => {
           <div className="flex-1 flex justify-start">
             <Button
               variant="ghost"
-              className="group bg-gold/90 hover:bg-gold text-black rounded-full px-4 py-6 transition-all duration-300 shadow-[0_0_20px_rgba(197,160,89,0.3)] hover:shadow-[0_0_30px_rgba(197,160,89,0.6)]"
+              className="group bg-(--color-gold) hover:bg-(--color-gold-dark) text-black rounded-full md:rounded-md px-4 py-6 transition-all duration-300 hover:scale-105"
             >
-              <a href="tel:0300-1234567" className="flex items-center gap-2 font-bold">
+              <a href="tel:0300-1234567" className="flex items-center gap-2 font-bold text-lg">
                 <Phone className="w-5 h-5 fill-black" />
                 <span className="hidden sm:inline tracking-wide">0300-1234567</span>
               </a>
@@ -60,7 +60,7 @@ const Header = ({ cartCount = 3 }) => {
               <ShoppingCart className="w-6! h-6! text-white group-hover:text-(--color-gold) transition-colors" />
 
               {cartCount > 0 && (
-                <span className="absolute top-1 right-1 w-6 h-6 bg-gold text-black text-xs font-bold flex items-center justify-center rounded-full animate-bounce shadow-lg border border-black">
+                <span className="absolute top-1 right-1 w-6 h-6 bg-gold text-black text-sm font-bold flex items-center justify-center rounded-full animate-bounce shadow-lg border border-black">
                   {cartCount}
                 </span>
               )}

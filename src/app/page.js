@@ -25,8 +25,12 @@ export default function Home() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen py-2 relative cotainer">
+      
       {/* Header */}
       <Header />
+
+      {/* Hero Section */}
+      <HeroSection/>
 
       {/* Carousel */}
       <Carousel_005
@@ -38,8 +42,7 @@ export default function Home() {
         autoplay={true}
       />
 
-      {/* Hero Section */}
-      <HeroSection/>
+      
     </div>
   );
 }
