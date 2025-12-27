@@ -6,7 +6,8 @@ import { Button } from '../ui/button';
 import Logo from './Logo';
 import Link from 'next/link';
 
-const Header = ({ cartCount = 3 }) => {
+
+const Header = ({ cartCount }) => {
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {

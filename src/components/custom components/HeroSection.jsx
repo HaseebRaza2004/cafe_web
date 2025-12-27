@@ -15,15 +15,16 @@ const HeroSection = () => {
                         src="/Burger.jpg"
                         alt="Delicious Cafe Food"
                         fill
-                        priority
-                        className="object-cover opacity-60" 
+                        priority={true}
+                        sizes="100vw"
+                        className="object-cover opacity-60"
                     />
                     {/* Gradient Overlay for Luxury Feel */}
                     <div className="absolute inset-0 bg-linear-to-t from-black via-black/50 to-transparent" />
                 </div>
 
                 {/* Hero Content */}
-                <div className="relative z-10 container mx-auto px-4 text-center mt-20 md:mt-28">
+                <div className="relative z-10 container mx-auto px-4 text-center mt-20 md:mt-24">
 
                     {/* Tagline / Welcome Text */}
                     <h2 className="text-(--color-gold) uppercase tracking-[0.3em] text-sm md:text-lg font-semibold mb-4 animate-fade-in-up">
@@ -31,14 +32,14 @@ const HeroSection = () => {
                     </h2>
 
                     {/* Main Headline [cite: 40] */}
-                    <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white mb-6 drop-shadow-xl">
+                    <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white mb-4 drop-shadow-xl">
                         EXPERIENCE <br />
                         <span className="text-transparent bg-clip-text bg-linear-to-r from-(--color-gold) to-(--color-gold-dark)">
                             LUXURY DINING
                         </span>
                     </h1>
 
-                    <p className="max-w-2xl mx-auto text-gray-300 text-lg md:text-xl mb-8 leading-relaxed font-light">
+                    <p className="max-w-2xl mx-auto text-gray-300 text-lg md:text-xl mb-6 leading-relaxed font-light">
                         Premium coffee, handcrafted flavors, and an unforgettable ambiance.
                         Taste the perfection in every bite.
                     </p>
