@@ -2,6 +2,7 @@ import { Montserrat, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import Image from "next/image";
 import Header from "@/components/custom components/Header";
+import { CartProvider } from "@/context/CartContext";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -37,13 +38,14 @@ export default function RootLayout({ children }) {
           />
           <div className="absolute inset-0 bg-black/40" />
         </div>
+        <CartProvider>
+          <div className="relative z-50">
+            <Header />
+          </div>
 
-        <div className="relative z-50">
-          <Header cartCount={3} />
-        </div>
-
-        <main className="relative z-10 w-full min-h-screen">{children}</main>
+          <main className="relative z-10 w-full min-h-screen">{children}</main>
+        </CartProvider>
       </body>
     </html>
   );
-};
+}

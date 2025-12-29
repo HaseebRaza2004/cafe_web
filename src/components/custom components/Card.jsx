@@ -46,7 +46,7 @@ const Card = ({ deal, index }) => {
                             {deal.price}
                         </div>
                         <Button className="w-full h-8 md:h-10 text-[10px] md:text-sm bg-(--color-gold) text-black hover:bg-(--color-gold-dark) rounded-md font-bold uppercase tracking-wide">
-                            View Details
+                            Add to Cart
                         </Button>
                     </div>
                 </div>

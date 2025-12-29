@@ -9,17 +9,15 @@ const MenuSection = () => {
     const [searchQuery, setSearchQuery] = useState("");
 
     // --- SEARCH LOGIC ---
-    // Agar search khali hai to sab dikhao, warna filter karo
     const filteredData = menuData.filter((item) => {
         const query = searchQuery.toLowerCase();
         return (
-            item.title.toLowerCase().includes(query) || // Title match kare
-            item.category.toLowerCase().includes(query) // Ya category match kare
+            item.title.toLowerCase().includes(query) ||
+            item.category.toLowerCase().includes(query)
         );
     });
 
     // --- GROUPING LOGIC ---
-    // Filtered data ko wapis Categories main group karna zaroori hai
     const groupedMenu = filteredData.reduce((acc, item) => {
         if (!acc[item.category]) {
             acc[item.category] = [];
@@ -70,7 +68,7 @@ const MenuSection = () => {
                             </div>
 
                             {/* Items Grid (Same responsive logic: Mobile=2, Desktop=4) */}
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 lg:gap-8">
+                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6 lg:gap-8">
                                 {items.map((item, index) => (
                                     <Card key={item.id} deal={item} index={index} />
                                 ))}

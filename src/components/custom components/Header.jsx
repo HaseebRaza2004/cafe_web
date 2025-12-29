@@ -5,9 +5,10 @@ import { Phone, ShoppingCart } from 'lucide-react'
 import { Button } from '../ui/button';
 import Logo from './Logo';
 import Link from 'next/link';
+import CartSheet from './CartSheet';
 
 
-const Header = ({ cartCount }) => {
+const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
@@ -52,7 +53,7 @@ const Header = ({ cartCount }) => {
           </div>
 
           {/* RIGHT: Cart Icon */}
-          <div className="flex-1 flex justify-end">
+          {/* <div className="flex-1 flex justify-end">
             <Button
               variant="ghost"
               onClick={() => console.log("Open Cart")}
@@ -66,7 +67,10 @@ const Header = ({ cartCount }) => {
                 </span>
               )}
             </Button>
-          </div>
+          </div> */}
+          <div className="flex-1 flex justify-end">
+            <CartSheet />
+        </div>
         </div>
       </header>
     </>
