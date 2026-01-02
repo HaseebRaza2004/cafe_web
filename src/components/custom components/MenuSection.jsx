@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { Search } from "lucide-react";
-import { menuData } from "@/lib/data"; // Data import
+import { menuData } from "@/lib/data"; 
 import Card from "./Card";
 
 const MenuSection = () => {

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState } from "react";
 
 const CartContext = createContext();
 
@@ -8,7 +8,7 @@ export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
   const [deliveryArea, setDeliveryArea] = useState("dha");
 
-  // Delivery Charges (PDF Section 6.2 ke hisaab se)
+  // Delivery Charges 
   const deliveryCharges = {
     dha: 150,
     gulshan: 200,
