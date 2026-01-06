@@ -66,6 +66,7 @@ const ReviewsSection = () => {
                                 alt={review.author_name} 
                                 fill 
                                 className="object-cover"
+                                unoptimized={true}
                             />
                         </div>
                         <div>
