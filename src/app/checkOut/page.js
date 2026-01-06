@@ -4,8 +4,8 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 import { ArrowLeft } from "lucide-react";
-import CheckoutForm from "@/components/custom components/checkout/CheckoutForm";
-import OrderSummary from "@/components/custom components/checkout/OrderSummary";
+import CheckoutForm from "@/components/custom_components/checkout/CheckoutForm";
+import OrderSummary from "@/components/custom_components/checkout/OrderSummary";
 
 const CheckoutPage = () => {
   const { cartItems, subtotal, tax, deliveryFee, grandTotal, deliveryArea } =

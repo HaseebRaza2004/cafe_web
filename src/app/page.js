@@ -1,11 +1,11 @@
-import HeroSection from "@/components/custom components/HeroSection";
-import HotDeals from "@/components/custom components/HotDeals";
-import MenuSection from "@/components/custom components/MenuSection";
-import ReviewsSection from "@/components/custom components/reviews/ReviewsSection";
+import HeroSection from "@/components/custom_components/HeroSection";
+import HotDeals from "@/components/custom_components/HotDeals";
+import MenuSection from "@/components/custom_components/MenuSection";
+import ReviewsSection from "@/components/custom_components/reviews/ReviewsSection";
 
 export default function Home() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen py-2 relative cotainer">
+    <div className="flex flex-col items-center justify-center min-h-screen py-2 relative container mx-auto">
       {/* Hero Section */}
       <HeroSection />
 

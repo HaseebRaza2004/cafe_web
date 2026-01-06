@@ -1,9 +1,9 @@
 import { Montserrat, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import Image from "next/image";
-import Header from "@/components/custom components/Header";
+import Header from "@/components/custom_components/Header";
 import { CartProvider } from "@/context/CartContext";
-import Footer from "@/components/custom components/Footer";
+import Footer from "@/components/custom_components/Footer";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],

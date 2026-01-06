@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import DealCard from "@/components/custom components/Card";
+import DealCard from "@/components/custom_components/Card";
 import { dealsData } from "@/lib/data";
 
 const DealsPage = () => {
