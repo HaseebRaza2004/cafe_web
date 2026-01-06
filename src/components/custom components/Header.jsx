@@ -31,15 +31,15 @@ const Header = () => {
 
           {/* LEFT: Contact Number */}
           <div className="flex-1 flex justify-start">
-            <Button
-              variant="ghost"
-              className="group bg-(--color-gold) hover:bg-(--color-gold-dark) text-black rounded-full md:rounded-md px-4 py-6 transition-all duration-300 hover:scale-105"
+            <a
+              href="tel:0300-1234567"
+              className="group bg-(--color-gold) hover:bg-(--color-gold-dark) text-black rounded-full md:rounded-md px-4 py-3 transition-all duration-300 hover:scale-105 inline-flex items-center justify-center font-medium"
             >
-              <a href="tel:0300-1234567" className="flex items-center gap-2 font-bold text-lg">
+              <div className="flex items-center gap-2 font-bold text-lg">
                 <Phone className="w-5 h-5 fill-black" />
                 <span className="hidden sm:inline tracking-wide">0300-1234567</span>
-              </a>
-            </Button>
+              </div>
+            </a>
           </div>
 
           {/* CENTER: Hanging Logo */}
@@ -70,7 +70,7 @@ const Header = () => {
           </div> */}
           <div className="flex-1 flex justify-end">
             <CartSheet />
-        </div>
+          </div>
         </div>
       </header>
     </>
