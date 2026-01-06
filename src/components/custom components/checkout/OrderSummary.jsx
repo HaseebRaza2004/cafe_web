@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 
 const OrderSummary = ({ cartItems, subtotal, tax, deliveryFee, grandTotal, deliveryArea, handlePlaceOrder }) => {
     return (
-        <div className="bg-[#0a0a0a] border border-(--color-gold) rounded-xl p-6 sticky top-28 shadow-[0_0_30px_rgba(197,160,89,0.1)]">
+        <div className="bg-black/60 backdrop-blur-md border border-(--color-gold) rounded-xl p-6 sticky top-28 shadow-[0_0_30px_rgba(197,160,89,0.1)]">
             <h3 className="text-2xl font-display font-bold text-white mb-6 tracking-wide">
                 Your Order
             </h3>

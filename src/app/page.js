@@ -1,6 +1,7 @@
 import HeroSection from "@/components/custom components/HeroSection";
 import HotDeals from "@/components/custom components/HotDeals";
 import MenuSection from "@/components/custom components/MenuSection";
+import ReviewsSection from "@/components/custom components/reviews/ReviewsSection";
 
 export default function Home() {
   return (
@@ -14,7 +15,8 @@ export default function Home() {
       {/* Menu Section */}
       <MenuSection />
 
-      
+      {/* Yahan Reviews Section add karein */}
+      <ReviewsSection />
 
     </div>
   );

@@ -10,7 +10,7 @@ const CheckoutForm = ({ formData, handleInputChange, deliveryArea, changeRequest
     return (
         <div className="space-y-8">
             {/* 1. PERSONAL INFORMATION */}
-            <div className="bg-[#0a0a0a] border border-white/10 p-6 md:p-8 rounded-xl space-y-6 shadow-lg">
+            <div className="bg-black/60 backdrop-blur-md border border-white/10 p-6 md:p-8 rounded-xl space-y-6 shadow-lg">
                 <h2 className="text-xl md:text-2xl font-bold text-white border-b border-white/10 pb-4 font-display">
                     Personal Information
                 </h2>

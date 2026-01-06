@@ -3,6 +3,7 @@ import "./globals.css";
 import Image from "next/image";
 import Header from "@/components/custom components/Header";
 import { CartProvider } from "@/context/CartContext";
+import Footer from "@/components/custom components/Footer";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -44,6 +45,10 @@ export default function RootLayout({ children }) {
           </div>
 
           <main className="relative z-10 w-full min-h-screen">{children}</main>
+
+          <div className="relative z-50">
+            <Footer />
+          </div>
         </CartProvider>
       </body>
     </html>
