@@ -2,46 +2,32 @@ import mongoose from "mongoose";
 
 const ProductSchema = new mongoose.Schema(
   {
-    title: {
-      type: String,
-      required: [true, "Please provide a title"],
-      maxlength: [60, "Title cannot be more than 60 characters"],
-    },
-    desc: {
-      type: String,
-      required: [true, "Please provide a description"],
-      maxlength: [200, "Description cannot be more than 200 characters"],
-    },
-    price: {
-      type: Number,
-      required: [true, "Please provide a price"],
-    },
+    title: { type: String, required: true, index: true },
+    desc: { type: String },
+
+    price: { type: Number, required: true },
+    discountPrice: { type: Number, default: 0 }, // Logic (Sale)
+
     category: {
       type: String,
-      required: [true, "Category is required"],
-      index: true, // Faster search
+      required: true,
+      index: true, // 🔥 SUPER FAST FILTERING
     },
-    image: {
-      type: String, // Cloudinary URL
-      required: [true, "Image URL is required"],
-    },
-    isAvailable: {
-      type: Boolean,
-      default: true,
-    },
-    // Addons array (Simple structure for now)
-    addons: [
+
+    image: { type: String, required: true },
+
+    isAvailable: { type: Boolean, default: true, index: true },
+
+    // Link to OptionGroups (Deals/Addons logic)
+    allowedOptions: [
       {
-        title: String,
-        price: Number,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "OptionGroup",
       },
     ],
   },
-  {
-    timestamps: true, // CreatedAt, UpdatedAt auto-manage honge
-  }
+  { timestamps: true }
 );
 
-// Next.js mein Model overwrite prevent karne ke liye check zaroori hai
 export default mongoose.models.Product ||
   mongoose.model("Product", ProductSchema);
