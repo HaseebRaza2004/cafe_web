@@ -1,9 +1,7 @@
 import { Montserrat, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import Image from "next/image";
-import Header from "@/components/custom_components/Header";
-import { CartProvider } from "@/context/CartContext";
-import Footer from "@/components/custom_components/Footer";
+import ClientLayout from "@/components/layout/ClientLayout";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -18,8 +16,9 @@ const montserrat = Montserrat({
 });
 
 export const metadata = {
-  title: "cafe Online",
-  description: "A Next.js project with Cafe theme",
+  title: "Cafe Online | Luxury Dining Experience",
+  description: "Experience the best luxury dining with our premium cafe menu.",
+  keywords: ["cafe", "luxury dining", "coffee", "restaurant"],
 };
 
 export default function RootLayout({ children }) {
@@ -28,28 +27,24 @@ export default function RootLayout({ children }) {
       <body
         className={`${playfair.variable} ${montserrat.variable} antialiased`}
       >
+        {/* Global Background Image (Server Side Rendered for Speed) */}
         <div className="fixed inset-0 z-10">
           <Image
             src="/marble.jpg"
             alt="Marble luxury Background"
             fill
             quality={75}
-            priority={true}
+            priority={true} // Fast LCP
             className="object-cover"
           />
           <div className="absolute inset-0 bg-black/40" />
         </div>
-        <CartProvider>
-          <div className="relative z-50">
-            <Header />
-          </div>
 
-          <main className="relative z-10 w-full min-h-screen">{children}</main>
-
-          <div className="relative z-50">
-            <Footer />
-          </div>
-        </CartProvider>
+        {/* Client Logic Wrapper */}
+        <ClientLayout>
+          {children}
+        </ClientLayout>
+        
       </body>
     </html>
   );

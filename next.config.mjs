@@ -23,6 +23,13 @@ const nextConfig = {
         hostname: 'maps.googleapis.com',
         port: '',
         pathname: '/**',
+      },
+      {
+        // claudnary image       
+        protocol: 'https',
+        hostname: 'res.cloudinary.com', 
+        port: '',
+        pathname: '/**',
       }
     ],
   },
