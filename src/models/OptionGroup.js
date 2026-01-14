@@ -2,24 +2,15 @@ import mongoose from "mongoose";
 
 const OptionGroupSchema = new mongoose.Schema(
   {
-    name: {
-      type: String,
-      required: true,
-      index: true, // Search optimization
-    },
-    type: {
-      type: String,
-      enum: ["single", "multiple"], // Single select (Flavor) ya Multiple (Toppings)
-      default: "single",
-    },
-    isRequired: {
-      type: Boolean,
-      default: false,
-    },
+    name: { type: String, required: true, index: true },
+    type: { type: String, enum: ["single", "multiple"], default: "single" },
+
     options: [
       {
-        name: { type: String, required: true },
-        price: { type: Number, default: 0 }, // Extra price
+        linkedProduct: { type: mongoose.Schema.Types.ObjectId, ref: "Product" }, // Menu Item Link
+        name: { type: String }, // Display Name
+        price: { type: Number, default: 0 }, // Deal Price
+        isAvailable: { type: Boolean, default: true },
       },
     ],
   },

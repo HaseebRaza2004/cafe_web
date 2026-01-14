@@ -1,27 +1,38 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
 import Product from "@/models/Product";
-// OptionGroup import karna zaroori hai taake populate kaam kare
-import OptionGroup from "@/models/OptionGroup";
+// Models register karne zaroori hain taake populate work kare
+import "@/models/OptionGroup";
 
-// 1. GET: Products Fetch karna (With Filtering & Population)
 export async function GET(request) {
   try {
     await dbConnect();
 
-    // URL se category nikalo (e.g. /api/products?category=pizza)
     const { searchParams } = new URL(request.url);
     const category = searchParams.get("category");
+    const search = searchParams.get("search");
 
-    // Query Build karo (Agar category hai to filter karo, warna sab lay ao)
-    const query = category
-      ? { category: { $regex: category, $options: "i" } }
-      : {};
+    // Optimized Query Builder
+    let query = {};
+    if (category && category !== "All") {
+      query.category = category;
+    }
+    if (search) {
+      query.title = { $regex: search, $options: "i" };
+    }
 
+    // 🔥 SUPER FAST FETCHING LOGIC
     const products = await Product.find(query)
-      .populate("allowedOptions")
+      .populate({
+        path: "productOptions.optionGroupId", // Option Group ka data lao
+        select: "name type options", // Sirf zaroori fields
+        populate: {
+          path: "options.linkedProduct", // Agar Coke link hai to uska data bhi lao
+          select: "title isAvailable image", // Taake hum "Not Available" tag dikha sakein
+        },
+      })
       .sort({ createdAt: -1 })
-      .lean();
+      .lean(); // JSON conversion for speed
 
     return NextResponse.json(
       {
@@ -36,36 +47,30 @@ export async function GET(request) {
   }
 }
 
-// 2. POST: Product Create karna
 export async function POST(req) {
   try {
     const body = await req.json();
-
-    // Basic Validation
-    if (!body.title || !body.price || !body.category || !body.image) {
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
-      );
-    }
-
     await dbConnect();
 
+    // Advanced Validation handled by Mongoose Schema
     const newProduct = await Product.create({
       title: body.title,
       desc: body.desc,
-      price: body.price,
-      discountPrice: body.discountPrice || 0,
       category: body.category,
       image: body.image,
-      isAvailable: body.isAvailable !== undefined ? body.isAvailable : true,
-      allowedOptions: body.allowedOptions || [],
+      price: Number(body.price),
+      discountPrice: Number(body.discountPrice || 0),
+      isAvailable: body.isAvailable ?? true,
+
+      // New Logic Fields
+      variations: body.variations || [], // Sizes Array
+      productOptions: body.productOptions || [], // Linked Groups + Filters
     });
 
     return NextResponse.json(
       {
         success: true,
-        message: "Product Created Successfully! 🍔",
+        message: "Product Created Successfully! 🚀",
         data: newProduct,
       },
       { status: 201 }

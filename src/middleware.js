@@ -7,7 +7,7 @@ const JWT_SECRET = new TextEncoder().encode(
 );
 
 export async function middleware(req) {
-  // 1. Current Path check karein
+  // Current Path check
   const path = req.nextUrl.pathname;
 
   // 2. Agar user Login page par hai ya API call hai, to jane do
