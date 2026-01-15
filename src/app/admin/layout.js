@@ -63,8 +63,14 @@ export default function AdminLayout({ children }) {
           <NavLink
             href="/admin/products"
             icon={UtensilsCrossed}
-            label="Products & Menu"
+            label="Menu"
             active={pathname === "/admin/products"}
+          />
+          <NavLink
+            href="/admin/options"
+            icon={UtensilsCrossed}
+            label="Add-ons & Options"
+            active={pathname === "/admin/options"}
           />
           <NavLink
             href="/admin/orders"

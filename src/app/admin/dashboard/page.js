@@ -1,71 +1,88 @@
-export const metadata = {
-  title: "Dashboard | Cafe Admin",
-};
+"use client";
 
-export default function Dashboard() {
+import { useEffect, useState } from "react";
+import {
+  Loader2,
+  ShoppingBag,
+  DollarSign,
+  UtensilsCrossed,
+  AlertCircle,
+} from "lucide-react";
+import StatCard from "@/components/custom_components/admin/StatCard";
+
+export default function AdminDashboard() {
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchStats() {
+      try {
+        const res = await fetch("/api/analytics");
+        const json = await res.json();
+        if (json.success) setStats(json.data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchStats();
+  }, []);
+
+  if (loading)
+    return (
+      <div className="flex justify-center py-20">
+        <Loader2 className="w-10 h-10 text-(--color-gold) animate-spin" />
+      </div>
+    );
+
   return (
     <div className="animate-in fade-in zoom-in-95 duration-500">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
-            Dashboard Overview
-          </h1>
-          <p className="text-gray-400 text-sm mt-1">Welcome back, Admin</p>
-        </div>
-        <div className="text-right hidden md:block">
-          <span className="px-3 py-1 bg-green-500/10 text-green-500 rounded-full text-xs font-bold border border-green-500/20">
-            SHOP OPEN
-          </span>
-        </div>
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-white tracking-tight">
+          Dashboard
+        </h1>
+        <p className="text-gray-400 text-sm mt-1">Overview of your business</p>
       </div>
 
-      {/* Responsive Grid for Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <StatCard
           title="Total Revenue"
-          value="Rs 0"
-          change="+0%"
-          color="text-[var(--color-gold)]"
+          value={`Rs ${stats?.totalRevenue || 0}`}
+          icon={DollarSign}
+          color="text-green-400"
+          bg="bg-green-400/10"
         />
         <StatCard
           title="Total Orders"
-          value="0"
-          change="+0%"
+          value={stats?.totalOrders || 0}
+          icon={ShoppingBag}
           color="text-blue-400"
+          bg="bg-blue-400/10"
         />
         <StatCard
-          title="Pending"
-          value="0"
-          change="Needs Action"
-          color="text-orange-400"
-        />
-        <StatCard
-          title="Items Active"
-          value="0"
-          change="In Menu"
+          title="Menu Items"
+          value={stats?.totalProducts || 0}
+          icon={UtensilsCrossed}
           color="text-purple-400"
+          bg="bg-purple-400/10"
+        />
+        <StatCard
+          title="Pending Orders"
+          value={stats?.pendingOrders || 0}
+          icon={AlertCircle}
+          color="text-yellow-400"
+          bg="bg-yellow-400/10"
         />
       </div>
 
-      {/* Placeholder for Charts/Tables */}
-      <div className="w-full h-64 md:h-96 bg-[#111] border border-white/10 rounded-xl flex items-center justify-center text-gray-500 text-sm">
-        Analytics Chart will appear here (Next Step)
-      </div>
-    </div>
-  );
-}
-
-function StatCard({ title, value, change, color }) {
-  return (
-    <div className="p-5 md:p-6 rounded-xl bg-[#111] border border-white/5 hover:border-white/10 transition-all shadow-lg group">
-      <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
-        {title}
-      </h3>
-      <div className="flex items-end justify-between">
-        <p className={`text-2xl md:text-3xl font-bold ${color}`}>{value}</p>
-        <span className="text-xs bg-white/5 px-2 py-1 rounded text-gray-400 group-hover:text-white transition-colors">
-          {change}
-        </span>
+      {/* Quick Links or Recent Activity can go here */}
+      <div className="p-6 bg-black/40 border border-white/10 rounded-xl">
+        <h3 className="text-white font-bold mb-2">System Status</h3>
+        <p className="text-green-500 text-sm flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+          All Systems Operational
+        </p>
       </div>
     </div>
   );
