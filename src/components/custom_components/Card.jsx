@@ -8,6 +8,7 @@ import ProductModal from "./ProductModal";
 
 const Card = ({ deal, index }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
+
     return (
         <>
             <motion.div
@@ -16,12 +17,12 @@ const Card = ({ deal, index }) => {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 viewport={{ once: true }}
                 onClick={() => setIsModalOpen(true)}
-                className="group relative bg-white/5 border border-white/10 rounded-xl overflow-hidden hover:border-(--color-gold) transition-all duration-300 hover:shadow-[0_0_20px_var(--color-gold)]/20"
+                className="group relative bg-white/5 border border-white/10 rounded-xl overflow-hidden hover:border-(--color-gold) transition-all duration-300 hover:shadow-[0_0_20px_var(--color-gold)]/20 cursor-pointer"
             >
                 {/* Image Section */}
                 <div className="relative w-full aspect-square overflow-hidden">
                     <Image
-                        src={deal.image}
+                        src={deal.image || "/placeholder.jpg"}
                         alt={deal.title}
                         fill
                         sizes="(max-width: 768px) 50vw, 25vw"
@@ -43,9 +44,9 @@ const Card = ({ deal, index }) => {
 
                     <div>
                         <div className="text-(--color-gold) font-bold text-base md:text-lg mb-3">
-                            {deal.price}
+                            Rs {deal.price}
                         </div>
-                        <Button className="w-full h-8 md:h-10 text-[10px] md:text-sm bg-(--color-gold) text-black hover:bg-(--color-gold-dark) rounded-md font-bold uppercase tracking-wide">
+                        <Button className="w-full h-8 md:h-10 text-[10px] md:text-sm bg-(--color-gold) text-black hover:bg-[#b89445] rounded-md font-bold uppercase tracking-wide">
                             Add to Cart
                         </Button>
                     </div>
@@ -53,12 +54,10 @@ const Card = ({ deal, index }) => {
             </motion.div>
 
             {/* --- MODAL --- */}
-            {/* Modal ko Card ke bahar render kiya through portal logic of Dialog component */}
             <ProductModal
                 product={deal}
                 isOpen={isModalOpen}
                 setIsOpen={setIsModalOpen}
-                // Trigger humne manually handle kiya hai state se, isliye prop khali chora
                 trigger={null}
             />
         </>

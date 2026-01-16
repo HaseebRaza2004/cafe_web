@@ -1,13 +1,36 @@
-"use client";
-
 import React from "react";
-import DealCard from "@/components/custom_components/Card";
-import { dealsData } from "@/lib/data";
+import dbConnect from "@/lib/db";
+import Product from "@/models/Product";
+import "@/models/OptionGroup";
+import Card from "@/components/custom_components/Card";
 
-const DealsPage = () => {
+export const metadata = {
+  title: "Exclusive Deals | Luxury Cafe",
+  description: "Limited time premium offers.",
+};
+
+// Data Fetching
+async function getDeals() {
+  await dbConnect();
+  const deals = await Product.find({
+    category: { $regex: "Deal", $options: "i" },
+  })
+    .populate({
+      path: "productOptions.optionGroupId",
+      select: "name type options",
+    })
+    .sort({ createdAt: -1 })
+    .lean();
+
+  return JSON.parse(JSON.stringify(deals));
+}
+
+export default async function DealsPage() {
+  const deals = await getDeals();
+
   return (
     <div className="min-h-screen text-white">
-      {/* 2. PAGE TITLE SECTION (Thora margin-top diya taake Header ke peeche na chupe) */}
+      {/* PAGE TITLE SECTION */}
       <div className="pt-44 pb-10 container mx-auto px-4 text-center">
         <h1 className="text-4xl md:text-6xl font-bold uppercase tracking-widest text-(--color-gold) mb-4 animate-fade-in-up">
           Exclusive Offers
@@ -17,16 +40,20 @@ const DealsPage = () => {
         </p>
       </div>
 
-      {/* 3. ALL DEALS GRID */}
+      {/* DEALS GRID */}
       <div className="container mx-auto px-4 pb-20">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
-          {dealsData.map((deal, index) => (
-            <DealCard key={deal.id} deal={deal} index={index} />
-          ))}
-        </div>
+        {deals.length === 0 ? (
+          <div className="text-center text-gray-500 py-20">
+            No deals active at the moment.
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
+            {deals.map((deal, index) => (
+              <Card key={deal._id} deal={deal} index={index} />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
-};
-
-export default DealsPage;
+}

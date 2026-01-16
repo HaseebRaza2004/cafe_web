@@ -2,14 +2,13 @@
 
 import React, { useState } from "react";
 import { Search } from "lucide-react";
-import { menuData } from "@/lib/data"; 
 import Card from "./Card";
 
-const MenuSection = () => {
+const MenuSection = ({ initialMenuData = [] }) => {
     const [searchQuery, setSearchQuery] = useState("");
 
-    // --- SEARCH LOGIC ---
-    const filteredData = menuData.filter((item) => {
+    // --- SEARCH LOGIC (Client Side Filtering on Server Data) ---
+    const filteredData = initialMenuData.filter((item) => {
         const query = searchQuery.toLowerCase();
         return (
             item.title.toLowerCase().includes(query) ||
@@ -17,7 +16,7 @@ const MenuSection = () => {
         );
     });
 
-    // --- GROUPING LOGIC ---
+    // --- GROUPING LOGIC (Category wise split) ---
     const groupedMenu = filteredData.reduce((acc, item) => {
         if (!acc[item.category]) {
             acc[item.category] = [];
@@ -28,10 +27,14 @@ const MenuSection = () => {
 
     return (
         <section className="min-h-screen text-white py-16 md:py-24 relative">
-            <div className="container mx-auto px-4">
+            <div className="container mx-auto px-4 md:px-6 lg:px-8">
 
-                {/* --- 1. SEARCH BAR --- */}
+                {/* --- SEARCH BAR --- */}
                 <div className="flex flex-col items-center justify-center mb-16">
+                    <h2 className="text-3xl md:text-5xl font-bold uppercase tracking-wide text-white mb-8">
+                        Our <span className="text-(--color-gold)">Menu</span>
+                    </h2>
+
                     <div className="relative w-full max-w-2xl">
                         <input
                             type="text"
@@ -44,39 +47,38 @@ const MenuSection = () => {
                     </div>
                 </div>
 
-                {/* --- 2. MENU CONTENT --- */}
+                {/* --- MENU GRID --- */}
 
-                {/* CASE A: Agar search karne par kuch na mile */}
+                {/* CASE A: No Items Found */}
                 {Object.keys(groupedMenu).length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-20 text-center animate-fade-in-up">
                         <p className="text-xl md:text-2xl text-gray-400">
-                            🚫 Your search for - <span className="text-(--color-gold) font-bold">{searchQuery}</span> - did not match any items in the menu.
+                            🚫 Your search for - <span className="text-(--color-gold) font-bold">{searchQuery}</span> - did not match any items.
                         </p>
                     </div>
                 ) : (
-                    /* CASE B: Items mil gaye -> Category wise show karo */
+                    /* CASE B: Items Found -> Show Categories */
                     Object.entries(groupedMenu).map(([category, items]) => (
-                        <div key={category} className="mb-16 md:mb-24 last:mb-0">
+                        <div key={category} className="mb-16 md:mb-24 last:mb-0 animate-in fade-in slide-in-from-bottom-4 duration-700">
 
-                            {/* Category Heading (Pizza, Burger, etc.) */}
+                            {/* Category Heading */}
                             <div className="flex items-center mb-8">
                                 <div className="h-8 w-2 bg-(--color-gold) mr-4 rounded-sm"></div>
-                                <h2 className="text-3xl md:text-5xl font-bold uppercase tracking-wide text-white">
+                                <h2 className="text-2xl md:text-4xl font-bold uppercase tracking-wide text-white">
                                     {category}
                                 </h2>
                                 <div className="h-px bg-white/20 grow ml-6"></div>
                             </div>
 
-                            {/* Items Grid (Same responsive logic: Mobile=2, Desktop=4) */}
+                            {/* Items Grid */}
                             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6 lg:gap-8">
                                 {items.map((item, index) => (
-                                    <Card key={item.id} deal={item} index={index} />
+                                    <Card key={item._id} deal={item} index={index} />
                                 ))}
                             </div>
                         </div>
                     ))
                 )}
-
             </div>
         </section>
     );

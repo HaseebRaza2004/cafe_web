@@ -16,23 +16,17 @@ export const useToast = () => useContext(ToastContext);
 
 export const ToastProvider = ({ children }) => {
   const [toasts, setToasts] = useState([]);
-
-  // FIX 1: Date.now() ki jagah useRef (Stable ID Counter)
-  // Ye render se impure logic ko khatam kar deta hai
   const toastIdRef = useRef(0);
 
-  // Helper to remove toast
   const removeToast = useCallback((id) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
-  // FIX 2: useCallback taake function bar bar recreate na ho (Infinite Loop fix)
   const addToast = useCallback(
     (message, type = "info", duration = 3000) => {
-      const id = toastIdRef.current++; // Unique ID generated cleanly
+      const id = toastIdRef.current++; 
       setToasts((prev) => [...prev, { id, message, type }]);
 
-      // Auto remove logic
       if (duration) {
         setTimeout(() => {
           removeToast(id);
@@ -42,7 +36,6 @@ export const ToastProvider = ({ children }) => {
     [removeToast]
   );
 
-  // FIX 3: useMemo taake value object stable rahe
   const toastValues = useMemo(
     () => ({
       success: (msg) => addToast(msg, "success"),
