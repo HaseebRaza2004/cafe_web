@@ -7,27 +7,23 @@ import Card from "./Card";
 const MenuSection = ({ initialMenuData = [] }) => {
     const [searchQuery, setSearchQuery] = useState("");
 
-    // --- SEARCH LOGIC (Client Side Filtering on Server Data) ---
-    const filteredData = initialMenuData.filter((item) => {
-        const query = searchQuery.toLowerCase();
-        return (
-            item.title.toLowerCase().includes(query) ||
-            item.category.toLowerCase().includes(query)
-        );
-    });
+    // --- SEARCH LOGIC ---
+    let displayMenu = initialMenuData;
 
-    // --- GROUPING LOGIC (Category wise split) ---
-    const groupedMenu = filteredData.reduce((acc, item) => {
-        if (!acc[item.category]) {
-            acc[item.category] = [];
-        }
-        acc[item.category].push(item);
-        return acc;
-    }, {});
+    if (searchQuery.trim()) {
+        const query = searchQuery.toLowerCase();
+        displayMenu = initialMenuData.map(group => {
+            const filteredItems = group.items.filter(item =>
+                item.title.toLowerCase().includes(query) ||
+                group.category.toLowerCase().includes(query)
+            );
+            return { ...group, items: filteredItems };
+        }).filter(group => group.items.length > 0);
+    }
 
     return (
         <section className="min-h-screen text-white py-16 md:py-24 relative">
-            <div className="container mx-auto px-4 md:px-6 lg:px-8">
+            <div className="container mx-auto px-4">
 
                 {/* --- SEARCH BAR --- */}
                 <div className="flex flex-col items-center justify-center mb-16">
@@ -48,32 +44,29 @@ const MenuSection = ({ initialMenuData = [] }) => {
                 </div>
 
                 {/* --- MENU GRID --- */}
-
-                {/* CASE A: No Items Found */}
-                {Object.keys(groupedMenu).length === 0 ? (
+                {displayMenu.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-20 text-center animate-fade-in-up">
                         <p className="text-xl md:text-2xl text-gray-400">
                             🚫 Your search for - <span className="text-(--color-gold) font-bold">{searchQuery}</span> - did not match any items.
                         </p>
                     </div>
                 ) : (
-                    /* CASE B: Items Found -> Show Categories */
-                    Object.entries(groupedMenu).map(([category, items]) => (
-                        <div key={category} className="mb-16 md:mb-24 last:mb-0 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                    displayMenu.map((group, index) => (
+                        <div key={group.category + index} className="mb-16 md:mb-24 last:mb-0 animate-in fade-in slide-in-from-bottom-4 duration-700">
 
                             {/* Category Heading */}
                             <div className="flex items-center mb-8">
                                 <div className="h-8 w-2 bg-(--color-gold) mr-4 rounded-sm"></div>
                                 <h2 className="text-2xl md:text-4xl font-bold uppercase tracking-wide text-white">
-                                    {category}
+                                    {group.category}
                                 </h2>
                                 <div className="h-px bg-white/20 grow ml-6"></div>
                             </div>
 
                             {/* Items Grid */}
                             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6 lg:gap-8">
-                                {items.map((item, index) => (
-                                    <Card key={item._id} deal={item} index={index} />
+                                {group.items.map((item, idx) => (
+                                    <Card key={item._id} deal={item} index={idx} />
                                 ))}
                             </div>
                         </div>

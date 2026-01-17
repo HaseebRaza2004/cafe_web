@@ -9,7 +9,6 @@ export default function ProductForm({ initialData = null, isEdit = false }) {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [uploading, setUploading] = useState(false);
-
     const [availableGroups, setAvailableGroups] = useState([]);
     const [existingCategories, setExistingCategories] = useState([]);
 

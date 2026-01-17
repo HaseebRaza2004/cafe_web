@@ -9,10 +9,10 @@ import {
   Power,
   MessageSquareWarning,
 } from "lucide-react";
-import { useToast } from "@/context/ToastContext"; // Using our new Toast system
+import { useToast } from "@/context/ToastContext"; 
 
 export default function SettingsPage() {
-  const toast = useToast(); // Hook init
+  const toast = useToast(); 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [currentStatus, setCurrentStatus] = useState(false);
@@ -21,7 +21,7 @@ export default function SettingsPage() {
     openingTime: "16:00",
     closingTime: "02:00",
     isForceClosed: false,
-    generalNote: "", // Replaces deliveryFee & old message
+    generalNote: "",
   });
 
   const [openTime12, setOpenTime12] = useState({
@@ -35,7 +35,7 @@ export default function SettingsPage() {
     period: "AM",
   });
 
-  // Time conversion helpers (Same as before)
+  // Time conversion helpers 
   const to12h = (time24) => {
     if (!time24) return { hour: "12", minute: "00", period: "AM" };
     const [h, m] = time24.split(":");
@@ -107,7 +107,7 @@ export default function SettingsPage() {
         body: JSON.stringify(settings),
       });
       if (res.ok) {
-        toast.success("Settings saved successfully!"); // ✨ Using New Alert
+        toast.success("Settings saved successfully!");
         window.location.reload();
       } else {
         toast.error("Failed to save settings.");
