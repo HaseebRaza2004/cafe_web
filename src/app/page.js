@@ -6,6 +6,7 @@ import ReviewsSection from "@/components/custom_components/reviews/ReviewsSectio
 import Product from "@/models/Product";
 import "@/models/OptionGroup";
 import Category from "@/models/Category";
+import Deal from "@/models/Deal";
 
 // SEO Metadata
 export const metadata = {
@@ -16,55 +17,62 @@ export const metadata = {
 // Fetching Menu Data from Database
 async function getHomePageData() {
   await dbConnect();
-  const [categories, allProducts] = await Promise.all([
-    Category.find({ isActive: true }).sort({ sortOrder: 1 }).lean(),
 
-    // Sirf woh products lao jo Deals NAHI hain
-    Product.find({ category: { $not: { $regex: "Deal", $options: "i" } } })
-      .populate("productOptions.optionGroupId")
-      .sort({ sortOrder: 1, createdAt: -1 })
-      .lean(),
-  ]);
+  try {
+    const [categories, allProducts, hotDeals] = await Promise.all([
+      Category.find({ isActive: true }).sort({ sortOrder: 1 }).lean(),
 
-  let sortedMenu = [];
+      Product.find({ isAvailable: true })
+        .populate("productOptions.optionGroupId")
+        .sort({ sortOrder: 1, createdAt: -1 })
+        .lean(),
 
-  categories.forEach((cat) => {
-    const productsInCat = allProducts.filter(
-      (p) => p.category.toLowerCase() === cat.name.toLowerCase()
-    );
-    if (productsInCat.length > 0) {
-      sortedMenu.push({
-        category: cat.name,
-        items: productsInCat,
-      });
-    }
-  });
+      Deal.find({ isAvailable: true })
+        .populate("itemGroups.category")
+        .populate("itemGroups.specificProducts")
+        .limit(4)
+        .sort({ sortOrder: 1, createdAt: -1 })
+        .lean(),
+    ]);
 
-  const definedCatNames = categories.map((c) => c.name.toLowerCase());
-  const uncategorized = allProducts.filter(
-    (p) => !definedCatNames.includes(p.category.toLowerCase())
-  );
-
-  if (uncategorized.length > 0) {
-    const remainingGroups = uncategorized.reduce((acc, item) => {
-      if (!acc[item.category]) acc[item.category] = [];
-      acc[item.category].push(item);
-      return acc;
-    }, {});
-
-    Object.entries(remainingGroups).forEach(([cat, items]) => {
-      sortedMenu.push({ category: cat, items });
+    // Menu Sorting Logic
+    let sortedMenu = [];
+    categories.forEach((cat) => {
+      const productsInCat = allProducts.filter((p) => p.category === cat.name);
+      if (productsInCat.length > 0) {
+        sortedMenu.push({ category: cat.name, items: productsInCat });
+      }
     });
-  }
 
-  return {
-    hotDeals: [],
-    menuData: JSON.parse(JSON.stringify(sortedMenu)),
-  };
+    // Uncategorized Items logic
+    const definedCatNames = categories.map((c) => c.name);
+    const uncategorized = allProducts.filter(
+      (p) => !definedCatNames.includes(p.category),
+    );
+    if (uncategorized.length > 0) {
+      const others = uncategorized.reduce((acc, item) => {
+        if (!acc[item.category]) acc[item.category] = [];
+        acc[item.category].push(item);
+        return acc;
+      }, {});
+      Object.entries(others).forEach(([cat, items]) =>
+        sortedMenu.push({ category: cat, items }),
+      );
+    }
+
+    return {
+      hotDeals: JSON.parse(JSON.stringify(hotDeals)),
+      menuData: JSON.parse(JSON.stringify(sortedMenu)),
+    };
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    return { hotDeals: [], menuData: [] };
+  }
 }
 
 export default async function Home() {
   const { hotDeals, menuData } = await getHomePageData();
+  const allProducts = menuData.flatMap((group) => group.items);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen py-2 relative">
@@ -72,7 +80,7 @@ export default async function Home() {
       <HeroSection />
 
       {/* Hot Deals Section */}
-      <HotDeals deals={hotDeals} />
+      <HotDeals deals={hotDeals} allProducts={allProducts} />
 
       {/* Menu Section */}
       <MenuSection initialMenuData={menuData} />

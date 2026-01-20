@@ -19,25 +19,31 @@ export default function CategoriesPage() {
   const [loading, setLoading] = useState(true);
   const [newCatName, setNewCatName] = useState("");
   const [isSavingOrder, setIsSavingOrder] = useState(false);
-  const [editingId, setEditingId] = useState(null); 
+  const [editingId, setEditingId] = useState(null);
   const [editName, setEditName] = useState("");
 
-  // Fetch Categories
-  async function fetchCategories() {
-    try {
-      const res = await fetch("/api/categories");
-      const json = await res.json();
-      if (json.success) setCategories(json.data);
-    } catch (err) {
-      showError("Failed to load categories");
-    } finally {
-      setLoading(false);
-    }
-  }
-
+  // FIX: Moved fetchCategories inside useEffect to solve lint dependency error
   useEffect(() => {
+    let isMounted = true;
+
+    async function fetchCategories() {
+      try {
+        const res = await fetch("/api/categories");
+        const json = await res.json();
+        if (isMounted && json.success) setCategories(json.data);
+      } catch (err) {
+        if (isMounted) showError("Failed to load categories");
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    }
+
     fetchCategories();
-  }, []);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [showError]); // Now safe to use
 
   // Add Category
   const handleAdd = async () => {
@@ -152,7 +158,7 @@ export default function CategoriesPage() {
         <button
           onClick={saveOrder}
           disabled={isSavingOrder}
-          className="bg-[var(--color-gold)] text-black px-5 py-2 rounded-xl font-bold hover:bg-[#d4af66] flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(197,160,89,0.2)]"
+          className="bg-(--color-gold) text-black px-5 py-2 rounded-xl font-bold hover:bg-[#d4af66] flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(197,160,89,0.2)]"
         >
           {isSavingOrder ? (
             <Loader2 className="w-4 h-4 animate-spin" />
@@ -168,7 +174,7 @@ export default function CategoriesPage() {
         <input
           type="text"
           placeholder="New Category Name (e.g. Pasta)"
-          className="flex-1 bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-[var(--color-gold)] outline-none"
+          className="flex-1 bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-(--color-gold) outline-none"
           value={newCatName}
           onChange={(e) => setNewCatName(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleAdd()}
@@ -186,7 +192,7 @@ export default function CategoriesPage() {
         {categories.map((cat, index) => (
           <div
             key={cat._id}
-            className="group bg-black/40 border border-white/10 p-4 rounded-xl flex items-center justify-between hover:border-[var(--color-gold)]/30 transition-all"
+            className="group bg-black/40 border border-white/10 p-4 rounded-xl flex items-center justify-between hover:border-gold/30 transition-all"
           >
             <div className="flex items-center gap-4 flex-1">
               <span className="text-gray-500 font-mono text-sm w-6">
@@ -197,7 +203,7 @@ export default function CategoriesPage() {
                 <div className="flex items-center gap-2">
                   <input
                     autoFocus
-                    className="bg-black/80 border border-[var(--color-gold)] text-white px-2 py-1 rounded text-sm outline-none"
+                    className="bg-black/80 border border-(--color-gold) text-white px-2 py-1 rounded text-sm outline-none"
                     value={editName}
                     onChange={(e) => setEditName(e.target.value)}
                   />
@@ -229,14 +235,14 @@ export default function CategoriesPage() {
                 <button
                   onClick={() => move(index, -1)}
                   disabled={index === 0}
-                  className="p-1 text-gray-500 hover:text-[var(--color-gold)] disabled:opacity-30 transition-colors"
+                  className="p-1 text-gray-500 hover:text-(--color-gold) disabled:opacity-30 transition-colors"
                 >
                   <ArrowUp className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => move(index, 1)}
                   disabled={index === categories.length - 1}
-                  className="p-1 text-gray-500 hover:text-[var(--color-gold)] disabled:opacity-30 transition-colors"
+                  className="p-1 text-gray-500 hover:text-(--color-gold) disabled:opacity-30 transition-colors"
                 >
                   <ArrowDown className="w-4 h-4" />
                 </button>

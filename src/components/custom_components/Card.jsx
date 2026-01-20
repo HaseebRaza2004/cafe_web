@@ -5,9 +5,23 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import ProductModal from "./ProductModal";
+import DealModal from "./DealModal"; // Import New Modal
 
-const Card = ({ deal, index }) => {
-    const [isModalOpen, setIsModalOpen] = useState(false);
+// `allProducts` prop pass karna zaroori hai Deal Modal ke liye
+const Card = ({ deal, index, allProducts = [] }) => {
+    const [isProductModalOpen, setIsProductModalOpen] = useState(false);
+    const [isDealModalOpen, setIsDealModalOpen] = useState(false);
+
+    // Check if it's a Complex Deal (New Logic) or Simple Product
+    const isComplexDeal = deal.itemGroups && deal.itemGroups.length > 0;
+
+    const handleOpen = () => {
+        if (isComplexDeal) {
+            setIsDealModalOpen(true);
+        } else {
+            setIsProductModalOpen(true);
+        }
+    };
 
     return (
         <>
@@ -16,8 +30,8 @@ const Card = ({ deal, index }) => {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 viewport={{ once: true }}
-                onClick={() => setIsModalOpen(true)}
-                className="group relative bg-white/5 border border-white/10 rounded-xl overflow-hidden hover:border-(--color-gold) transition-all duration-300 hover:shadow-[0_0_20px_var(--color-gold)]/20 cursor-pointer"
+                onClick={handleOpen}
+                className="group relative bg-white/5 border border-white/10 rounded-xl overflow-hidden hover:border-(--color-gold) transition-all duration-300 hover:shadow-[0_0_20px_var(--color-gold)]/20 cursor-pointer flex flex-col h-full"
             >
                 {/* Image Section */}
                 <div className="relative w-full aspect-square overflow-hidden">
@@ -29,10 +43,17 @@ const Card = ({ deal, index }) => {
                         className="object-cover transition-transform duration-700 group-hover:scale-110"
                     />
                     <div className="absolute inset-0 bg-linear-to-t from-black via-transparent to-transparent opacity-60"></div>
+
+                    {/* Badge for Deals */}
+                    {isComplexDeal && (
+                        <div className="absolute top-2 left-2 bg-(--color-gold) text-black text-[10px] font-bold px-2 py-1 rounded-sm uppercase tracking-wider">
+                            Combo Deal
+                        </div>
+                    )}
                 </div>
 
                 {/* Content Section */}
-                <div className="p-3 md:p-5 flex flex-col justify-between h-40 md:h-50">
+                <div className="p-3 md:p-5 flex flex-col justify-between flex-1">
                     <div>
                         <h3 className="text-sm md:text-xl font-bold text-white mb-1 md:mb-2 line-clamp-1 group-hover:text-(--color-gold) transition-colors">
                             {deal.title}
@@ -42,23 +63,33 @@ const Card = ({ deal, index }) => {
                         </p>
                     </div>
 
-                    <div>
+                    <div className="mt-4">
                         <div className="text-(--color-gold) font-bold text-base md:text-lg mb-3">
                             Rs {deal.price}
                         </div>
                         <Button className="w-full h-8 md:h-10 text-[10px] md:text-sm bg-(--color-gold) text-black hover:bg-[#b89445] rounded-md font-bold uppercase tracking-wide">
-                            Add to Cart
+                            {isComplexDeal ? "Customize Deal" : "Add to Cart"}
                         </Button>
                     </div>
                 </div>
             </motion.div>
 
-            {/* --- MODAL --- */}
+            {/* --- MODALS --- */}
+
+            {/* 1. Simple Product Modal */}
             <ProductModal
                 product={deal}
-                isOpen={isModalOpen}
-                setIsOpen={setIsModalOpen}
+                isOpen={isProductModalOpen}
+                setIsOpen={setIsProductModalOpen}
                 trigger={null}
+            />
+
+            {/* 2. Complex Deal Modal (Pass allProducts for category filtering) */}
+            <DealModal
+                deal={deal}
+                isOpen={isDealModalOpen}
+                setIsOpen={setIsDealModalOpen}
+                allProducts={allProducts}
             />
         </>
     );

@@ -28,18 +28,28 @@ export default function ProductForm({ initialData = null, isEdit = false }) {
 
     // Fetch Data (Groups & Categories)
     useEffect(() => {
+        let isMounted = true;
         async function fetchData() {
             try {
-                const groupRes = await fetch("/api/option-groups");
-                const groupJson = await groupRes.json();
-                if (groupJson.success) setAvailableGroups(groupJson.data);
+                const [groupRes, catRes] = await Promise.all([
+                    fetch("/api/option-groups"),
+                    fetch("/api/categories")
+                ]);
 
-                const catRes = await fetch("/api/categories");
+                const groupJson = await groupRes.json();
                 const catJson = await catRes.json();
-                if (catJson.success) {
-                    setCategories(catJson.data);
-                    if (!isEdit && catJson.data.length > 0 && !formData.category) {
-                        setFormData(prev => ({ ...prev, category: catJson.data[0].name }));
+
+                if (isMounted) {
+                    if (groupJson.success) setAvailableGroups(groupJson.data);
+
+                    if (catJson.success) {
+                        setCategories(catJson.data);
+                        if (!isEdit && catJson.data.length > 0) {
+                            setFormData(prev => {
+                                if (!prev.category) return { ...prev, category: catJson.data[0].name };
+                                return prev;
+                            });
+                        }
                     }
                 }
             } catch (err) {
@@ -47,7 +57,9 @@ export default function ProductForm({ initialData = null, isEdit = false }) {
             }
         }
         fetchData();
-    }, [formData.category, isEdit]);
+
+        return () => { isMounted = false; };
+    }, [isEdit]);
 
     const handleImageUpload = async (e) => {
         const file = e.target.files[0];
@@ -132,7 +144,7 @@ export default function ProductForm({ initialData = null, isEdit = false }) {
                                     <input required type="number" placeholder="500" className="w-full bg-black/50 border border-white/10 rounded-lg p-3 text-white focus:border-(--color-gold) outline-none" value={formData.price} onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })} />
                                 </div>
 
-                                {/* 🔥 UPDATED: Category Dropdown */}
+                                {/* Category Dropdown */}
                                 <div>
                                     <label className="text-xs text-gray-500 block mb-1">Category</label>
                                     <div className="relative">
@@ -146,7 +158,7 @@ export default function ProductForm({ initialData = null, isEdit = false }) {
                                             {categories.map((cat) => (
                                                 <option key={cat._id} value={cat.name}>{cat.name}</option>
                                             ))}
-                                            {/* Deals Option Manually Added */}
+                                            {/* Deals Option */}
                                             <option value="Deals" className="text-(--color-gold) font-bold">Deals (Special)</option>
                                         </select>
                                         <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
@@ -154,7 +166,7 @@ export default function ProductForm({ initialData = null, isEdit = false }) {
                                 </div>
                             </div>
 
-                            {/* Sort Order Input (Optional) */}
+                            {/* Sort Order */}
                             <div>
                                 <label className="text-xs text-gray-500 block mb-1">Priority Order (1 = Top)</label>
                                 <input
@@ -168,7 +180,7 @@ export default function ProductForm({ initialData = null, isEdit = false }) {
                         </div>
                     </div>
 
-                    {/* ... Variations & Options Section ... */}
+                    {/* Variations */}
                     <div className="bg-black/40 border border-white/10 p-6 rounded-2xl backdrop-blur-md">
                         <div className="flex justify-between items-center mb-4">
                             <h3 className="text-(--color-gold) font-bold uppercase text-xs tracking-wider">Variations</h3>
@@ -183,6 +195,7 @@ export default function ProductForm({ initialData = null, isEdit = false }) {
                         ))}
                     </div>
 
+                    {/* Add-ons */}
                     <div className="bg-black/40 border border-white/10 p-6 rounded-2xl backdrop-blur-md">
                         <h3 className="text-(--color-gold) font-bold mb-4 uppercase text-xs tracking-wider">Add-ons</h3>
                         <div className="space-y-2">
