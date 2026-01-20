@@ -9,8 +9,9 @@ export default function ProductForm({ initialData = null, isEdit = false }) {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [uploading, setUploading] = useState(false);
+
     const [availableGroups, setAvailableGroups] = useState([]);
-    const [existingCategories, setExistingCategories] = useState([]);
+    const [categories, setCategories] = useState([]);
 
     const [formData, setFormData] = useState({
         title: initialData?.title || "",
@@ -20,6 +21,7 @@ export default function ProductForm({ initialData = null, isEdit = false }) {
         category: initialData?.category || "",
         image: initialData?.image || "",
         isAvailable: initialData?.isAvailable ?? true,
+        sortOrder: initialData?.sortOrder || 0,
         variations: initialData?.variations || [],
         productOptions: initialData?.productOptions || []
     });
@@ -28,27 +30,25 @@ export default function ProductForm({ initialData = null, isEdit = false }) {
     useEffect(() => {
         async function fetchData() {
             try {
-                //  Groups fetch
                 const groupRes = await fetch("/api/option-groups");
                 const groupJson = await groupRes.json();
                 if (groupJson.success) setAvailableGroups(groupJson.data);
 
-                // Products fetch (to extract categories for suggestion)
-                const prodRes = await fetch("/api/products");
-                const prodJson = await prodRes.json();
-                if (prodJson.success) {
-                    // Extract unique categories
-                    const cats = [...new Set(prodJson.data.map(p => p.category))];
-                    setExistingCategories(cats);
+                const catRes = await fetch("/api/categories");
+                const catJson = await catRes.json();
+                if (catJson.success) {
+                    setCategories(catJson.data);
+                    if (!isEdit && catJson.data.length > 0 && !formData.category) {
+                        setFormData(prev => ({ ...prev, category: catJson.data[0].name }));
+                    }
                 }
             } catch (err) {
                 console.error("Failed to fetch data", err);
             }
         }
         fetchData();
-    }, []);
+    }, [formData.category, isEdit]);
 
-    // Image Upload
     const handleImageUpload = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -62,20 +62,14 @@ export default function ProductForm({ initialData = null, isEdit = false }) {
         } catch (err) { alert("Upload Failed"); } finally { setUploading(false); }
     };
 
-    // Logic Handlers
     const addVariation = () => setFormData({ ...formData, variations: [...formData.variations, { title: "", price: "", isAvailable: true }] });
-
     const updateVariation = (index, field, value) => {
         const updated = [...formData.variations];
         updated[index][field] = value;
         setFormData({ ...formData, variations: updated });
     };
+    const removeVariation = (index) => setFormData({ ...formData, variations: formData.variations.filter((_, i) => i !== index) });
 
-    const removeVariation = (index) => {
-        setFormData({ ...formData, variations: formData.variations.filter((_, i) => i !== index) });
-    };
-
-    // SMART OPTION LINKING LOGIC FIXED
     const toggleOptionGroup = (groupId) => {
         const exists = formData.productOptions.find(po => po.optionGroupId === groupId);
         if (exists) {
@@ -89,16 +83,10 @@ export default function ProductForm({ initialData = null, isEdit = false }) {
         const updated = formData.productOptions.map(po => {
             if (po.optionGroupId === groupId) {
                 let currentAllowed = po.allowedVariations || [];
-
-                if (currentAllowed.length === 0) {
-                    currentAllowed = allOptionsInGroup.map(o => o.name);
-                }
-                let newAllowed;
-                if (currentAllowed.includes(flavorName)) {
-                    newAllowed = currentAllowed.filter(v => v !== flavorName);
-                } else {
-                    newAllowed = [...currentAllowed, flavorName];
-                }
+                if (currentAllowed.length === 0) currentAllowed = allOptionsInGroup.map(o => o.name);
+                let newAllowed = currentAllowed.includes(flavorName)
+                    ? currentAllowed.filter(v => v !== flavorName)
+                    : [...currentAllowed, flavorName];
                 return { ...po, allowedVariations: newAllowed };
             }
             return po;
@@ -141,29 +129,46 @@ export default function ProductForm({ initialData = null, isEdit = false }) {
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="text-xs text-gray-500 block mb-1">Price</label>
-                                    <input required type="number" placeholder="500" className="no-spin w-full bg-black/50 border border-white/10 rounded-lg p-3 text-white focus:border-(--color-gold) outline-none" value={formData.price} onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })} />
+                                    <input required type="number" placeholder="500" className="w-full bg-black/50 border border-white/10 rounded-lg p-3 text-white focus:border-(--color-gold) outline-none" value={formData.price} onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })} />
                                 </div>
 
+                                {/* 🔥 UPDATED: Category Dropdown */}
                                 <div>
-                                    <label className="text-xs text-gray-500 block mb-1">Category (Select or Type)</label>
-                                    <input
-                                        list="category-suggestions"
-                                        type="text"
-                                        required
-                                        placeholder="e.g. Garlic Bread"
-                                        className="w-full bg-black/50 border border-white/10 rounded-lg p-3 text-white focus:border-(--color-gold) outline-none"
-                                        value={formData.category}
-                                        onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                                    />
-                                    <datalist id="category-suggestions">
-                                        {existingCategories.map((cat, i) => <option key={i} value={cat} />)}
-                                    </datalist>
+                                    <label className="text-xs text-gray-500 block mb-1">Category</label>
+                                    <div className="relative">
+                                        <select
+                                            required
+                                            className="w-full bg-black/50 border border-white/10 rounded-lg p-3 text-white focus:border-(--color-gold) outline-none appearance-none"
+                                            value={formData.category}
+                                            onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                                        >
+                                            <option value="" disabled>Select Category</option>
+                                            {categories.map((cat) => (
+                                                <option key={cat._id} value={cat.name}>{cat.name}</option>
+                                            ))}
+                                            {/* Deals Option Manually Added */}
+                                            <option value="Deals" className="text-(--color-gold) font-bold">Deals (Special)</option>
+                                        </select>
+                                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
+                                    </div>
                                 </div>
                             </div>
+
+                            {/* Sort Order Input (Optional) */}
+                            <div>
+                                <label className="text-xs text-gray-500 block mb-1">Priority Order (1 = Top)</label>
+                                <input
+                                    type="number"
+                                    className="w-full bg-black/50 border border-white/10 rounded-lg p-3 text-white focus:border-(--color-gold) outline-none"
+                                    value={formData.sortOrder}
+                                    onChange={(e) => setFormData({ ...formData, sortOrder: Number(e.target.value) })}
+                                />
+                            </div>
+
                         </div>
                     </div>
 
-                    {/* Variations */}
+                    {/* ... Variations & Options Section ... */}
                     <div className="bg-black/40 border border-white/10 p-6 rounded-2xl backdrop-blur-md">
                         <div className="flex justify-between items-center mb-4">
                             <h3 className="text-(--color-gold) font-bold uppercase text-xs tracking-wider">Variations</h3>
@@ -172,20 +177,19 @@ export default function ProductForm({ initialData = null, isEdit = false }) {
                         {formData.variations.map((variant, index) => (
                             <div key={index} className="flex gap-3 items-center mb-2">
                                 <input type="text" placeholder="Size" className="flex-1 bg-black/50 border border-white/10 rounded-lg p-2 text-sm text-white outline-none" value={variant.title} onChange={(e) => updateVariation(index, "title", e.target.value)} />
-                                <input type="number" placeholder="Price" className="no-spin w-24 bg-black/50 border border-white/10 rounded-lg p-2 text-sm text-white outline-none" value={variant.price} onChange={(e) => updateVariation(index, "price", Number(e.target.value))} />
+                                <input type="number" placeholder="Price" className="w-24 bg-black/50 border border-white/10 rounded-lg p-2 text-sm text-white outline-none" value={variant.price} onChange={(e) => updateVariation(index, "price", Number(e.target.value))} />
                                 <button type="button" onClick={() => removeVariation(index)} className="p-2 text-red-500"><X className="w-4 h-4" /></button>
                             </div>
                         ))}
                     </div>
 
-                    {/* Smart Linked Options */}
                     <div className="bg-black/40 border border-white/10 p-6 rounded-2xl backdrop-blur-md">
                         <h3 className="text-(--color-gold) font-bold mb-4 uppercase text-xs tracking-wider">Add-ons</h3>
                         <div className="space-y-2">
                             {availableGroups.map((group) => {
                                 const isSelected = formData.productOptions.find(po => po.optionGroupId === group._id);
                                 return (
-                                    <div key={group._id} className={`border rounded-xl transition-all ${isSelected ? "border-gold/50 bg-gold/5" : "border-white/5 bg-black/30"}`}>
+                                    <div key={group._id} className={`border rounded-xl transition-all ${isSelected ? "border-(--color-gold)/50 bg-(--color-gold)/5" : "border-white/5 bg-black/30"}`}>
                                         <div className="p-3 flex items-center justify-between cursor-pointer" onClick={() => toggleOptionGroup(group._id)}>
                                             <div className="flex items-center gap-3">
                                                 <div className={`w-5 h-5 rounded border flex items-center justify-center ${isSelected ? "bg-(--color-gold) border-(--color-gold)" : "border-gray-500"}`}>{isSelected && <Check className="w-3 h-3 text-black" />}</div>
@@ -197,7 +201,6 @@ export default function ProductForm({ initialData = null, isEdit = false }) {
                                             <div className="p-3 pt-0 ml-8 border-l border-white/10 pl-4 grid grid-cols-2 gap-2 mt-2">
                                                 {group.options.map((opt, idx) => {
                                                     const currentConfig = formData.productOptions.find(po => po.optionGroupId === group._id);
-                                                    // FIXED LOGIC: Empty array means ALL. Else check includes.
                                                     const isAllowed = currentConfig.allowedVariations.length === 0 || currentConfig.allowedVariations.includes(opt.name);
                                                     return (
                                                         <label key={idx} className="flex items-center gap-2 cursor-pointer hover:bg-white/5 p-1 rounded">
@@ -215,6 +218,7 @@ export default function ProductForm({ initialData = null, isEdit = false }) {
                             })}
                         </div>
                     </div>
+
                 </div>
 
                 {/* Right Column: Image */}

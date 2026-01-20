@@ -84,6 +84,12 @@ export default function AdminLayout({ children }) {
             label="Settings"
             active={pathname === "/admin/settings"}
           />
+          <NavLink
+            href="/admin/categories"
+            icon={Settings}
+            label="categories"
+            active={pathname === "/admin/categories"}
+          />
         </nav>
 
         <div className="p-4 border-t border-white/10">

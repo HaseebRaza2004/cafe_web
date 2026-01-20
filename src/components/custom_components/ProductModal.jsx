@@ -122,7 +122,7 @@ const ProductModal = ({ product, isOpen, setIsOpen, trigger }) => {
                             <div>
                                 <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold font-display text-white mb-2 leading-tight pr-8">{product.title}</h2>
                                 <p className="text-gray-300 text-xs md:text-sm leading-relaxed opacity-80">{product.desc}</p>
-                                <div className="mt-3 inline-block px-3 py-1 rounded-full border border-(--color-gold) text-(--color-gold) text-sm md:text-base font-bold font-mono bg-(--color-gold)/10">Rs {product.price}</div>
+                                <div className="mt-3 inline-block px-3 py-1 rounded-full border border-(--color-gold) text-(--color-gold) text-sm md:text-base font-bold font-mono bg-gold/10">Rs {product.price}</div>
                             </div>
                             <div className="h-px bg-white/10 w-full" />
 
@@ -151,7 +151,7 @@ const ProductModal = ({ product, isOpen, setIsOpen, trigger }) => {
                                                         <div
                                                             key={option._id || option.name}
                                                             onClick={() => !isDisabled && handleSelection(group._id, "multiple", option.name)}
-                                                            className={`flex justify-between items-center p-3 rounded-lg border cursor-pointer transition-all duration-200 ${isSelected ? "border-(--color-gold) bg-(--color-gold)/20 shadow-[0_0_10px_rgba(197,160,89,0.1)]" : "border-white/10 hover:border-white/30 bg-white/5 hover:bg-white/10"} ${isDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
+                                                            className={`flex justify-between items-center p-3 rounded-lg border cursor-pointer transition-all duration-200 ${isSelected ? "border-(--color-gold) bg-gold/20 shadow-[0_0_10px_rgba(197,160,89,0.1)]" : "border-white/10 hover:border-white/30 bg-white/5 hover:bg-white/10"} ${isDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
                                                         >
                                                             <div className="flex items-center gap-3">
                                                                 <div className={`w-5 h-5 rounded border flex items-center justify-center transition-all ${isSelected ? "bg-(--color-gold) border-(--color-gold)" : "border-gray-500"}`}>
