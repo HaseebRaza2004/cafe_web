@@ -9,7 +9,7 @@ const HotDeals = ({ deals, allProducts = [] }) => {
     if (!deals || deals.length === 0) return null;
 
     return (
-        <section className="py-16 bg-black/50 border-b border-white/5 relative">
+        <section className="py-16 relative">
             <div className="container mx-auto px-4">
 
                 {/* Header */}

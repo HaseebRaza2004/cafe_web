@@ -86,7 +86,7 @@ export default function DealsListPage() {
           {deals.map((deal) => (
             <div
               key={deal._id}
-              className="group bg-black/40 border border-white/10 rounded-2xl overflow-hidden hover:border-(--color-gold)/50 transition-all"
+              className="group bg-black/40 border border-white/10 rounded-2xl overflow-hidden hover:border-gold/50 transition-all"
             >
               {/* Image */}
               <div className="relative h-48 w-full">

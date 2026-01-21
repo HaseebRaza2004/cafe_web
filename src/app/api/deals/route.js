@@ -1,22 +1,23 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
 import Deal from "@/models/Deal";
-import "@/models/Category"; 
+import "@/models/Category";
 import "@/models/Product";
 
-// Fetch All Deals 
 export async function GET() {
   await dbConnect();
   const deals = await Deal.find({})
     .populate("itemGroups.category")
-    .populate("itemGroups.specificProducts")
+    .populate({
+      path: "itemGroups.specificProducts.product", // Deep Populate
+      model: "Product",
+    })
     .sort({ sortOrder: 1, createdAt: -1 })
     .lean();
 
   return NextResponse.json({ success: true, data: deals });
 }
 
-// Create New Deal
 export async function POST(req) {
   try {
     await dbConnect();
