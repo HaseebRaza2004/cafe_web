@@ -7,7 +7,6 @@ import "@/models/Product";
 export async function GET() {
   await dbConnect();
   const deals = await Deal.find({})
-    .populate("itemGroups.category")
     .populate({
       path: "itemGroups.specificProducts.product", // Deep Populate
       model: "Product",

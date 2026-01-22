@@ -13,7 +13,6 @@ export async function GET(req, { params }) {
     const { id } = await params;
 
     const deal = await Deal.findById(id)
-      .populate("itemGroups.category")
       .populate({
         path: "itemGroups.specificProducts.product",
         model: "Product",

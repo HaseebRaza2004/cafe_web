@@ -8,13 +8,11 @@ import "@/models/OptionGroup";
 import Category from "@/models/Category";
 import Deal from "@/models/Deal";
 
-// SEO Metadata
 export const metadata = {
   title: "Luxury Cafe | Premium Food & Deals",
   description: "Experience the finest taste in town.",
 };
 
-// Fetching Menu Data from Database
 async function getHomePageData() {
   await dbConnect();
 
@@ -28,8 +26,10 @@ async function getHomePageData() {
         .lean(),
 
       Deal.find({ isAvailable: true })
-        .populate("itemGroups.category")
-        .populate("itemGroups.specificProducts")
+        .populate({
+          path: "itemGroups.specificProducts.product",
+          model: "Product",
+        })
         .limit(4)
         .sort({ sortOrder: 1, createdAt: -1 })
         .lean(),
@@ -44,7 +44,6 @@ async function getHomePageData() {
       }
     });
 
-    // Uncategorized Items logic
     const definedCatNames = categories.map((c) => c.name);
     const uncategorized = allProducts.filter(
       (p) => !definedCatNames.includes(p.category),
@@ -76,16 +75,9 @@ export default async function Home() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen py-2 relative">
-      {/* Hero Section */}
       <HeroSection />
-
-      {/* Hot Deals Section */}
       <HotDeals deals={hotDeals} allProducts={allProducts} />
-
-      {/* Menu Section */}
       <MenuSection initialMenuData={menuData} />
-
-      {/* Yahan Reviews Section add karein */}
       <ReviewsSection />
     </div>
   );
