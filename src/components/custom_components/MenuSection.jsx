@@ -64,7 +64,7 @@ const MenuSection = ({ initialMenuData = [] }) => {
                             </div>
 
                             {/* Items Grid */}
-                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6 lg:gap-8">
+                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
                                 {group.items.map((item, idx) => (
                                     <Card key={item._id} deal={item} index={idx} />
                                 ))}

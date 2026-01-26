@@ -1,37 +1,47 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import Image from "next/image";
-import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Minus, Plus, X, ShoppingBag } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { Minus, Plus, X, ShoppingBag, Share2 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useToast } from "@/context/ToastContext";
-import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
+import ShareMenu from "./ShareMenu";
 
-export default function DealModal({ deal, isOpen, setIsOpen }) {
+export default function DealModal({ deal, isOpen, setIsOpen, trigger }) {
     const { addToCart } = useCart();
-    const { error: showError } = useToast();
+    // Safe Destructuring for Toast
+    const { error: showError } = useToast() || {};
 
     const [currentStep, setCurrentStep] = useState(0);
     const [selections, setSelections] = useState({});
     const [quantity, setQuantity] = useState(1);
+    const [note, setNote] = useState("");
+    const [showShareMenu, setShowShareMenu] = useState(false);
+    const [copied, setCopied] = useState(false);
 
-    const groups = useMemo(() => deal?.itemGroups || [], [deal]);
+    // 1. Safe Data Access (Memoized to prevent re-renders)
+    const groups = useMemo(() => Array.isArray(deal?.itemGroups) ? deal.itemGroups : [], [deal]);
     const currentGroup = groups[currentStep];
     const isFixedDeal = groups.length === 0;
 
+    // Reset State on Open/Close
     useEffect(() => {
         if (!isOpen) {
             const timer = setTimeout(() => {
                 setCurrentStep(0);
                 setSelections({});
                 setQuantity(1);
+                setNote("");
+                setShowShareMenu(false);
             }, 300);
             return () => clearTimeout(timer);
         }
     }, [isOpen]);
 
+    // 2. Pricing Logic (Memoized)
     const extraPriceTotal = useMemo(() => {
         let total = 0;
         Object.entries(selections).forEach(([stepIdx, stepData]) => {
@@ -40,8 +50,11 @@ export default function DealModal({ deal, isOpen, setIsOpen }) {
 
             Object.entries(stepData).forEach(([prodId, qty]) => {
                 let extra = 0;
-                if (group.specificProducts?.length > 0) {
-                    const conf = group.specificProducts.find(p => (p.product?._id === prodId || p.product === prodId));
+                if (Array.isArray(group.specificProducts)) {
+                    const conf = group.specificProducts.find(p => {
+                        const pid = p.product?._id || p.product;
+                        return pid === prodId;
+                    });
                     extra = conf?.extraPrice || 0;
                 }
                 total += (extra * qty);
@@ -50,10 +63,10 @@ export default function DealModal({ deal, isOpen, setIsOpen }) {
         return total;
     }, [selections, groups]);
 
+    // 3. Step Items Helper (Memoized)
     const stepItems = useMemo(() => {
         if (!deal || !currentGroup) return [];
-
-        if (currentGroup.specificProducts && currentGroup.specificProducts.length > 0) {
+        if (Array.isArray(currentGroup.specificProducts)) {
             return currentGroup.specificProducts.map(item => {
                 const productObj = item.product;
                 if (!productObj || typeof productObj !== 'object') return null;
@@ -64,56 +77,91 @@ export default function DealModal({ deal, isOpen, setIsOpen }) {
                 };
             }).filter(Boolean);
         }
-
         return [];
     }, [deal, currentGroup]);
 
-    const updateQuantity = (productId, change) => {
+    // 4. Quantity Update Logic (Strict Limits)
+    const updateQuantity = useCallback((productId, change) => {
         if (!currentGroup) return;
+
+        setSelections(prev => {
+            const currentStepSelections = prev[currentStep] || {};
+            const currentQty = currentStepSelections[productId] || 0;
+
+            // Calculate total selected so far for this step
+            const totalSelectedInStep = Object.values(currentStepSelections).reduce((a, b) => a + b, 0);
+            const maxSel = currentGroup.maxSelection || 1; // Trust data, default 1
+
+            // --- INCREMENT ---
+            if (change > 0) {
+                // SINGLE SELECT: Swap Selection
+                if (maxSel === 1) {
+                    return { ...prev, [currentStep]: { [productId]: 1 } };
+                }
+
+                // MULTI SELECT: Check Limit
+                if (totalSelectedInStep < maxSel) {
+                    return { ...prev, [currentStep]: { ...currentStepSelections, [productId]: currentQty + 1 } };
+                } else {
+                    // Limit Reached - Trigger Toast here if needed, but returning prev avoids state update
+                    if (showError) showError(`Limit reached: Maximum ${maxSel} items.`);
+                    return prev;
+                }
+            }
+
+            // --- DECREMENT ---
+            else {
+                if (currentQty > 0) {
+                    const newQty = currentQty - 1;
+                    const newStepSelections = { ...currentStepSelections, [productId]: newQty };
+                    if (newQty === 0) delete newStepSelections[productId];
+                    return { ...prev, [currentStep]: newStepSelections };
+                }
+                return prev;
+            }
+        });
+    }, [currentGroup, currentStep, showError]);
+
+    // 5. Validation Logic (Strict Min Check)
+    const validateCurrentStep = () => {
+        if (isFixedDeal) return true;
+
         const currentStepSelections = selections[currentStep] || {};
-        const currentQty = currentStepSelections[productId] || 0;
-        const totalSelectedInStep = Object.values(currentStepSelections).reduce((a, b) => a + b, 0);
-        const maxSel = currentGroup?.maxSelection || 1;
+        const totalSelected = Object.values(currentStepSelections).reduce((a, b) => a + b, 0);
 
-        if (maxSel === 1) {
-            if (change > 0) setSelections(prev => ({ ...prev, [currentStep]: { [productId]: 1 } }));
-            return;
-        }
+        // Use the EXACT minSelection from DB. 
+        // If DB has 2, use 2. If missing, default to 1.
+        const minSel = typeof currentGroup.minSelection === 'number' ? currentGroup.minSelection : 1;
+        const maxSel = typeof currentGroup.maxSelection === 'number' ? currentGroup.maxSelection : 1;
 
-        if (change > 0) {
-            if (totalSelectedInStep < maxSel) {
-                setSelections(prev => ({ ...prev, [currentStep]: { ...currentStepSelections, [productId]: currentQty + 1 } }));
-            } else {
-                showError(`Max limit reached (${maxSel})`);
+        if (totalSelected < minSel) {
+            if (showError) {
+                if (minSel === maxSel) {
+                    showError(`Please select exactly ${minSel} items.`);
+                } else {
+                    showError(`Please select at least ${minSel} items.`);
+                }
             }
-        } else {
-            if (currentQty > 0) {
-                const newQty = currentQty - 1;
-                const newStepSelections = { ...currentStepSelections, [productId]: newQty };
-                if (newQty === 0) delete newStepSelections[productId];
-                setSelections(prev => ({ ...prev, [currentStep]: newStepSelections }));
-            }
+            return false;
         }
+        return true;
     };
 
     const handleNext = () => {
-        const currentStepSelections = selections[currentStep] || {};
-        const totalSelected = Object.values(currentStepSelections).reduce((a, b) => a + b, 0);
-        const minSel = currentGroup?.minSelection || 1;
+        if (!validateCurrentStep()) return; // Stop if invalid
 
-        if (totalSelected < minSel) {
-            showError(`Select at least ${minSel} items.`);
-            return;
-        }
         if (currentStep < groups.length - 1) {
             setCurrentStep(prev => prev + 1);
-        } else {
-            handleAddToCart();
         }
     };
 
     const handleAddToCart = () => {
+        // Validate Last Step before adding
+        if (!isFixedDeal && !validateCurrentStep()) return;
+
         const formattedOptions = [];
+
+        // Format Selections
         Object.entries(selections).forEach(([stepIdx, stepData]) => {
             const group = groups[stepIdx];
             Object.entries(stepData).forEach(([prodId, qty]) => {
@@ -121,7 +169,7 @@ export default function DealModal({ deal, isOpen, setIsOpen }) {
                 let extra = 0;
 
                 if (group?.specificProducts) {
-                    const conf = group.specificProducts.find(p => p.product?._id === prodId);
+                    const conf = group.specificProducts.find(p => (p.product?._id || p.product) === prodId);
                     if (conf && conf.product) {
                         prodTitle = conf.product.title;
                         extra = conf.extraPrice || 0;
@@ -131,15 +179,28 @@ export default function DealModal({ deal, isOpen, setIsOpen }) {
                 for (let i = 0; i < qty; i++) {
                     formattedOptions.push({
                         group: group?.heading || "Option",
-                        name: prodTitle + (extra > 0 ? ` (+${extra})` : "")
+                        name: prodTitle + (extra > 0 ? ` (+${extra})` : ""),
+                        price: extra
                     });
                 }
             });
         });
 
-        const finalPrice = (deal.price + extraPriceTotal) * quantity;
-        addToCart(deal, quantity, formattedOptions, finalPrice);
+        const singleDealPrice = deal.price + extraPriceTotal;
+        const finalTotalPrice = singleDealPrice * quantity;
+
+        addToCart(deal, quantity, formattedOptions, finalTotalPrice, note);
         setIsOpen(false);
+    };
+
+    // Share Logic
+    const generateShareLink = () => typeof window !== "undefined" ? `${window.location.origin}/deals?id=${deal._id}` : "";
+    const handleCopyLink = () => { navigator.clipboard.writeText(generateShareLink()); setCopied(true); setTimeout(() => setCopied(false), 2000); };
+    const handleShare = (platform) => {
+        const link = generateShareLink();
+        const text = `Check out this deal: ${deal.title}`;
+        const urls = { whatsapp: `https://wa.me/?text=${encodeURIComponent(text + " " + link)}`, facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(link)}` };
+        if (urls[platform]) window.open(urls[platform], "_blank");
     };
 
     if (!deal) return null;
@@ -148,29 +209,46 @@ export default function DealModal({ deal, isOpen, setIsOpen }) {
     const totalSelectedInStep = Object.values(currentStepSelections).reduce((a, b) => a + b, 0);
     const isSingleSelect = (currentGroup?.maxSelection || 1) === 1;
 
+    // Check if we can proceed (for Visual Feedback)
+    const minSel = currentGroup?.minSelection || 1;
+    const isStepValid = totalSelectedInStep >= minSel;
+
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
-            <DialogContent className="w-[95vw] sm:max-w-[95vw] md:max-w-3xl lg:max-w-5xl h-[90vh] md:h-auto md:max-h-[85vh] p-0 gap-0 flex flex-col bg-black/60 backdrop-blur-xl border border-(--color-gold) text-white overflow-hidden rounded-2xl shadow-2xl">
-                <VisuallyHidden.Root>
-                    <DialogTitle>{deal.title}</DialogTitle>
-                    <DialogDescription>Customize Deal</DialogDescription>
-                </VisuallyHidden.Root>
+            {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
 
+            <DialogContent aria-describedby={undefined} className="w-[95vw] sm:max-w-[95vw] md:max-w-3xl lg:max-w-5xl h-[90vh] md:h-auto md:max-h-[85vh] p-0 gap-0 flex flex-col bg-black/60 backdrop-blur-xl border border-(--color-gold) text-white overflow-hidden rounded-2xl shadow-2xl">
+                <DialogTitle className="sr-only">{deal.title}</DialogTitle>
+                <DialogDescription className="sr-only">Customize Deal</DialogDescription>
+
+                {/* --- CONTROLS --- */}
                 <div className="absolute top-4 right-4 z-50 hidden md:flex gap-2">
-                    <button onClick={() => setIsOpen(false)} className="bg-black/40 backdrop-blur-md p-2 rounded-full text-white border border-white/10 hover:bg-red-500/20 hover:text-red-500 transition-all"><X className="w-5 h-5" /></button>
+                    <div className="relative">
+                        <button onClick={() => setShowShareMenu(!showShareMenu)} className="bg-black/40 backdrop-blur-md p-2 rounded-full text-white border border-white/10 hover:border-(--color-gold) hover:text-(--color-gold) transition-all">
+                            <Share2 className="w-5 h-5" />
+                        </button>
+                        {showShareMenu && <ShareMenu onShare={handleShare} onCopy={handleCopyLink} copied={copied} />}
+                    </div>
+                    <button onClick={() => setIsOpen(false)} className="bg-black/40 backdrop-blur-md p-2 rounded-full text-white border border-white/10 hover:bg-red-500/20 hover:text-red-500 transition-all">
+                        <X className="w-5 h-5" />
+                    </button>
                 </div>
 
                 <div className="flex flex-col md:flex-row flex-1 min-h-0">
-                    {/* LEFT: IMAGE */}
+                    {/* --- LEFT: IMAGE --- */}
                     <div className="relative w-full md:w-[45%] h-40 md:h-auto shrink-0 bg-black/50">
                         <Image src={deal.image || "/placeholder.jpg"} alt={deal.title} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" priority={true} />
                         <div className="absolute inset-0 bg-linear-to-t from-black/90 via-transparent to-transparent md:bg-linear-to-r md:from-transparent md:to-black/90" />
-                        <button onClick={() => setIsOpen(false)} className="absolute top-3 left-3 md:hidden z-20 bg-black/40 backdrop-blur-md p-2 rounded-full text-white border border-white/10"><X className="w-4 h-4" /></button>
+                        <button onClick={() => setIsOpen(false)} className="absolute top-3 left-3 md:hidden z-20 bg-black/40 backdrop-blur-md p-2 rounded-full text-white border border-white/10">
+                            <X className="w-4 h-4" />
+                        </button>
                     </div>
 
-                    {/* RIGHT: CONTENT */}
+                    {/* --- RIGHT: CONTENT --- */}
                     <div className="flex flex-col w-full md:w-[55%] min-h-0 relative">
                         <div className="flex-1 overflow-y-auto no-scrollbar p-5 md:p-8 space-y-6">
+
+                            {/* Title & Info */}
                             <div>
                                 <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold font-display text-white mb-2 leading-tight pr-8">{deal.title}</h2>
                                 <p className="text-gray-300 text-xs md:text-sm leading-relaxed opacity-80">{deal.desc}</p>
@@ -178,26 +256,26 @@ export default function DealModal({ deal, isOpen, setIsOpen }) {
                             </div>
                             <div className="h-px bg-white/10 w-full" />
 
-                            {isFixedDeal ? (
-                                <div className="py-10 text-center">
-                                    <div className="inline-flex bg-white/5 p-4 rounded-full mb-4 border border-white/10">
-                                        <ShoppingBag className="w-8 h-8 text-(--color-gold)" />
-                                    </div>
-                                    <p className="text-gray-400 text-sm">This is a complete package. <br />Add to cart directly.</p>
-                                </div>
-                            ) : (
+                            {/* Logic: Fixed vs Custom */}
+                            {isFixedDeal ? (<div></div>) : (
                                 <div>
+                                    {/* Progress Header */}
                                     <div className="flex justify-between items-end mb-4">
                                         <div>
                                             <span className="text-(--color-gold) font-bold uppercase text-[10px] md:text-xs tracking-wider mb-1 block">Step {currentStep + 1} / {groups.length}</span>
                                             <h3 className="text-lg md:text-xl font-bold text-white">{currentGroup.heading}</h3>
                                         </div>
                                         <div className="text-right">
-                                            <span className="text-gray-500 text-[10px] uppercase tracking-wider block mb-1">Required</span>
-                                            <div className="bg-white/5 px-3 py-1 rounded border border-white/10 text-xs font-mono text-white">{totalSelectedInStep} / {currentGroup.maxSelection}</div>
+                                            <span className={`text-[10px] uppercase tracking-wider block mb-1 ${isStepValid ? 'text-green-500' : 'text-gray-500'}`}>
+                                                {isStepValid ? 'Completed' : 'Required'}
+                                            </span>
+                                            <div className={`px-3 py-1 rounded border text-xs font-mono transition-colors ${isStepValid ? 'bg-green-500/20 border-green-500/50 text-green-400' : 'bg-white/5 border-white/10 text-white'}`}>
+                                                {totalSelectedInStep} / {currentGroup.maxSelection}
+                                            </div>
                                         </div>
                                     </div>
 
+                                    {/* Items Grid */}
                                     <div className="flex flex-col gap-3">
                                         {stepItems.map((prod) => {
                                             const qty = currentStepSelections[prod._id] || 0;
@@ -211,13 +289,17 @@ export default function DealModal({ deal, isOpen, setIsOpen }) {
                                                         <h4 className={`text-sm font-bold truncate ${isSelected ? "text-(--color-gold)" : "text-white"}`}>{prod.title}</h4>
                                                         {prod.extraCharge > 0 && <span className="text-[10px] text-gray-400 bg-white/5 px-1.5 py-0.5 rounded mt-1 inline-block border border-white/10">+ Rs {prod.extraCharge}</span>}
                                                     </div>
+
                                                     {isSingleSelect ? (
-                                                        <div className={`w-5 h-5 rounded-full border flex items-center justify-center transition-all ${isSelected ? "border-(--color-gold) bg-(--color-gold)" : "border-gray-600"}`}>{isSelected && <div className="w-2 h-2 bg-black rounded-full" />}</div>
+                                                        <div className={`w-5 h-5 rounded-full border flex items-center justify-center transition-all ${isSelected ? "border-(--color-gold) bg-(--color-gold)" : "border-gray-600"}`}>
+                                                            {isSelected && <div className="w-2 h-2 bg-black rounded-full" />}
+                                                        </div>
                                                     ) : (
                                                         <div className="flex items-center gap-3 bg-black/40 rounded-lg p-1 border border-white/10" onClick={(e) => e.stopPropagation()}>
                                                             <button onClick={() => updateQuantity(prod._id, -1)} className={`w-7 h-7 flex items-center justify-center rounded-md transition-colors ${qty > 0 ? "bg-white/10 hover:bg-red-500/20 text-white" : "text-gray-600 cursor-not-allowed"}`} disabled={qty === 0}><Minus className="w-3 h-3" /></button>
                                                             <span className="text-sm font-bold w-4 text-center text-white">{qty}</span>
-                                                            <button onClick={() => updateQuantity(prod._id, 1)} className={`w-7 h-7 flex items-center justify-center rounded-md transition-colors ${totalSelectedInStep < currentGroup.maxSelection ? "bg-white/10 hover:bg-green-500/20 text-white" : "text-gray-600 cursor-not-allowed"}`} disabled={totalSelectedInStep >= currentGroup.maxSelection}><Plus className="w-3 h-3" /></button>
+                                                            {/* Disable Plus if limit reached */}
+                                                            <button onClick={() => updateQuantity(prod._id, 1)} className={`w-7 h-7 flex items-center justify-center rounded-md transition-colors ${totalSelectedInStep < (currentGroup.maxSelection || 1) ? "bg-white/10 hover:bg-green-500/20 text-white" : "text-gray-600 cursor-not-allowed"}`} disabled={totalSelectedInStep >= (currentGroup.maxSelection || 1)}><Plus className="w-3 h-3" /></button>
                                                         </div>
                                                     )}
                                                 </div>
@@ -227,8 +309,15 @@ export default function DealModal({ deal, isOpen, setIsOpen }) {
                                     </div>
                                 </div>
                             )}
+
+                            {/* Note */}
+                            <div className="mt-6">
+                                <h3 className="text-(--color-gold) font-bold uppercase text-[10px] md:text-xs tracking-wider mb-3">Note (Optional)</h3>
+                                <Textarea placeholder="Chef instructions..." value={note} onChange={(e) => setNote(e.target.value)} className="bg-white/5 border-white/10 focus:border-(--color-gold) text-white resize-none h-20 text-sm rounded-lg" />
+                            </div>
                         </div>
 
+                        {/* --- FOOTER --- */}
                         <div className="p-4 md:p-6 border-t border-white/10 bg-black/60 backdrop-blur-xl shrink-0 z-10">
                             <div className="flex items-center gap-4">
                                 {currentStep > 0 ? (
@@ -240,7 +329,11 @@ export default function DealModal({ deal, isOpen, setIsOpen }) {
                                         <button onClick={() => setQuantity(quantity + 1)} className="px-4 h-full hover:text-(--color-gold) hover:bg-white/5 transition-colors"><Plus className="w-4 h-4" /></button>
                                     </div>
                                 )}
-                                <Button onClick={isFixedDeal || currentStep === groups.length - 1 ? handleAddToCart : handleNext} className="flex-1 h-12 bg-(--color-gold) text-black hover:bg-[#a68545] font-bold text-sm md:text-base uppercase tracking-widest transition-all hover:scale-[1.02] shadow-[0_0_15px_rgba(197,160,89,0.3)]">
+
+                                <Button
+                                    onClick={isFixedDeal || currentStep === groups.length - 1 ? handleAddToCart : handleNext}
+                                    className="flex-1 h-12 bg-(--color-gold) text-black hover:bg-[#a68545] font-bold text-sm md:text-base uppercase tracking-widest transition-all hover:scale-[1.02] shadow-[0_0_15px_rgba(197,160,89,0.3)]"
+                                >
                                     {isFixedDeal || currentStep === groups.length - 1 ? <>Add Deal • Rs {(deal.price + extraPriceTotal) * quantity}</> : <>Next Step</>}
                                 </Button>
                             </div>

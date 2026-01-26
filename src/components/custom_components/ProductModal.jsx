@@ -14,10 +14,8 @@ const ProductModal = ({ product, isOpen, setIsOpen, trigger }) => {
     const { addToCart } = useCart();
     const [quantity, setQuantity] = useState(1);
 
-    // Dynamic Selections State
-    // Format: { "groupId": ["optionName1", "optionName2"] }
+    // Dynamic Selections State: { "groupId": ["optionName"] }
     const [selections, setSelections] = useState({});
-
     const [note, setNote] = useState("");
     const [showShareMenu, setShowShareMenu] = useState(false);
     const [copied, setCopied] = useState(false);
@@ -31,8 +29,6 @@ const ProductModal = ({ product, isOpen, setIsOpen, trigger }) => {
         if (!group || !group.options) return total;
 
         const userSelected = selections[group._id] || [];
-
-        // Find selected options in this group and sum their prices
         const groupCost = group.options
             .filter(opt => userSelected.includes(opt.name))
             .reduce((sum, opt) => sum + (Number(opt.price) || 0), 0);
@@ -40,6 +36,7 @@ const ProductModal = ({ product, isOpen, setIsOpen, trigger }) => {
         return total + groupCost;
     }, 0) || 0;
 
+    // Total Price for ALL items (Unit * Qty)
     const totalPrice = (basePrice + extrasCost) * quantity;
 
     // --- Handlers ---
@@ -47,8 +44,11 @@ const ProductModal = ({ product, isOpen, setIsOpen, trigger }) => {
         setSelections(prev => {
             const current = prev[groupId] || [];
             if (type === "single") {
+                // If unchecking the same radio, allow deselect? Usually radio is always one.
+                // Switching logic:
                 return { ...prev, [groupId]: [optionName] };
             } else {
+                // Checkbox logic
                 if (current.includes(optionName)) {
                     return { ...prev, [groupId]: current.filter(item => item !== optionName) };
                 } else {
@@ -59,24 +59,44 @@ const ProductModal = ({ product, isOpen, setIsOpen, trigger }) => {
     };
 
     const handleAddToCart = () => {
-        // Prepare selection details for Cart
+        // Flatten selections for Cart Display
         const selectedOptionsList = Object.entries(selections).flatMap(([groupId, selectedNames]) => {
             const groupConfig = product.productOptions.find(po => po.optionGroupId._id === groupId);
             const groupName = groupConfig?.optionGroupId?.name || "Option";
-            return selectedNames.map(name => ({ group: groupName, name: name }));
+
+            // Find price for each selected option to store in cart
+            return selectedNames.map(name => {
+                const optDef = groupConfig?.optionGroupId?.options?.find(o => o.name === name);
+                return {
+                    group: groupName,
+                    name: name,
+                    price: optDef ? Number(optDef.price) : 0
+                };
+            });
         });
 
-        addToCart(product, quantity, selectedOptionsList, totalPrice);
+        // Pass arguments: Product, Qty, Options, TOTAL_PRICE, Note
+        addToCart(product, quantity, selectedOptionsList, totalPrice, note);
         setIsOpen(false);
+
+        // Reset state slightly for next open (optional)
+        setNote("");
     };
 
     // --- Share Logic ---
     const generateShareLink = () => typeof window !== "undefined" ? `${window.location.origin}/?product=${product._id}` : "";
-    const handleCopyLink = () => { navigator.clipboard.writeText(generateShareLink()); setCopied(true); setTimeout(() => setCopied(false), 2000); };
+    const handleCopyLink = () => {
+        navigator.clipboard.writeText(generateShareLink());
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
     const handleShare = (platform) => {
         const link = generateShareLink();
         const text = `Check out this amazing ${product.title}!`;
-        const urls = { whatsapp: `https://wa.me/?text=${encodeURIComponent(text + " " + link)}`, facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(link)}` };
+        const urls = {
+            whatsapp: `https://wa.me/?text=${encodeURIComponent(text + " " + link)}`,
+            facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(link)}`
+        };
         if (urls[platform]) window.open(urls[platform], "_blank");
     };
 
@@ -88,7 +108,7 @@ const ProductModal = ({ product, isOpen, setIsOpen, trigger }) => {
                 <DialogTitle className="sr-only">{product.title}</DialogTitle>
                 <DialogDescription className="sr-only">Customize your meal</DialogDescription>
 
-                {/* DESKTOP CONTROLS */}
+                {/* DESKTOP SHARE CONTROLS */}
                 <div className="absolute top-4 right-4 z-50 hidden md:flex gap-2">
                     <div className="relative">
                         <button onClick={() => setShowShareMenu(!showShareMenu)} className="bg-black/40 backdrop-blur-md p-2 rounded-full text-white border border-white/10 hover:border-(--color-gold) hover:text-(--color-gold) transition-all">
@@ -102,13 +122,11 @@ const ProductModal = ({ product, isOpen, setIsOpen, trigger }) => {
                 </div>
 
                 <div className="flex flex-col md:flex-row flex-1 min-h-0">
-
                     {/* LEFT: IMAGE */}
                     <div className="relative w-full md:w-[45%] h-40 md:h-auto shrink-0 bg-black/50">
                         <Image src={product.image || "/placeholder.jpg"} alt={product.title} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" priority={true} />
                         <div className="absolute inset-0 bg-linear-to-t from-black/90 via-transparent to-transparent md:bg-linear-to-r md:from-transparent md:to-black/90" />
-
-                        {/* MOBILE CONTROLS */}
+                        {/* MOBILE CLOSE */}
                         <button onClick={() => setIsOpen(false)} className="absolute top-3 left-3 md:hidden z-20 bg-black/40 backdrop-blur-md p-2 rounded-full text-white border border-white/10">
                             <X className="w-4 h-4" />
                         </button>
@@ -126,11 +144,10 @@ const ProductModal = ({ product, isOpen, setIsOpen, trigger }) => {
                             </div>
                             <div className="h-px bg-white/10 w-full" />
 
-                            {/* --- DYNAMIC OPTIONS (Replaces hardcoded Addons) --- */}
-                            {product.productOptions && product.productOptions.length > 0 && product.productOptions.map((groupConfig, idx) => {
+                            {/* DYNAMIC OPTIONS */}
+                            {product.productOptions && product.productOptions.length > 0 && product.productOptions.map((groupConfig) => {
                                 const group = groupConfig.optionGroupId;
-                                if (!group) return null; // Skip if broken link
-
+                                if (!group) return null;
                                 const isMulti = group.type === 'multiple';
 
                                 return (
@@ -139,38 +156,32 @@ const ProductModal = ({ product, isOpen, setIsOpen, trigger }) => {
                                             {group.name} {isMulti ? "(Select Multiple)" : "(Choose One)"}
                                         </h3>
 
-                                        {isMulti ? (
-                                            // CHECKBOX STYLE (Like your Addons)
-                                            <div className="space-y-2">
-                                                {group.options.map((option) => {
-                                                    const isSelected = selections[group._id]?.includes(option.name);
-                                                    const isDisabled = !option.isAvailable;
+                                        <div className={`flex flex-wrap gap-3 ${isMulti ? "flex-col" : ""}`}>
+                                            {group.options.map((option) => {
+                                                const isSelected = selections[group._id]?.includes(option.name);
+                                                const isDisabled = !option.isAvailable;
 
-                                                    const newLocal = "text-sm font-medium text-gray-200";
+                                                if (isMulti) {
+                                                    // CHECKBOX UI
                                                     return (
                                                         <div
                                                             key={option._id || option.name}
                                                             onClick={() => !isDisabled && handleSelection(group._id, "multiple", option.name)}
-                                                            className={`flex justify-between items-center p-3 rounded-lg border cursor-pointer transition-all duration-200 ${isSelected ? "border-(--color-gold) bg-gold/20 shadow-[0_0_10px_rgba(197,160,89,0.1)]" : "border-white/10 hover:border-white/30 bg-white/5 hover:bg-white/10"} ${isDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
+                                                            className={`flex justify-between items-center p-3 rounded-lg border cursor-pointer transition-all duration-200 ${isSelected ? "border-(--color-gold) bg-gold/20" : "border-white/10 hover:bg-white/5"} ${isDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
                                                         >
                                                             <div className="flex items-center gap-3">
                                                                 <div className={`w-5 h-5 rounded border flex items-center justify-center transition-all ${isSelected ? "bg-(--color-gold) border-(--color-gold)" : "border-gray-500"}`}>
                                                                     {isSelected && <div className="w-2.5 h-2.5 bg-black rounded-[1px]" />}
                                                                 </div>
-                                                                <span className={newLocal}>{option.name}</span>
+                                                                <span className="text-sm font-medium text-gray-200">{option.name}</span>
                                                             </div>
                                                             <span className="text-sm text-(--color-gold)">
                                                                 {option.price > 0 ? `+Rs ${option.price}` : "Free"}
                                                             </span>
                                                         </div>
                                                     );
-                                                })}
-                                            </div>
-                                        ) : (
-                                            // RADIO STYLE (Like your Sauce Level)
-                                            <div className="flex flex-wrap gap-3">
-                                                {group.options.map((option) => {
-                                                    const isSelected = selections[group._id]?.includes(option.name);
+                                                } else {
+                                                    // RADIO UI
                                                     return (
                                                         <div
                                                             key={option._id || option.name}
@@ -180,18 +191,17 @@ const ProductModal = ({ product, isOpen, setIsOpen, trigger }) => {
                                                             <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${isSelected ? "border-(--color-gold)" : "border-gray-500"}`}>
                                                                 {isSelected && <div className="w-2 h-2 rounded-full bg-(--color-gold)" />}
                                                             </div>
-                                                            <Label className="text-gray-300 text-sm cursor-pointer font-medium">{option.name}</Label>
+                                                            <Label className="text-inherit text-sm cursor-pointer font-medium">{option.name}</Label>
                                                         </div>
-                                                    )
-                                                })}
-                                            </div>
-                                        )}
-                                        <div className="h-4"></div>
+                                                    );
+                                                }
+                                            })}
+                                        </div>
                                     </div>
                                 );
                             })}
 
-                            {/* Note Section (Same) */}
+                            {/* NOTE SECTION */}
                             <div>
                                 <h3 className="text-(--color-gold) font-bold uppercase text-[10px] md:text-xs tracking-wider mb-3">Note</h3>
                                 <Textarea
@@ -203,7 +213,7 @@ const ProductModal = ({ product, isOpen, setIsOpen, trigger }) => {
                             </div>
                         </div>
 
-                        {/* Footer (Same) */}
+                        {/* FOOTER */}
                         <div className="p-4 md:p-6 border-t border-white/10 bg-black/60 backdrop-blur-xl shrink-0 z-10">
                             <div className="flex items-center gap-4">
                                 <div className="flex items-center bg-white/5 rounded-lg border border-white/10 h-12">
