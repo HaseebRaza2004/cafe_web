@@ -49,5 +49,5 @@ export async function proxy(req) {
 
 // Run Proxy ONLY on paths that need security checks
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/admin/:path*"],
 };

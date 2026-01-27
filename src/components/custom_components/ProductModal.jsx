@@ -1,29 +1,53 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Minus, Plus, X, Share2 } from "lucide-react";
+import { Minus, Plus, X, Share2, Check } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import ShareMenu from "./ShareMenu";
 
 const ProductModal = ({ product, isOpen, setIsOpen, trigger }) => {
     const { addToCart } = useCart();
-    const [quantity, setQuantity] = useState(1);
 
-    // Dynamic Selections State: { "groupId": ["optionName"] }
+    const [quantity, setQuantity] = useState(1);
     const [selections, setSelections] = useState({});
+    const [selectedVariation, setSelectedVariation] = useState(null);
     const [note, setNote] = useState("");
     const [showShareMenu, setShowShareMenu] = useState(false);
     const [copied, setCopied] = useState(false);
 
-    // --- Price Calculation Logic ---
-    const basePrice = Number(product.price) || 0;
+    const hasVariations = useMemo(() => {
+        return Array.isArray(product?.variations) && product.variations.length > 0;
+    }, [product]);
 
-    // Calculate Extra Cost from Selections
+    useEffect(() => {
+        if (isOpen) {
+            const timer = setTimeout(() => {
+                setQuantity(1);
+                setSelections({});
+                setNote("");
+                setShowShareMenu(false);
+
+                if (hasVariations) {
+                    setSelectedVariation(product.variations[0]);
+                } else {
+                    setSelectedVariation(null);
+                }
+            }, 0);
+
+            return () => clearTimeout(timer);
+        }
+    }, [isOpen, product, hasVariations]);
+
+    const basePrice = selectedVariation
+        ? Number(selectedVariation.price)
+        : (Number(product.price) || 0);
+
+
     const extrasCost = product.productOptions?.reduce((total, groupConfig) => {
         const group = groupConfig.optionGroupId;
         if (!group || !group.options) return total;
@@ -36,19 +60,14 @@ const ProductModal = ({ product, isOpen, setIsOpen, trigger }) => {
         return total + groupCost;
     }, 0) || 0;
 
-    // Total Price for ALL items (Unit * Qty)
     const totalPrice = (basePrice + extrasCost) * quantity;
 
-    // --- Handlers ---
     const handleSelection = (groupId, type, optionName) => {
         setSelections(prev => {
             const current = prev[groupId] || [];
             if (type === "single") {
-                // If unchecking the same radio, allow deselect? Usually radio is always one.
-                // Switching logic:
                 return { ...prev, [groupId]: [optionName] };
             } else {
-                // Checkbox logic
                 if (current.includes(optionName)) {
                     return { ...prev, [groupId]: current.filter(item => item !== optionName) };
                 } else {
@@ -59,12 +78,10 @@ const ProductModal = ({ product, isOpen, setIsOpen, trigger }) => {
     };
 
     const handleAddToCart = () => {
-        // Flatten selections for Cart Display
         const selectedOptionsList = Object.entries(selections).flatMap(([groupId, selectedNames]) => {
             const groupConfig = product.productOptions.find(po => po.optionGroupId._id === groupId);
             const groupName = groupConfig?.optionGroupId?.name || "Option";
 
-            // Find price for each selected option to store in cart
             return selectedNames.map(name => {
                 const optDef = groupConfig?.optionGroupId?.options?.find(o => o.name === name);
                 return {
@@ -75,15 +92,19 @@ const ProductModal = ({ product, isOpen, setIsOpen, trigger }) => {
             });
         });
 
-        // Pass arguments: Product, Qty, Options, TOTAL_PRICE, Note
+        if (selectedVariation) {
+            selectedOptionsList.unshift({
+                group: "Variation",
+                name: selectedVariation.title,
+                price: 0
+            });
+        }
+
         addToCart(product, quantity, selectedOptionsList, totalPrice, note);
         setIsOpen(false);
-
-        // Reset state slightly for next open (optional)
-        setNote("");
     };
 
-    // --- Share Logic ---
+    // Share Logic
     const generateShareLink = () => typeof window !== "undefined" ? `${window.location.origin}/?product=${product._id}` : "";
     const handleCopyLink = () => {
         navigator.clipboard.writeText(generateShareLink());
@@ -104,11 +125,11 @@ const ProductModal = ({ product, isOpen, setIsOpen, trigger }) => {
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
 
-            <DialogContent className="w-[95vw] sm:max-w-[95vw] md:max-w-3xl lg:max-w-5xl h-[90vh] md:h-auto md:max-h-[85vh] p-0 gap-0 flex flex-col bg-black/60 backdrop-blur-xl border border-(--color-gold) text-white overflow-hidden rounded-2xl shadow-2xl">
+            <DialogContent aria-describedby={undefined} className="w-[95vw] sm:max-w-[95vw] md:max-w-3xl lg:max-w-5xl h-[90vh] md:h-auto md:max-h-[85vh] p-0 gap-0 flex flex-col bg-black/60 backdrop-blur-xl border border-(--color-gold) text-white overflow-hidden rounded-2xl shadow-2xl">
                 <DialogTitle className="sr-only">{product.title}</DialogTitle>
                 <DialogDescription className="sr-only">Customize your meal</DialogDescription>
 
-                {/* DESKTOP SHARE CONTROLS */}
+                {/* --- HEADER ACTIONS --- */}
                 <div className="absolute top-4 right-4 z-50 hidden md:flex gap-2">
                     <div className="relative">
                         <button onClick={() => setShowShareMenu(!showShareMenu)} className="bg-black/40 backdrop-blur-md p-2 rounded-full text-white border border-white/10 hover:border-(--color-gold) hover:text-(--color-gold) transition-all">
@@ -122,29 +143,74 @@ const ProductModal = ({ product, isOpen, setIsOpen, trigger }) => {
                 </div>
 
                 <div className="flex flex-col md:flex-row flex-1 min-h-0">
-                    {/* LEFT: IMAGE */}
+                    {/* --- LEFT: IMAGE --- */}
                     <div className="relative w-full md:w-[45%] h-40 md:h-auto shrink-0 bg-black/50">
                         <Image src={product.image || "/placeholder.jpg"} alt={product.title} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" priority={true} />
                         <div className="absolute inset-0 bg-linear-to-t from-black/90 via-transparent to-transparent md:bg-linear-to-r md:from-transparent md:to-black/90" />
-                        {/* MOBILE CLOSE */}
+                        {/* Mobile Close */}
                         <button onClick={() => setIsOpen(false)} className="absolute top-3 left-3 md:hidden z-20 bg-black/40 backdrop-blur-md p-2 rounded-full text-white border border-white/10">
                             <X className="w-4 h-4" />
                         </button>
                     </div>
 
-                    {/* RIGHT: CONTENT */}
+                    {/* --- RIGHT: CONTENT --- */}
                     <div className="flex flex-col w-full md:w-[55%] min-h-0 relative">
                         <div className="flex-1 overflow-y-auto no-scrollbar p-5 md:p-8 space-y-6">
 
-                            {/* Title & Price */}
+                            {/* Title & Dynamic Price */}
                             <div>
                                 <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold font-display text-white mb-2 leading-tight pr-8">{product.title}</h2>
                                 <p className="text-gray-300 text-xs md:text-sm leading-relaxed opacity-80">{product.desc}</p>
-                                <div className="mt-3 inline-block px-3 py-1 rounded-full border border-(--color-gold) text-(--color-gold) text-sm md:text-base font-bold font-mono bg-gold/10">Rs {product.price}</div>
+                                <div className="mt-3 inline-block px-3 py-1 rounded-full border border-(--color-gold) text-(--color-gold) text-sm md:text-base font-bold font-mono bg-gold/10">
+                                    Rs {basePrice}
+                                </div>
                             </div>
                             <div className="h-px bg-white/10 w-full" />
 
-                            {/* DYNAMIC OPTIONS */}
+                            {/* --- VARIATIONS (Sizes) SECTION --- */}
+                            {hasVariations && (
+                                <div className="mb-2">
+                                    <h3 className="text-(--color-gold) font-bold uppercase text-[10px] md:text-xs tracking-wider mb-3">
+                                        Select Variation
+                                    </h3>
+                                    <div className="flex flex-wrap gap-3">
+                                        {product.variations.map((variant, idx) => {
+                                            const isSelected = selectedVariation &&
+                                                (selectedVariation._id ? selectedVariation._id === variant._id : selectedVariation.title === variant.title);
+                                            const key = variant._id || idx;
+                                            return (
+                                                <div
+                                                    key={key}
+                                                    onClick={() => variant.isAvailable && setSelectedVariation(variant)}
+                                                    className={`
+                                                        relative flex items-center space-x-3 px-4 py-3 rounded-xl border transition-all duration-200 cursor-pointer
+                                                        ${isSelected
+                                                            ? "border-(--color-gold) bg-gold/10 shadow-[0_0_15px_rgba(197,160,89,0.15)]"
+                                                            : "border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/30"
+                                                        }
+                                                        ${!variant.isAvailable ? "opacity-50 cursor-not-allowed grayscale" : ""}
+                                                    `}
+                                                >
+                                                    <div className={`w-5 h-5 rounded-full border flex items-center justify-center transition-colors ${isSelected ? "border-(--color-gold)" : "border-gray-500"}`}>
+                                                        {isSelected && <div className="w-2.5 h-2.5 rounded-full bg-(--color-gold)" />}
+                                                    </div>
+
+                                                    <div className="flex flex-col">
+                                                        <span className={`text-sm font-bold tracking-wide ${isSelected ? "text-white" : "text-gray-300"}`}>
+                                                            {variant.title}
+                                                        </span>
+                                                        <span className="text-xs text-(--color-gold) font-mono mt-0.5">
+                                                            Rs {variant.price}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* --- ADD-ONS SECTION --- */}
                             {product.productOptions && product.productOptions.length > 0 && product.productOptions.map((groupConfig) => {
                                 const group = groupConfig.optionGroupId;
                                 if (!group) return null;
@@ -162,7 +228,6 @@ const ProductModal = ({ product, isOpen, setIsOpen, trigger }) => {
                                                 const isDisabled = !option.isAvailable;
 
                                                 if (isMulti) {
-                                                    // CHECKBOX UI
                                                     return (
                                                         <div
                                                             key={option._id || option.name}
@@ -171,7 +236,7 @@ const ProductModal = ({ product, isOpen, setIsOpen, trigger }) => {
                                                         >
                                                             <div className="flex items-center gap-3">
                                                                 <div className={`w-5 h-5 rounded border flex items-center justify-center transition-all ${isSelected ? "bg-(--color-gold) border-(--color-gold)" : "border-gray-500"}`}>
-                                                                    {isSelected && <div className="w-2.5 h-2.5 bg-black rounded-[1px]" />}
+                                                                    {isSelected && <Check className="w-3.5 h-3.5 text-black" strokeWidth={3} />}
                                                                 </div>
                                                                 <span className="text-sm font-medium text-gray-200">{option.name}</span>
                                                             </div>
@@ -181,7 +246,6 @@ const ProductModal = ({ product, isOpen, setIsOpen, trigger }) => {
                                                         </div>
                                                     );
                                                 } else {
-                                                    // RADIO UI
                                                     return (
                                                         <div
                                                             key={option._id || option.name}
@@ -201,7 +265,7 @@ const ProductModal = ({ product, isOpen, setIsOpen, trigger }) => {
                                 );
                             })}
 
-                            {/* NOTE SECTION */}
+                            {/* --- NOTE SECTION --- */}
                             <div>
                                 <h3 className="text-(--color-gold) font-bold uppercase text-[10px] md:text-xs tracking-wider mb-3">Note</h3>
                                 <Textarea
@@ -213,7 +277,7 @@ const ProductModal = ({ product, isOpen, setIsOpen, trigger }) => {
                             </div>
                         </div>
 
-                        {/* FOOTER */}
+                        {/* --- FOOTER --- */}
                         <div className="p-4 md:p-6 border-t border-white/10 bg-black/60 backdrop-blur-xl shrink-0 z-10">
                             <div className="flex items-center gap-4">
                                 <div className="flex items-center bg-white/5 rounded-lg border border-white/10 h-12">
