@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import ProductModal from "./ProductModal";
+import ProductModal from "./ProductModal/ProductModal";
 import DealModal from "./DealModal";
 
 const Card = ({ deal, index, allProducts = [] }) => {

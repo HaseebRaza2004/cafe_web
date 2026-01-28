@@ -5,7 +5,7 @@ import { Phone, ShoppingCart } from 'lucide-react'
 import { Button } from '../ui/button';
 import Logo from './Logo';
 import Link from 'next/link';
-import CartSheet from './CartSheet';
+import CartSheet from './CartSheet/CartSheet';
 
 
 const Header = () => {
