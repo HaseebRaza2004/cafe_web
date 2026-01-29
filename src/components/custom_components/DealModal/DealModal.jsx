@@ -1,0 +1,209 @@
+"use client";
+
+import React, { useState, useMemo, useEffect, useCallback } from "react";
+import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
+import { X, Share2, ShoppingBag } from "lucide-react";
+import { useCart } from "@/context/CartContext";
+import { useToast } from "@/context/ToastContext";
+import ShareMenu from "@/components/custom_components/ShareMenu";
+
+// Sub-components
+import DealImage from "./DealImage";
+import DealInfo from "./DealInfo";
+import StepSelector from "./StepSelector";
+import DealFooter from "./DealFooter";
+// Reusing NoteInput from ProductModal for consistency
+import NoteInput from "../ProductModal/NoteInput";
+
+const DealModal = ({ deal, isOpen, setIsOpen, trigger }) => {
+    const { addToCart } = useCart();
+    const { error: showError } = useToast() || {};
+
+    const [currentStep, setCurrentStep] = useState(0);
+    const [selections, setSelections] = useState({});
+    const [quantity, setQuantity] = useState(1);
+    const [note, setNote] = useState("");
+    const [showShareMenu, setShowShareMenu] = useState(false);
+    const [copied, setCopied] = useState(false);
+
+    const groups = useMemo(() => Array.isArray(deal?.itemGroups) ? deal.itemGroups : [], [deal]);
+    const currentGroup = groups[currentStep];
+    const isFixedDeal = groups.length === 0;
+
+    useEffect(() => {
+        if (isOpen) {
+            const timer = setTimeout(() => {
+                setCurrentStep(0);
+                setSelections({});
+                setQuantity(1);
+                setNote("");
+                setShowShareMenu(false);
+            }, 0);
+            return () => clearTimeout(timer);
+        }
+    }, [isOpen]);
+
+    const updateSelectionQuantity = useCallback((productId, change) => {
+        if (!currentGroup) return;
+
+        setSelections(prev => {
+            const currentStepSelections = prev[currentStep] || {};
+            const currentQty = currentStepSelections[productId] || 0;
+            const totalSelected = Object.values(currentStepSelections).reduce((a, b) => a + b, 0);
+            const maxSel = currentGroup.maxSelection || 1;
+
+            if (change > 0) {
+                if (maxSel === 1) return { ...prev, [currentStep]: { [productId]: 1 } };
+                if (totalSelected < maxSel) {
+                    return { ...prev, [currentStep]: { ...currentStepSelections, [productId]: currentQty + 1 } };
+                } else {
+                    if (showError) showError(`Limit reached: Max ${maxSel} items.`);
+                    return prev;
+                }
+            } else {
+                if (currentQty > 0) {
+                    const newQty = currentQty - 1;
+                    const newStepSel = { ...currentStepSelections, [productId]: newQty };
+                    if (newQty === 0) delete newStepSel[productId];
+                    return { ...prev, [currentStep]: newStepSel };
+                }
+                return prev;
+            }
+        });
+    }, [currentGroup, currentStep, showError]);
+
+    const validateStep = () => {
+        if (isFixedDeal) return true;
+        const currentStepSelections = selections[currentStep] || {};
+        const totalSelected = Object.values(currentStepSelections).reduce((a, b) => a + b, 0);
+        const minSel = currentGroup?.minSelection || 1;
+
+        if (totalSelected < minSel) {
+            if (showError) showError(`Please select at least ${minSel} items.`);
+            return false;
+        }
+        return true;
+    };
+
+    const handleAction = () => {
+        if (!validateStep()) return;
+
+        if (currentStep < groups.length - 1) {
+            setCurrentStep(prev => prev + 1);
+        } else {
+            const formattedOptions = [];
+            let extraPriceTotal = 0;
+
+            Object.entries(selections).forEach(([stepIdx, stepData]) => {
+                const group = groups[stepIdx];
+                Object.entries(stepData).forEach(([prodId, qty]) => {
+                    const conf = group.specificProducts?.find(p => (p.product?._id || p.product) === prodId);
+                    const prodTitle = conf?.product?.title || "Item";
+                    const extra = conf?.extraPrice || 0;
+                    extraPriceTotal += (extra * qty);
+
+                    for (let i = 0; i < qty; i++) {
+                        formattedOptions.push({
+                            group: group.heading,
+                            name: prodTitle + (extra > 0 ? ` (+${extra})` : ""),
+                            price: extra
+                        });
+                    }
+                });
+            });
+
+            const unitPrice = deal.price + extraPriceTotal;
+            const finalTotalPrice = unitPrice * quantity;
+
+            addToCart(deal, quantity, formattedOptions, finalTotalPrice, note);
+            setIsOpen(false);
+        }
+    };
+
+    const generateShareLink = () => typeof window !== "undefined" ? `${window.location.origin}/deals?id=${deal?._id}` : "";
+    const handleCopyLink = () => { navigator.clipboard.writeText(generateShareLink()); setCopied(true); setTimeout(() => setCopied(false), 2000); };
+    const handleShare = (platform) => {
+        const link = generateShareLink();
+        const text = `Check out this deal: ${deal?.title}`;
+        const urls = { whatsapp: `https://wa.me/?text=${encodeURIComponent(text + " " + link)}`, facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(link)}` };
+        if (urls[platform]) window.open(urls[platform], "_blank");
+    };
+
+    const currentExtraTotal = useMemo(() => {
+        let total = 0;
+        Object.entries(selections).forEach(([stepIdx, stepData]) => {
+            const group = groups[stepIdx];
+            if (!group) return;
+            Object.entries(stepData).forEach(([prodId, qty]) => {
+                const conf = group.specificProducts?.find(p => (p.product?._id || p.product) === prodId);
+                total += (conf?.extraPrice || 0) * qty;
+            });
+        });
+        return total;
+    }, [selections, groups]);
+
+    const displayTotal = (deal?.price + currentExtraTotal) * quantity;
+
+    if (!deal) return null;
+
+    return (
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+            {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
+
+            {/* FIXED SHELL: Fixed 90vh, Flex Column */}
+            <DialogContent aria-describedby={undefined} className="w-[95vw] sm:max-w-[95vw] md:max-w-3xl lg:max-w-5xl h-[90vh] p-0 gap-0 flex flex-col bg-black/60 backdrop-blur-xl border border-(--color-gold) text-white overflow-hidden rounded-2xl shadow-2xl">
+                <DialogTitle className="sr-only">{deal?.title}</DialogTitle>
+                <DialogDescription className="sr-only">Customize Deal</DialogDescription>
+
+                {/* Floating Controls */}
+                <div className="absolute top-4 right-4 z-50 hidden md:flex gap-2">
+                    <div className="relative">
+                        <button onClick={() => setShowShareMenu(!showShareMenu)} className="bg-black/40 backdrop-blur-md p-2 rounded-full text-white border border-white/10 hover:border-(--color-gold) hover:text-(--color-gold) transition-all"><Share2 className="w-5 h-5" /></button>
+                        {showShareMenu && <ShareMenu onShare={handleShare} onCopy={handleCopyLink} copied={copied} />}
+                    </div>
+                    <button onClick={() => setIsOpen(false)} className="bg-black/40 backdrop-blur-md p-2 rounded-full text-white border border-white/10 hover:bg-red-500/20 hover:text-red-500 transition-all"><X className="w-5 h-5" /></button>
+                </div>
+
+                <div className="flex flex-col md:flex-row h-full">
+                    {/* Left: Fixed Image */}
+                    <DealImage image={deal?.image} title={deal?.title} onClose={() => setIsOpen(false)} />
+
+                    {/* Right: Content Wrapper */}
+                    <div className="flex flex-col w-full md:w-[55%] h-full relative">
+
+                        {/* Scrollable Body */}
+                        <div className="flex-1 overflow-y-auto no-scrollbar p-5 md:p-8 space-y-6">
+                            <DealInfo title={deal?.title} desc={deal?.desc} price={deal?.price} />
+                            <div className="h-px bg-white/10 w-full" />
+
+                            {isFixedDeal ? (
+                                <div />
+                            ) : (
+                                <StepSelector
+                                    currentStep={currentStep}
+                                    groups={groups}
+                                    selections={selections}
+                                    onUpdateQuantity={updateSelectionQuantity}
+                                />
+                            )}
+
+                            <NoteInput value={note} onChange={(e) => setNote(e.target.value)} />
+                        </div>
+
+                        {/* Sticky Footer */}
+                        <DealFooter
+                            isFixedDeal={isFixedDeal}
+                            isLastStep={currentStep === groups.length - 1}
+                            quantity={quantity}
+                            setQuantity={setQuantity}
+                            onAction={handleAction}
+                            totalPrice={displayTotal}
+                        />
+                    </div>
+                </div>
+            </DialogContent>
+        </Dialog>
+    );
+};
+
+export default DealModal;

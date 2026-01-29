@@ -15,15 +15,11 @@ const CartContext = createContext();
 export function CartProvider({ children }) {
   const [cartItems, setCartItems] = useState([]);
   const [isLoaded, setIsLoaded] = useState(false);
-
-  // Destructure Toast safely to avoid "not a function" errors
   const { success, info } = useToast() || {};
 
-  // --- 1. HYDRATION FIX (The "setTimeout" Trick) ---
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    // Pushing this to the next event loop tick eliminates the "Synchronous setState" warning
     const timer = setTimeout(() => {
       try {
         const savedCart = localStorage.getItem("cafe_cart");
@@ -43,15 +39,13 @@ export function CartProvider({ children }) {
     return () => clearTimeout(timer);
   }, []);
 
-  // --- 2. PERSISTENCE ---
   useEffect(() => {
-    // Only write to storage AFTER we have loaded the initial data
     if (isLoaded && typeof window !== "undefined") {
       localStorage.setItem("cafe_cart", JSON.stringify(cartItems));
     }
   }, [cartItems, isLoaded]);
 
-  // --- 3. LOGIC ---
+  // --- LOGIC ---
   const generateSignature = useCallback((productId, options, note) => {
     const safeNote =
       typeof note === "string" ? note.trim() : String(note || "");
@@ -63,7 +57,6 @@ export function CartProvider({ children }) {
 
   const addToCart = useCallback(
     (product, quantity = 1, options = [], manualPrice = null, note = "") => {
-      // Toast Side Effect (Outside State Update)
       if (success) success("Item added to cart");
 
       setCartItems((prevItems) => {
@@ -81,14 +74,20 @@ export function CartProvider({ children }) {
           (item) => item.signature === signature,
         );
 
+        // SCENARIO A: MERGE WITH EXISTING ROW
         if (existingIndex > -1) {
-          // Merge Quantity
           const newItems = [...prevItems];
-          newItems[existingIndex].quantity += Number(quantity);
+          const itemToUpdate = newItems[existingIndex];
+
+          newItems[existingIndex] = {
+            ...itemToUpdate,
+            quantity: itemToUpdate.quantity + Number(quantity),
+          };
+
           return newItems;
         }
 
-        // Add New
+        // SCENARIO B: NEW ROW
         return [
           ...prevItems,
           {
@@ -105,7 +104,7 @@ export function CartProvider({ children }) {
       });
     },
     [generateSignature, success],
-  ); // Correct dependencies
+  );
 
   const removeFromCart = useCallback(
     (signature) => {
@@ -122,7 +121,8 @@ export function CartProvider({ children }) {
       prev.map((item) => {
         if (item.signature === signature) {
           const newQty = item.quantity + delta;
-          return newQty > 0 ? { ...item, quantity: newQty } : item;
+          if (newQty < 1) return item;
+          return { ...item, quantity: newQty };
         }
         return item;
       }),
@@ -134,7 +134,6 @@ export function CartProvider({ children }) {
     if (typeof window !== "undefined") localStorage.removeItem("cafe_cart");
   }, []);
 
-  // --- 4. MEMOIZED VALUES ---
   const cartTotal = useMemo(
     () => cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0),
     [cartItems],

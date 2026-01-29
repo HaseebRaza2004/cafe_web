@@ -18,7 +18,7 @@ const CartItem = ({ item, updateQuantity, confirmRemoveItem }) => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, x: -50, height: 0, marginBottom: 0 }}
-            className="group relative flex gap-4 bg-white/5 border border-white/5 rounded-xl p-4 hover:border-(--color-gold)/30 transition-all cursor-pointer"
+            className="group relative flex gap-4 bg-white/5 border border-white/5 rounded-xl p-4 hover:border-gold/30 transition-all cursor-pointer"
             onClick={handleItemClick} // Added Click Handler
         >
             <div className="relative w-16 h-16 rounded-lg overflow-hidden shrink-0 border border-white/10 self-start mt-1">

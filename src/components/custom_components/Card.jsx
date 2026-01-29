@@ -5,7 +5,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import ProductModal from "./ProductModal/ProductModal";
-import DealModal from "./DealModal";
+import DealModal from "./DealModal/DealModal";
 
 const Card = ({ deal, index, allProducts = [] }) => {
     const [isProductModalOpen, setIsProductModalOpen] = useState(false);

@@ -78,7 +78,7 @@ const CartSheet = () => {
                                         <p className="text-xs text-gray-400 max-w-50 mx-auto leading-relaxed">Delicious food is just a click away.</p>
                                     </div>
                                     <SheetClose asChild>
-                                        <Button variant="outline" className="border-(--color-gold) text-(--color-gold) hover:bg-(--color-gold) hover:text-black uppercase text-xs tracking-widest px-8">Browse Menu</Button>
+                                        <Button variant="outline" className="border-(--color-gold) text-(--color-gold) hover:bg-(--color-gold) hover:text-black uppercase text-md font-extrabold tracking-widest px-6">Browse Menu</Button>
                                     </SheetClose>
                                 </div>
                             )}
