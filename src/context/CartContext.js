@@ -56,7 +56,7 @@ export function CartProvider({ children }) {
   }, []);
 
   const addToCart = useCallback(
-    (product, quantity = 1, options = [], manualPrice = null, note = "") => {
+    (product, quantity = 1, options = [], manualPrice = null, note = "", type = "product" ) => {
       if (success) success("Item added to cart");
 
       setCartItems((prevItems) => {
@@ -99,6 +99,7 @@ export function CartProvider({ children }) {
             quantity: Number(quantity),
             selectedOptions: options,
             customerNote: typeof note === "string" ? note : "",
+            type: type,
           },
         ];
       });

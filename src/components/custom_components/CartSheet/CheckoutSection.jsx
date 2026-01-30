@@ -7,9 +7,7 @@ import { Button } from "@/components/ui/button";
 const CheckoutSection = ({ deliveryFee, handleCheckout }) => {
     // Dynamic Date Calculation
     const deliveryEstimate = useMemo(() => {
-        // Current Time
         const now = new Date();
-        // Add 45 minutes
         now.setMinutes(now.getMinutes() + 45);
 
         // Formatting
@@ -20,7 +18,7 @@ const CheckoutSection = ({ deliveryFee, handleCheckout }) => {
         const formattedTime = now.toLocaleTimeString('en-US', timeOptions);
 
         return { date: formattedDate, time: formattedTime };
-    }, []); // Empty dependency: Calculates once on mount (client-side)
+    }, []); 
 
     return (
         <div className="mt-6 space-y-3">

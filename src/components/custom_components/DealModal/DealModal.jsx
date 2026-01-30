@@ -6,19 +6,15 @@ import { X, Share2, ShoppingBag } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useToast } from "@/context/ToastContext";
 import ShareMenu from "@/components/custom_components/ShareMenu";
-
-// Sub-components
 import DealImage from "./DealImage";
 import DealInfo from "./DealInfo";
 import StepSelector from "./StepSelector";
 import DealFooter from "./DealFooter";
-// Reusing NoteInput from ProductModal for consistency
 import NoteInput from "../ProductModal/NoteInput";
 
-const DealModal = ({ deal, isOpen, setIsOpen, trigger }) => {
-    const { addToCart } = useCart();
+const DealModal = ({ deal, isOpen, setIsOpen, initialState }) => {
+    const { addToCart, removeFromCart } = useCart();
     const { error: showError } = useToast() || {};
-
     const [currentStep, setCurrentStep] = useState(0);
     const [selections, setSelections] = useState({});
     const [quantity, setQuantity] = useState(1);
@@ -30,18 +26,45 @@ const DealModal = ({ deal, isOpen, setIsOpen, trigger }) => {
     const currentGroup = groups[currentStep];
     const isFixedDeal = groups.length === 0;
 
+    // --- INITIALIZE (Edit Mode Logic) ---
     useEffect(() => {
         if (isOpen) {
             const timer = setTimeout(() => {
-                setCurrentStep(0);
-                setSelections({});
-                setQuantity(1);
-                setNote("");
                 setShowShareMenu(false);
+
+                if (initialState) {
+                    setQuantity(initialState.quantity);
+                    setNote(initialState.note);
+                    setCurrentStep(0);
+                    const restoredSelections = {};
+
+                    initialState.selections.forEach(opt => {
+                        const groupIndex = groups.findIndex(g => g.heading === opt.group);
+                        if (groupIndex > -1) {
+                            if (!restoredSelections[groupIndex]) restoredSelections[groupIndex] = {};
+
+                            const groupItem = groups[groupIndex].specificProducts.find(
+                                sp => sp.product.title === opt.name.replace(/\s\(\+\d+\)$/, "") // Remove (+20) price suffix if any
+                            );
+
+                            if (groupItem) {
+                                const pId = groupItem.product._id;
+                                restoredSelections[groupIndex][pId] = (restoredSelections[groupIndex][pId] || 0) + 1;
+                            }
+                        }
+                    });
+                    setSelections(restoredSelections);
+
+                } else {
+                    setCurrentStep(0);
+                    setSelections({});
+                    setQuantity(1);
+                    setNote("");
+                }
             }, 0);
             return () => clearTimeout(timer);
         }
-    }, [isOpen]);
+    }, [isOpen, deal, groups, initialState]);
 
     const updateSelectionQuantity = useCallback((productId, change) => {
         if (!currentGroup) return;
@@ -91,6 +114,10 @@ const DealModal = ({ deal, isOpen, setIsOpen, trigger }) => {
         if (currentStep < groups.length - 1) {
             setCurrentStep(prev => prev + 1);
         } else {
+            if (initialState?.signature) {
+                removeFromCart(initialState.signature);
+            }
+
             const formattedOptions = [];
             let extraPriceTotal = 0;
 
@@ -115,7 +142,7 @@ const DealModal = ({ deal, isOpen, setIsOpen, trigger }) => {
             const unitPrice = deal.price + extraPriceTotal;
             const finalTotalPrice = unitPrice * quantity;
 
-            addToCart(deal, quantity, formattedOptions, finalTotalPrice, note);
+            addToCart(deal, quantity, formattedOptions, finalTotalPrice, note, "deal");
             setIsOpen(false);
         }
     };
@@ -124,8 +151,7 @@ const DealModal = ({ deal, isOpen, setIsOpen, trigger }) => {
     const handleCopyLink = () => { navigator.clipboard.writeText(generateShareLink()); setCopied(true); setTimeout(() => setCopied(false), 2000); };
     const handleShare = (platform) => {
         const link = generateShareLink();
-        const text = `Check out this deal: ${deal?.title}`;
-        const urls = { whatsapp: `https://wa.me/?text=${encodeURIComponent(text + " " + link)}`, facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(link)}` };
+        const urls = { whatsapp: `https://wa.me/?text=${encodeURIComponent(" " + link)}`, facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(link)}` };
         if (urls[platform]) window.open(urls[platform], "_blank");
     };
 
@@ -148,9 +174,7 @@ const DealModal = ({ deal, isOpen, setIsOpen, trigger }) => {
 
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
-            {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
-
-            {/* FIXED SHELL: Fixed 90vh, Flex Column */}
+            {/* FIXED SHELL */}
             <DialogContent aria-describedby={undefined} className="w-[95vw] sm:max-w-[95vw] md:max-w-3xl lg:max-w-5xl h-[90vh] p-0 gap-0 flex flex-col bg-black/60 backdrop-blur-xl border border-(--color-gold) text-white overflow-hidden rounded-2xl shadow-2xl">
                 <DialogTitle className="sr-only">{deal?.title}</DialogTitle>
                 <DialogDescription className="sr-only">Customize Deal</DialogDescription>
@@ -198,6 +222,7 @@ const DealModal = ({ deal, isOpen, setIsOpen, trigger }) => {
                             setQuantity={setQuantity}
                             onAction={handleAction}
                             totalPrice={displayTotal}
+                            isEditing={!!initialState}
                         />
                     </div>
                 </div>

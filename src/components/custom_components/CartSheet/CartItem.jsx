@@ -3,13 +3,14 @@ import React from "react";
 import Image from "next/image";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import { motion } from "framer-motion";
+import { useModal } from "@/context/ModalContext";
 
 const CartItem = ({ item, updateQuantity, confirmRemoveItem }) => {
-    // Logic: In a real scenario, clicking this would fetch the full product data 
-    // and open the ProductModal. For now, we simulate the interaction.
-    const handleItemClick = () => {
-        console.log("Open Edit Modal for:", item.productId);
-        // You can implement an 'onEdit' prop callback here later
+    const { openEditModal } = useModal();
+
+    const handleEdit = () => {
+        const type = item.type || "product";
+        openEditModal(type, item);
     };
 
     return (
@@ -19,8 +20,9 @@ const CartItem = ({ item, updateQuantity, confirmRemoveItem }) => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, x: -50, height: 0, marginBottom: 0 }}
             className="group relative flex gap-4 bg-white/5 border border-white/5 rounded-xl p-4 hover:border-gold/30 transition-all cursor-pointer"
-            onClick={handleItemClick} // Added Click Handler
+            onClick={handleEdit}
         >
+            {/* Image */}
             <div className="relative w-16 h-16 rounded-lg overflow-hidden shrink-0 border border-white/10 self-start mt-1">
                 <Image src={item.image || "/placeholder.jpg"} alt={item.title} fill className="object-cover" />
             </div>
@@ -51,7 +53,6 @@ const CartItem = ({ item, updateQuantity, confirmRemoveItem }) => {
                 )}
 
                 <div className="flex justify-between items-end mt-2" onClick={(e) => e.stopPropagation()}>
-                    {/* stopPropagation prevents modal opening when clicking buttons */}
                     <div className="flex items-center gap-3 bg-black/40 rounded-lg p-1 border border-white/10">
                         <button onClick={() => item.quantity > 1 ? updateQuantity(item.signature, -1) : confirmRemoveItem(item.signature)} className="w-6 h-6 flex items-center justify-center rounded bg-white/10 hover:bg-(--color-gold) hover:text-black transition-colors">
                             {item.quantity === 1 ? <Trash2 className="w-3 h-3 text-red-400" /> : <Minus className="w-3 h-3" />}

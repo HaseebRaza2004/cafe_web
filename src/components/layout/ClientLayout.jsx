@@ -1,27 +1,59 @@
 "use client";
 
+import { Suspense, useRef, useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { useEffect, useState, useRef } from "react";
 import Header from "@/components/custom_components/Header";
 import Footer from "@/components/custom_components/Footer";
 import { CartProvider } from "@/context/CartContext";
 import { ToastProvider, useToast } from "@/context/ToastContext";
+import { ModalProvider, useModal } from "@/context/ModalContext";
+import DeepLinkHandler from "./DeepLinkHandler"; // We will create this next
+import ProductModal from "@/components/custom_components/ProductModal/ProductModal";
+import DealModal from "@/components/custom_components/DealModal/DealModal";
+
+// --- Global Modal Renderer ---
+const GlobalModalRenderer = () => {
+  const { isOpen, closeModal, modalType, modalData, editState } = useModal();
+
+  if (!isOpen || !modalData) return null;
+
+  return (
+    <>
+      {modalType === "product" && (
+        <ProductModal
+          product={modalData}
+          isOpen={isOpen}
+          setIsOpen={closeModal}
+          initialState={editState}
+        />
+      )}
+      {modalType === "deal" && (
+        <DealModal
+          deal={modalData}
+          isOpen={isOpen}
+          setIsOpen={closeModal}
+          initialState={editState}
+        />
+      )}
+    </>
+  );
+};
 
 const LayoutContent = ({ children }) => {
   const pathname = usePathname();
   const isAdminPage = pathname.startsWith("/admin");
-  const toast = useToast();
+  const { success: showToast } = useToast() || {};
   const hasShownNote = useRef(false);
 
-  // WEBSITE OPEN ALERT LOGIC
+  // WEBSITE OPEN ALERT LOGIC 
   useEffect(() => {
-    if (!isAdminPage && !hasShownNote.current) {
+    if (!isAdminPage && !hasShownNote.current && showToast) {
       async function fetchNote() {
         try {
           const res = await fetch("/api/settings");
           const json = await res.json();
           if (json.success && json.data.generalNote && json.data.generalNote.trim() !== "") {
-            toast.info(json.data.generalNote);
+            showToast(json.data.generalNote);
             hasShownNote.current = true;
           }
         } catch (err) {
@@ -30,7 +62,7 @@ const LayoutContent = ({ children }) => {
       }
       fetchNote();
     }
-  }, [isAdminPage, toast]);
+  }, [isAdminPage, showToast]);
 
   return (
     <>
@@ -49,19 +81,24 @@ const LayoutContent = ({ children }) => {
           <Footer />
         </div>
       )}
+
+      {/* Render Active Modal */}
+      <GlobalModalRenderer />
     </>
   );
 };
 
-// --- Main Export Wrapper ---
 export default function ClientLayout({ children }) {
   return (
     <ToastProvider>
       <CartProvider>
-        <LayoutContent>
-          {children}
-        </LayoutContent>
+        <ModalProvider>
+          <Suspense fallback={null}>
+            <DeepLinkHandler />
+          </Suspense>
+          <LayoutContent>{children}</LayoutContent>
+        </ModalProvider>
       </CartProvider>
     </ToastProvider>
   );
-}
+};
