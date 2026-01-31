@@ -64,7 +64,12 @@ const StepSelector = ({ currentStep, groups, selections, onUpdateQuantity }) => 
                             `}
                         >
                             <div className="relative w-14 h-14 shrink-0 rounded-lg overflow-hidden bg-black border border-white/5">
-                                <Image src={prod.image || "/placeholder.jpg"} alt={prod.title} fill className="object-cover" />
+                                <Image 
+                                src={prod.image || "/placeholder.jpg"} 
+                                alt={prod.title} 
+                                fill 
+                                sizes="64px"
+                                className="object-cover" />
                             </div>
 
                             <div className="flex-1 min-w-0">

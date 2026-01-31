@@ -147,7 +147,7 @@ const DealModal = ({ deal, isOpen, setIsOpen, initialState }) => {
         }
     };
 
-    const generateShareLink = () => typeof window !== "undefined" ? `${window.location.origin}/deals?id=${deal?._id}` : "";
+    const generateShareLink = () => typeof window !== "undefined" ? `${window.location.origin}/?deal=${deal?._id}` : "";
     const handleCopyLink = () => { navigator.clipboard.writeText(generateShareLink()); setCopied(true); setTimeout(() => setCopied(false), 2000); };
     const handleShare = (platform) => {
         const link = generateShareLink();

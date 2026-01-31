@@ -7,13 +7,18 @@ import Footer from "@/components/custom_components/Footer";
 import { CartProvider } from "@/context/CartContext";
 import { ToastProvider, useToast } from "@/context/ToastContext";
 import { ModalProvider, useModal } from "@/context/ModalContext";
-import DeepLinkHandler from "./DeepLinkHandler"; // We will create this next
+import DeepLinkHandler from "./DeepLinkHandler";
 import ProductModal from "@/components/custom_components/ProductModal/ProductModal";
 import DealModal from "@/components/custom_components/DealModal/DealModal";
+import ModalSkeleton from "@/components/custom_components/skeletons/ModalSkeleton";
 
-// --- Global Modal Renderer ---
+// Global Modal Renderer
 const GlobalModalRenderer = () => {
-  const { isOpen, closeModal, modalType, modalData, editState } = useModal();
+  const { isOpen, closeModal, modalType, modalData, editState, isLoading } = useModal();
+
+  if (isLoading) {
+    return <ModalSkeleton />;
+  }
 
   if (!isOpen || !modalData) return null;
 
@@ -45,7 +50,6 @@ const LayoutContent = ({ children }) => {
   const { success: showToast } = useToast() || {};
   const hasShownNote = useRef(false);
 
-  // WEBSITE OPEN ALERT LOGIC 
   useEffect(() => {
     if (!isAdminPage && !hasShownNote.current && showToast) {
       async function fetchNote() {
@@ -82,7 +86,6 @@ const LayoutContent = ({ children }) => {
         </div>
       )}
 
-      {/* Render Active Modal */}
       <GlobalModalRenderer />
     </>
   );
@@ -101,4 +104,4 @@ export default function ClientLayout({ children }) {
       </CartProvider>
     </ToastProvider>
   );
-};
+}

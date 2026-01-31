@@ -30,6 +30,7 @@ const Card = ({ deal, index }) => {
                     src={deal.image || "/placeholder.jpg"}
                     alt={deal.title}
                     fill
+                    priority={index < 4}
                     sizes="(max-width: 768px) 50vw, 25vw"
                     className="object-cover transition-transform duration-700 group-hover:scale-110"
                 />

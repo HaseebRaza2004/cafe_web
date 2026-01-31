@@ -12,7 +12,7 @@ const DealImage = ({ image, title, onClose }) => {
                 fill
                 sizes="(max-width: 768px) 100vw, 50vw"
                 className="object-cover"
-                priority
+                priority={true}
             />
             <div className="absolute inset-0 bg-linear-to-t from-black/90 via-transparent to-transparent md:bg-linear-to-r md:from-transparent md:to-black/90" />
             {/* Mobile Close Button */}

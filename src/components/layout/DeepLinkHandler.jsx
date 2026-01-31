@@ -1,25 +1,28 @@
 "use client";
-import { useEffect } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useEffect, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 import { useModal } from "@/context/ModalContext";
 
 const DeepLinkHandler = () => {
     const searchParams = useSearchParams();
-    const router = useRouter();
     const { openModal } = useModal();
+    const processedRef = useRef(false);
 
     useEffect(() => {
+        if (processedRef.current) return;
         const productId = searchParams.get("product");
         const dealId = searchParams.get("deal");
 
         if (productId) {
+            processedRef.current = true;
             openModal("product", productId);
-            router.replace("/", { scroll: false });
+            window.history.replaceState(null, "", "/");
         } else if (dealId) {
+            processedRef.current = true;
             openModal("deal", dealId);
-            router.replace("/", { scroll: false });
+            window.history.replaceState(null, "", "/");
         }
-    }, [searchParams, openModal, router]);
+    }, [searchParams, openModal]);
 
     return null;
 };

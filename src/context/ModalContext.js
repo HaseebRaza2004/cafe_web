@@ -5,14 +5,13 @@ const ModalContext = createContext();
 
 export function ModalProvider({ children }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [modalType, setModalType] = useState(null);
+  const [modalType, setModalType] = useState(null); // "product" | "deal"
   const [modalData, setModalData] = useState(null);
   const [editState, setEditState] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Helper to fetch fresh data
+  // --- Helper to fetch fresh data ---
   const fetchData = async (type, id) => {
-    setIsLoading(true);
     try {
       const endpoint =
         type === "product" ? `/api/products/${id}` : `/api/deals/${id}`;
@@ -21,35 +20,53 @@ export function ModalProvider({ children }) {
       if (result.success) return result.data;
     } catch (error) {
       console.error("Failed to fetch modal data", error);
-    } finally {
-      setIsLoading(false);
     }
     return null;
   };
 
-  // Open for New Item
-  const openModal = useCallback(async (type, idOrData) => {
-    if (typeof idOrData === "object") {
-      setModalType(type);
-      setModalData(idOrData);
-      setEditState(null);
-      setIsOpen(true);
-      return;
-    }
-    const data = await fetchData(type, idOrData);
+  // Open Modal by fetching data via ID (for Deep Links)
+  const openDeepLink = useCallback(async (type, id) => {
+    setModalType(type);
+    setModalData(null);
+    setIsLoading(true);
+    setIsOpen(true);
+
+    const data = await fetchData(type, id);
+
     if (data) {
-      setModalType(type);
       setModalData(data);
-      setEditState(null);
-      setIsOpen(true);
+    } else {
+      setIsOpen(false);
     }
+    setIsLoading(false);
   }, []);
 
-  // Open for Editing (From Cart)
+  // Open Modal with either data or fetch by ID
+  const openModal = useCallback(
+    (type, idOrData) => {
+      if (typeof idOrData === "object") {
+        setModalType(type);
+        setModalData(idOrData);
+        setEditState(null);
+        setIsLoading(false);
+        setIsOpen(true);
+        return;
+      }
+
+      openDeepLink(type, idOrData);
+    },
+    [openDeepLink],
+  );
+
+  // Open Edit Modal with pre-filled state
   const openEditModal = useCallback(async (type, cartItem) => {
+    setModalType(type);
+    setIsLoading(true);
+    setIsOpen(true);
+
     const data = await fetchData(type, cartItem.productId);
+
     if (data) {
-      setModalType(type);
       setModalData(data);
       setEditState({
         quantity: cartItem.quantity,
@@ -57,8 +74,10 @@ export function ModalProvider({ children }) {
         note: cartItem.customerNote,
         signature: cartItem.signature,
       });
-      setIsOpen(true);
+    } else {
+      setIsOpen(false);
     }
+    setIsLoading(false);
   }, []);
 
   const closeModal = useCallback(() => {
@@ -66,6 +85,7 @@ export function ModalProvider({ children }) {
     setModalType(null);
     setModalData(null);
     setEditState(null);
+    setIsLoading(false);
   }, []);
 
   return (
@@ -77,6 +97,7 @@ export function ModalProvider({ children }) {
         editState,
         isLoading,
         openModal,
+        openDeepLink,
         openEditModal,
         closeModal,
       }}

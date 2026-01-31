@@ -24,7 +24,14 @@ const CartItem = ({ item, updateQuantity, confirmRemoveItem }) => {
         >
             {/* Image */}
             <div className="relative w-16 h-16 rounded-lg overflow-hidden shrink-0 border border-white/10 self-start mt-1">
-                <Image src={item.image || "/placeholder.jpg"} alt={item.title} fill className="object-cover" />
+                <Image
+                    src={item.image || "/placeholder.jpg"}
+                    alt={item.title}
+                    sizes="64px"
+                    // priority={true}
+                    fill
+                    className="object-cover"
+                />
             </div>
 
             <div className="flex-1 min-w-0">
