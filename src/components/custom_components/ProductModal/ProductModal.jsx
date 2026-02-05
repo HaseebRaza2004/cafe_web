@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
-import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogTrigger, DialogClose } from "@/components/ui/dialog";
 import { X, Share2 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useModal } from "@/context/ModalContext"; // Use for Close
@@ -128,21 +128,36 @@ const ProductModal = ({ product, isOpen, setIsOpen, initialState }) => {
 
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
-            <DialogContent aria-describedby={undefined} className="w-[95vw] sm:max-w-[95vw] md:max-w-3xl lg:max-w-5xl h-[90vh] p-0 gap-0 flex flex-col bg-black/60 backdrop-blur-xl border border-(--color-gold) text-white overflow-hidden rounded-2xl shadow-2xl">
+            <DialogContent aria-describedby={undefined} className="w-[95vw] sm:max-w-[95vw] md:max-w-3xl lg:max-w-5xl h-[80vh] md:h-[70vh] lg:h-[90vh] p-0 gap-0 flex flex-col bg-black/60 backdrop-blur-xl border border-(--color-gold) text-white overflow-hidden rounded-2xl shadow-2xl [&>button:last-child]:hidden">
                 <DialogTitle className="sr-only">{product.title}</DialogTitle>
                 <DialogDescription className="sr-only">Customize Product</DialogDescription>
 
-                <div className="absolute top-4 right-4 z-50 hidden md:flex gap-2">
+                <div className="absolute top-4 right-4 z-50 flex gap-2">
                     <div className="relative">
-                        <button onClick={() => setShowShareMenu(!showShareMenu)} className="bg-black/40 backdrop-blur-md p-2 rounded-full text-white border border-white/10 hover:border-(--color-gold) hover:text-(--color-gold) transition-all"><Share2 className="w-5 h-5" /></button>
-                        {showShareMenu && <ShareMenu onShare={handleShare} onCopy={handleCopyLink} copied={copied} />}
+                        <button
+                            onClick={() => setShowShareMenu(!showShareMenu)}
+                            className="group bg-black/40 backdrop-blur-md p-2 rounded-full text-white hover:text-(--color-gold) transition-all duration-300"
+                        >
+                            <Share2 className="w-4 h-4 transition-transform duration-300 group-hover:scale-125" />
+                        </button>
+
+                        {showShareMenu && (
+                            <ShareMenu onShare={handleShare} onCopy={handleCopyLink} copied={copied} />
+                        )}
                     </div>
-                    <button onClick={() => setIsOpen(false)} className="bg-black/40 backdrop-blur-md p-2 rounded-full text-white border border-white/10 hover:bg-red-500/20 hover:text-red-500 transition-all"><X className="w-5 h-5" /></button>
+
+                   <DialogClose asChild>
+                        <button
+                            className="group bg-black/40 backdrop-blur-md p-2 rounded-full text-white hover:text-red-500 transition-all duration-300"
+                        >
+                            <X className="w-4 h-4 transition-transform duration-300 group-hover:scale-125" />
+                        </button>
+                    </DialogClose>
                 </div>
 
                 <div className="flex flex-col md:flex-row h-full">
                     <ProductImage image={product.image} title={product.title} onClose={() => setIsOpen(false)} />
-                    <div className="flex flex-col w-full md:w-[55%] h-full relative">
+                    <div className="flex flex-col w-full md:w-[55%] h-full relative overflow-scroll no-scrollbar">
                         <div className="flex-1 overflow-y-auto no-scrollbar p-5 md:p-8 space-y-6">
                             <ProductInfo title={product.title} desc={product.desc} basePrice={basePrice} />
                             <div className="h-px bg-white/10 w-full" />
