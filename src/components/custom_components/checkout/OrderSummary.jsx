@@ -3,8 +3,11 @@
 import React from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { useCart } from "@/context/CartContext";
 
-const OrderSummary = ({ cartItems, subtotal, tax, deliveryFee, grandTotal, deliveryArea, handlePlaceOrder }) => {
+const OrderSummary = ({ handlePlaceOrder }) => {
+    const { cartItems, cartTotal, tax, deliveryFee, grandTotal, deliveryArea } = useCart();
+
     return (
         <div className="bg-black/60 backdrop-blur-md border border-(--color-gold) rounded-xl p-6 sticky top-28 shadow-[0_0_30px_rgba(197,160,89,0.1)]">
             <h3 className="text-2xl font-display font-bold text-white mb-6 tracking-wide">
@@ -12,38 +15,30 @@ const OrderSummary = ({ cartItems, subtotal, tax, deliveryFee, grandTotal, deliv
             </h3>
 
             {/* Items List */}
-            <div className="space-y-4 mb-6 max-h-100 overflow-y-auto pr-2 custom-scrollbar">
+            <div className="space-y-4 mb-6 max-h-100 overflow-y-auto pr-2 no-scrollbar">
                 {cartItems.length === 0 ? (
                     <div className="py-8 text-center border border-dashed border-white/20 rounded-lg">
                         <p className="text-gray-500 mb-2">Your cart is empty.</p>
-                        <Link
-                            href="/"
-                            className="text-(--color-gold) hover:underline text-sm font-bold"
-                        >
+                        <Link href="/" className="text-(--color-gold) hover:underline text-sm font-bold">
                             Go to Menu
                         </Link>
                     </div>
                 ) : (
                     cartItems.map((item, index) => (
-                        <div
-                            key={index}
-                            className="flex justify-between items-start border-b border-white/10 pb-4 last:border-0"
-                        >
+                        <div key={index} className="flex justify-between items-start border-b border-white/10 pb-4 last:border-0">
                             <div className="flex-1">
                                 <p className="text-base font-bold text-white">
-                                    <span className="text-(--color-gold) mr-2">
-                                        {item.quantity}x
-                                    </span>
-                                    {item.title}
+                                    <span className="text-(--color-gold) mr-2">{item?.quantity}x</span>
+                                    {item?.title}
                                 </p>
-                                {item.addons.length > 0 && (
+                                {item?.selectedOptions?.length > 0 && (
                                     <p className="text-xs text-gray-400 mt-1 pl-6">
-                                        + {item.addons.join(", ")}
+                                        + {item?.selectedOptions.map(opt => opt.name).join(", ")}
                                     </p>
                                 )}
                             </div>
                             <p className="text-base font-mono text-gray-300 font-medium">
-                                Rs {item.totalPrice}
+                                Rs {(item?.price * item?.quantity).toLocaleString()}
                             </p>
                         </div>
                     ))
@@ -54,14 +49,14 @@ const OrderSummary = ({ cartItems, subtotal, tax, deliveryFee, grandTotal, deliv
             <div className="space-y-3 pt-4 border-t border-white/20 text-sm">
                 <div className="flex justify-between text-gray-400">
                     <span>Subtotal</span>
-                    <span>Rs {subtotal}</span>
+                    <span>Rs {cartTotal.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between text-gray-400">
                     <span>Tax (15%)</span>
-                    <span>Rs {tax}</span>
+                    <span>Rs {Math.round(tax).toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between text-gray-400">
-                    <span>Delivery Fee ({deliveryArea.toUpperCase()})</span>
+                    <span>Delivery Fee {deliveryArea ? `(${deliveryArea})` : ""}</span>
                     <span>Rs {deliveryFee}</span>
                 </div>
 
@@ -69,7 +64,7 @@ const OrderSummary = ({ cartItems, subtotal, tax, deliveryFee, grandTotal, deliv
 
                 <div className="flex justify-between text-(--color-gold) font-bold text-xl md:text-2xl">
                     <span>Grand Total</span>
-                    <span>Rs {grandTotal}</span>
+                    <span>Rs {Math.round(grandTotal).toLocaleString()}</span>
                 </div>
             </div>
 
@@ -83,10 +78,7 @@ const OrderSummary = ({ cartItems, subtotal, tax, deliveryFee, grandTotal, deliv
             </Button>
 
             <div className="mt-4 text-center">
-                <Link
-                    href="/"
-                    className="text-sm text-gray-500 hover:text-white underline decoration-dotted transition-colors"
-                >
+                <Link href="/" className="text-sm text-gray-500 hover:text-white underline decoration-dotted transition-colors">
                     &larr; Continue to add more items
                 </Link>
             </div>

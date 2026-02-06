@@ -48,7 +48,7 @@ const HeroSection = () => {
                     <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
                         <Button
                             size="lg"
-                            className="bg-(--color-gold) text-black hover:bg-(--color-gold-dark) px-8 py-6 text-lg rounded-md uppercase tracking-widest font-bold transition-all duration-400 hover:scale-105"
+                            className="bg-(--color-gold) text-black hover:bg-(--color-gold-dark) px-8 py-6 text-lg rounded-md uppercase tracking-widest font-bold transition-all duration-400 hover:scale-105 cursor-pointer"
                         >
                             Order Now
                         </Button>
@@ -56,7 +56,7 @@ const HeroSection = () => {
                         <Button
                             variant="outline"
                             size="lg"
-                            className="border-(--color-gold) text-(--color-gold) hover:bg-(--color-gold) hover:text-black px-8 py-6 text-lg rounded-md uppercase tracking-widest font-bold transition-all duration-400 hover:scale-105"
+                            className="border-(--color-gold) text-(--color-gold) hover:bg-(--color-gold) hover:text-black px-8 py-6 text-lg rounded-md uppercase tracking-widest font-bold transition-all duration-400 hover:scale-105 cursor-pointer"
                         >
                             View Menu <ArrowRight className="ml-2 w-5 h-5" />
                         </Button>

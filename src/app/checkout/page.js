@@ -1,18 +1,30 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
 import { ArrowLeft } from "lucide-react";
 import CheckoutForm from "@/components/custom_components/checkout/CheckoutForm";
 import OrderSummary from "@/components/custom_components/checkout/OrderSummary";
+import ConfirmModal from "@/components/custom_components/ConfirmModal"; 
 
 const CheckoutPage = () => {
-  const { cartItems, subtotal, tax, deliveryFee, grandTotal, deliveryArea } =
+  const router = useRouter();
+  const { cartItems, deliveryFee, deliveryArea, grandTotal, isLoaded } =
     useCart();
+
+  useEffect(() => {
+    if (isLoaded) {
+      if (cartItems.length === 0 || !deliveryArea) {
+        router.replace("/");
+      }
+    }
+  }, [isLoaded, cartItems, deliveryArea, router]);
 
   // State
   const [changeRequest, setChangeRequest] = useState("");
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",
     mobile: "",
@@ -27,40 +39,44 @@ const CheckoutPage = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handlePlaceOrder = () => {
+  const handleValidation = () => {
     if (cartItems.length === 0) return;
-
     if (!formData.fullName || !formData.mobile || !formData.address) {
       alert("Please fill in all required fields (Name, Mobile, Address).");
       return;
     }
+    setIsConfirmOpen(true);
+  };
 
+  const handleFinalOrder = () => {
     // WhatsApp Message Logic
     const message =
       `*New Order: ${formData.fullName}*\n\n` +
       `*Items:*\n${cartItems
         .map(
           (item) =>
-            `- ${item.quantity}x ${item.title} (${item.addons.join(", ")})`
+            `- ${item.quantity}x ${item.title} (${item.selectedOptions?.map((opt) => opt.name).join(", ") || ""})`,
         )
         .join("\n")}\n\n` +
-      `*Total Bill:* Rs ${grandTotal}\n` +
+      `*Total Bill:* Rs ${grandTotal.toLocaleString()}\n` +
       `*Delivery Area:* ${deliveryArea.toUpperCase()}\n` +
-      `*Address:* ${formData.address}\n` +
+      `*Address:* ${formData.address} ${formData.landmark ? `(${formData.landmark})` : ""}\n` +
       `*Payment:* Cash on Delivery (COD)\n` +
       `${changeRequest ? `*Change Required For:* Rs ${changeRequest}\n` : ""}` +
       `*Mobile:* ${formData.mobile}\n` +
+      `${formData.altMobile ? `*Alt Mobile:* ${formData.altMobile}\n` : ""}` +
       `${formData.email ? `*Email:* ${formData.email}\n` : ""}` +
       `${formData.instructions ? `*Note:* ${formData.instructions}` : ""}`;
 
     const encodedMsg = encodeURIComponent(message);
-    window.open(`https://wa.me/923001234567?text=${encodedMsg}`, "_blank");
+    window.open(`https://wa.me/923421461997?text=${encodedMsg}`, "_blank");
   };
+
+  if (!isLoaded) return null;
 
   return (
     <div className="min-h-screen text-white pt-24 pb-12 mt-10">
       <div className="container mx-auto px-4 md:px-6">
-        {/* Page Header */}
         <header className="mb-10">
           <Link
             href="/"
@@ -72,7 +88,7 @@ const CheckoutPage = () => {
             Secure Your Order
           </h1>
           <p className="text-gray-400 mt-2 text-base md:text-lg font-light">
-            Please provide your delivery details to finalize your{" "}
+            Please provide your details to finalize your{" "}
             <span className="text-white font-semibold">
               Premium Dining Experience.
             </span>
@@ -80,7 +96,7 @@ const CheckoutPage = () => {
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16">
-          {/* --- LEFT COLUMN: FORM COMPONENT --- */}
+          {/* LEFT: FORM */}
           <div className="lg:col-span-8">
             <CheckoutForm
               formData={formData}
@@ -91,20 +107,23 @@ const CheckoutPage = () => {
             />
           </div>
 
-          {/* --- RIGHT COLUMN: ORDER SUMMARY COMPONENT --- */}
+          {/* RIGHT: SUMMARY */}
           <div className="lg:col-span-4">
-            <OrderSummary
-              cartItems={cartItems}
-              subtotal={subtotal}
-              tax={tax}
-              deliveryFee={deliveryFee}
-              grandTotal={grandTotal}
-              deliveryArea={deliveryArea}
-              handlePlaceOrder={handlePlaceOrder}
-            />
+            <OrderSummary handlePlaceOrder={handleValidation} />
           </div>
         </div>
       </div>
+
+      {/* CONFIRMATION MODAL */}
+      <ConfirmModal
+        isOpen={isConfirmOpen}
+        onClose={() => setIsConfirmOpen(false)}
+        onConfirm={handleFinalOrder}
+        title="Confirm Order details?"
+        description="Please ensure your address and items are correct. Orders cannot be cancelled once placed. Estimated delivery: 45-60 mins."
+        confirmText="Place Order on WhatsApp"
+        variant="default"
+      />
     </div>
   );
 };

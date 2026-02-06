@@ -4,56 +4,43 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ShoppingBag } from "lucide-react";
 import { AnimatePresence } from "framer-motion";
-
 import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetDescription } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useCart } from "@/context/CartContext";
 import ConfirmModal from "../ConfirmModal";
-
 import CartHeader from "./CartHeader";
 import CartItem from "./CartItem";
 import DeliverySelector from "./DeliverySelector";
 import CheckoutSection from "./CheckoutSection";
-
-// FIX: Import the Reusable Skeleton
 import CartSkeleton from "@/components/custom_components/skeletons/CartSkeleton";
 
 const CartSheet = () => {
-    const { cartItems, removeFromCart, updateQuantity, cartTotal, cartCount, isLoaded } = useCart();
+    const { cartItems, removeFromCart, updateQuantity, cartTotal, cartCount, isLoaded, deliveryFee, setDeliveryInfo } = useCart();
     const router = useRouter();
 
-    const [deliveryFee, setDeliveryFee] = useState(0);
-    const [selectedAreaName, setSelectedAreaName] = useState("");
     const [itemToDelete, setItemToDelete] = useState(null);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-
     const TAX_RATE = 0.15;
     const taxAmount = cartTotal > 0 ? cartTotal * TAX_RATE : 0;
     const grandTotal = cartTotal + taxAmount + deliveryFee;
 
-    const handleCheckout = () => {
-        const params = new URLSearchParams({ area: selectedAreaName, fee: deliveryFee });
-        router.push(`/checkout?${params.toString()}`);
-    };
+    const handleCheckout = () => router.push(`/checkout`);
 
     const confirmRemoveItem = (signature) => {
         setItemToDelete(signature);
         setIsDeleteModalOpen(true);
     };
 
-    const onAreaSelect = (price, name) => {
-        setDeliveryFee(price);
-        setSelectedAreaName(name);
-    };
+    const onAreaSelect = (price, name) => setDeliveryInfo(price, name);
 
     return (
         <>
             <Sheet>
                 <SheetTrigger asChild>
                     <button className="relative p-2 hover:bg-white/10 rounded-full transition-colors group">
-                        <ShoppingBag className="w-6 h-6 text-white group-hover:text-(--color-gold) transition-colors" />
+                        <ShoppingBag className="w-6 h-6 text-white group-hover:text-(--color-gold) transition-colors cursor-pointer" />
                         {isLoaded && cartCount > 0 && (
                             <span className="absolute -top-1 -right-1 bg-(--color-gold) text-black text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full animate-in zoom-in">
                                 {cartCount}
@@ -81,11 +68,16 @@ const CartSheet = () => {
                                                 <ShoppingBag className="w-8 h-8 opacity-40" />
                                             </div>
                                             <div className="text-center space-y-2">
-                                                <p className="text-lg font-bold text-white tracking-wide">Your Cart is Empty</p>
-                                                <p className="text-xs text-gray-400 max-w-50 mx-auto leading-relaxed">Delicious food is just a click away.</p>
+                                                <p className="text-xl font-bold text-(--color-gold) tracking-wide">Your Cart is Empty</p>
+                                                <p className="text-sm text-gray-400 max-w-50 mx-auto leading-relaxed">Delicious food is just a click away.</p>
                                             </div>
                                             <SheetClose asChild>
-                                                <Button variant="outline" className="border-(--color-gold) text-(--color-gold) hover:bg-(--color-gold) hover:text-black uppercase text-xs tracking-widest px-8">Browse Menu</Button>
+                                                <Button
+                                                    variant="outline"
+                                                    className="bg-(--color-gold) border-none text-black hover:bg-(--color-gold-dark) px-8 py-6 text-lg rounded-md uppercase tracking-widest font-bold transition-all duration-400 hover:scale-105"
+                                                >
+                                                    Browse Menu
+                                                </Button>
                                             </SheetClose>
                                         </div>
                                     )}

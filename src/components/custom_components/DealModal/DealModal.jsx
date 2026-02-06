@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState, useMemo, useEffect, useCallback } from "react";
-import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogTrigger, DialogClose } from "@/components/ui/dialog";
-import { X, Share2, ShoppingBag } from "lucide-react";
+import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
+import { X, Share2 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useToast } from "@/context/ToastContext";
 import ShareMenu from "@/components/custom_components/ShareMenu";
@@ -12,8 +12,9 @@ import StepSelector from "./StepSelector";
 import DealFooter from "./DealFooter";
 import NoteInput from "../ProductModal/NoteInput";
 
+
 const DealModal = ({ deal, isOpen, setIsOpen, initialState }) => {
-    const { addToCart, removeFromCart } = useCart();
+    const { addToCart, updateItemInCart } = useCart();
     const { error: showError } = useToast() || {};
     const [currentStep, setCurrentStep] = useState(0);
     const [selections, setSelections] = useState({});
@@ -26,7 +27,7 @@ const DealModal = ({ deal, isOpen, setIsOpen, initialState }) => {
     const currentGroup = groups[currentStep];
     const isFixedDeal = groups.length === 0;
 
-    // --- INITIALIZE (Edit Mode Logic) ---
+    // INITIALIZE (Edit Mode Logic) 
     useEffect(() => {
         if (isOpen) {
             const timer = setTimeout(() => {
@@ -44,7 +45,7 @@ const DealModal = ({ deal, isOpen, setIsOpen, initialState }) => {
                             if (!restoredSelections[groupIndex]) restoredSelections[groupIndex] = {};
 
                             const groupItem = groups[groupIndex].specificProducts.find(
-                                sp => sp.product.title === opt.name.replace(/\s\(\+\d+\)$/, "") // Remove (+20) price suffix if any
+                                sp => sp.product.title === opt.name.replace(/\s\(\+\d+\)$/, "")
                             );
 
                             if (groupItem) {
@@ -54,7 +55,6 @@ const DealModal = ({ deal, isOpen, setIsOpen, initialState }) => {
                         }
                     });
                     setSelections(restoredSelections);
-
                 } else {
                     setCurrentStep(0);
                     setSelections({});
@@ -62,7 +62,7 @@ const DealModal = ({ deal, isOpen, setIsOpen, initialState }) => {
                     setNote("");
                 }
             }, 0);
-            return () => clearTimeout(timer);
+            return () => clearTimeout(timer)
         }
     }, [isOpen, deal, groups, initialState]);
 
@@ -100,7 +100,6 @@ const DealModal = ({ deal, isOpen, setIsOpen, initialState }) => {
         const currentStepSelections = selections[currentStep] || {};
         const totalSelected = Object.values(currentStepSelections).reduce((a, b) => a + b, 0);
         const minSel = currentGroup?.minSelection || 1;
-
         if (totalSelected < minSel) {
             if (showError) showError(`Please select at least ${minSel} items.`);
             return false;
@@ -110,17 +109,11 @@ const DealModal = ({ deal, isOpen, setIsOpen, initialState }) => {
 
     const handleAction = () => {
         if (!validateStep()) return;
-
         if (currentStep < groups.length - 1) {
             setCurrentStep(prev => prev + 1);
         } else {
-            if (initialState?.signature) {
-                removeFromCart(initialState.signature);
-            }
-
             const formattedOptions = [];
             let extraPriceTotal = 0;
-
             Object.entries(selections).forEach(([stepIdx, stepData]) => {
                 const group = groups[stepIdx];
                 Object.entries(stepData).forEach(([prodId, qty]) => {
@@ -128,7 +121,6 @@ const DealModal = ({ deal, isOpen, setIsOpen, initialState }) => {
                     const prodTitle = conf?.product?.title || "Item";
                     const extra = conf?.extraPrice || 0;
                     extraPriceTotal += (extra * qty);
-
                     for (let i = 0; i < qty; i++) {
                         formattedOptions.push({
                             group: group.heading,
@@ -138,15 +130,27 @@ const DealModal = ({ deal, isOpen, setIsOpen, initialState }) => {
                     }
                 });
             });
-
             const unitPrice = deal.price + extraPriceTotal;
             const finalTotalPrice = unitPrice * quantity;
 
-            addToCart(deal, quantity, formattedOptions, finalTotalPrice, note, "deal");
+            if (initialState?.signature) {
+                updateItemInCart(
+                    initialState.signature,
+                    deal,
+                    quantity,
+                    formattedOptions,
+                    finalTotalPrice,
+                    note,
+                    "deal"
+                );
+            } else {
+                addToCart(deal, quantity, formattedOptions, finalTotalPrice, note, "deal");
+            }
             setIsOpen(false);
         }
     };
 
+    // share logic
     const generateShareLink = () => typeof window !== "undefined" ? `${window.location.origin}/?deal=${deal?._id}` : "";
     const handleCopyLink = () => { navigator.clipboard.writeText(generateShareLink()); setCopied(true); setTimeout(() => setCopied(false), 2000); };
     const handleShare = (platform) => {
@@ -167,19 +171,15 @@ const DealModal = ({ deal, isOpen, setIsOpen, initialState }) => {
         });
         return total;
     }, [selections, groups]);
-
     const displayTotal = (deal?.price + currentExtraTotal) * quantity;
 
     if (!deal) return null;
 
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
-            {/* FIXED SHELL */}
             <DialogContent aria-describedby={undefined} className="w-[95vw] sm:max-w-[95vw] md:max-w-3xl lg:max-w-5xl h-[80vh] md:h-[70vh] lg:h-[90vh] p-0 gap-0 flex flex-col bg-black/60 backdrop-blur-xl border border-(--color-gold) text-white overflow-hidden rounded-2xl shadow-2xl [&>button:last-child]:hidden">
                 <DialogTitle className="sr-only">{deal?.title}</DialogTitle>
                 <DialogDescription className="sr-only">Customize Deal</DialogDescription>
-
-                {/* Floating Controls */}
                 <div className="absolute top-4 right-4 z-50 flex gap-2">
                     <div className="relative">
                         <button
@@ -188,12 +188,10 @@ const DealModal = ({ deal, isOpen, setIsOpen, initialState }) => {
                         >
                             <Share2 className="w-4 h-4 transition-transform duration-300 group-hover:scale-125" />
                         </button>
-
                         {showShareMenu && (
                             <ShareMenu onShare={handleShare} onCopy={handleCopyLink} copied={copied} />
                         )}
                     </div>
-
                     <DialogClose asChild>
                         <button
                             className="group bg-black/40 backdrop-blur-md p-2 rounded-full text-white hover:text-red-500 transition-all duration-300"
@@ -202,19 +200,12 @@ const DealModal = ({ deal, isOpen, setIsOpen, initialState }) => {
                         </button>
                     </DialogClose>
                 </div>
-
                 <div className="flex flex-col md:flex-row h-full">
-                    {/* Left: Fixed Image */}
                     <DealImage image={deal?.image} title={deal?.title} onClose={() => setIsOpen(false)} />
-
-                    {/* Right: Content Wrapper */}
                     <div className="flex flex-col w-full md:w-[55%] h-full relative overflow-scroll no-scrollbar">
-
-                        {/* Scrollable Body */}
                         <div className="flex-1 overflow-y-auto no-scrollbar p-5 md:p-8 space-y-6">
                             <DealInfo title={deal?.title} desc={deal?.desc} price={deal?.price} />
                             <div className="h-px bg-white/10 w-full" />
-
                             {isFixedDeal ? (
                                 <div />
                             ) : (
@@ -225,11 +216,9 @@ const DealModal = ({ deal, isOpen, setIsOpen, initialState }) => {
                                     onUpdateQuantity={updateSelectionQuantity}
                                 />
                             )}
-
                             <NoteInput value={note} onChange={(e) => setNote(e.target.value)} />
                         </div>
 
-                        {/* Sticky Footer */}
                         <DealFooter
                             isFixedDeal={isFixedDeal}
                             isLastStep={currentStep === groups.length - 1}

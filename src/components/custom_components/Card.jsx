@@ -56,7 +56,7 @@ const Card = ({ deal, index }) => {
                     <div className="text-(--color-gold) font-bold text-base md:text-lg mb-3">
                         Rs {deal.price}
                     </div>
-                    <Button className="w-full h-8 md:h-10 text-[10px] md:text-sm bg-(--color-gold) text-black hover:bg-[#b89445] rounded-md font-bold uppercase tracking-wide">
+                    <Button className="w-full h-8 md:h-10 text-[10px] md:text-sm bg-(--color-gold) text-black hover:bg-(--color-gold-dark) rounded-md font-bold uppercase tracking-wide transition-all duration-400 hover:scale-105 cursor-pointer">
                         {isDeal ? "View Deal" : "Add to Cart"}
                     </Button>
                 </div>

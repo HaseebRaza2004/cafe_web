@@ -10,7 +10,7 @@ export function ModalProvider({ children }) {
   const [editState, setEditState] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // --- Helper to fetch fresh data ---
+  // Helper to fetch data
   const fetchData = async (type, id) => {
     try {
       const endpoint =
@@ -24,7 +24,7 @@ export function ModalProvider({ children }) {
     return null;
   };
 
-  // Open Modal by fetching data via ID (for Deep Links)
+  // 1. Open via Deep Link
   const openDeepLink = useCallback(async (type, id) => {
     setModalType(type);
     setModalData(null);
@@ -41,7 +41,7 @@ export function ModalProvider({ children }) {
     setIsLoading(false);
   }, []);
 
-  // Open Modal with either data or fetch by ID
+  // 2. Open with Data (From Menu)
   const openModal = useCallback(
     (type, idOrData) => {
       if (typeof idOrData === "object") {
@@ -52,13 +52,12 @@ export function ModalProvider({ children }) {
         setIsOpen(true);
         return;
       }
-
       openDeepLink(type, idOrData);
     },
     [openDeepLink],
   );
 
-  // Open Edit Modal with pre-filled state
+  // Open Edit Modal (From Cart)
   const openEditModal = useCallback(async (type, cartItem) => {
     setModalType(type);
     setIsLoading(true);

@@ -1,12 +1,10 @@
 "use client"
 
 import React, { useEffect, useState } from 'react'
-import { Phone, ShoppingCart } from 'lucide-react'
-import { Button } from '../ui/button';
+import { Phone } from 'lucide-react'
 import Logo from './Logo';
 import Link from 'next/link';
 import CartSheet from './CartSheet/CartSheet';
-
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -33,7 +31,7 @@ const Header = () => {
           <div className="flex-1 flex justify-start">
             <a
               href="tel:0300-1234567"
-              className="group bg-(--color-gold) hover:bg-(--color-gold-dark) text-black rounded-full md:rounded-md px-4 py-3 transition-all duration-300 hover:scale-105 inline-flex items-center justify-center font-medium"
+              className="group bg-(--color-gold) hover:bg-(--color-gold-dark) text-black rounded-full md:rounded-md px-4 py-4 md:py-3 transition-all duration-300 hover:scale-105 inline-flex items-center justify-center font-medium"
             >
               <div className="flex items-center gap-2 font-bold text-lg">
                 <Phone className="w-5 h-5 fill-black" />
@@ -53,21 +51,6 @@ const Header = () => {
           </div>
 
           {/* RIGHT: Cart Icon */}
-          {/* <div className="flex-1 flex justify-end">
-            <Button
-              variant="ghost"
-              onClick={() => console.log("Open Cart")}
-              className="relative w-14 h-14 rounded-full hover:bg-white/10 transition-all duration-300 group cursor-pointer"
-            >
-              <ShoppingCart className="w-6! h-6! text-white group-hover:text-(--color-gold) transition-colors" />
-
-              {cartCount > 0 && (
-                <span className="absolute top-1 right-1 w-6 h-6 bg-gold text-black text-sm font-bold flex items-center justify-center rounded-full animate-bounce shadow-lg border border-black">
-                  {cartCount}
-                </span>
-              )}
-            </Button>
-          </div> */}
           <div className="flex-1 flex justify-end">
             <CartSheet />
           </div>

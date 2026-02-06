@@ -4,7 +4,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogTrigger, DialogClose } from "@/components/ui/dialog";
 import { X, Share2 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
-import { useModal } from "@/context/ModalContext"; // Use for Close
+import { useModal } from "@/context/ModalContext";
 import ShareMenu from "@/components/custom_components/ShareMenu";
 
 import ProductImage from "./ProductImage";
@@ -15,7 +15,7 @@ import NoteInput from "./NoteInput";
 import ModalFooter from "./ModalFooter";
 
 const ProductModal = ({ product, isOpen, setIsOpen, initialState }) => {
-    const { addToCart, removeFromCart } = useCart();
+    const { addToCart, updateItemInCart } = useCart();
     const [quantity, setQuantity] = useState(1);
     const [selections, setSelections] = useState({});
     const [selectedVariation, setSelectedVariation] = useState(null);
@@ -90,10 +90,6 @@ const ProductModal = ({ product, isOpen, setIsOpen, initialState }) => {
     };
 
     const handleAddToCart = () => {
-        if (initialState?.signature) {
-            removeFromCart(initialState.signature);
-        }
-
         const selectedOptionsList = Object.entries(selections).flatMap(([groupId, selectedNames]) => {
             const groupConfig = product.productOptions.find(po => po.optionGroupId._id === groupId);
             const groupName = groupConfig?.optionGroupId?.name || "Option";
@@ -111,7 +107,20 @@ const ProductModal = ({ product, isOpen, setIsOpen, initialState }) => {
             });
         }
 
-        addToCart(product, quantity, selectedOptionsList, totalPrice, note, "product");
+        if (initialState?.signature) {
+            updateItemInCart(
+                initialState.signature,
+                product,
+                quantity,
+                selectedOptionsList,
+                totalPrice,
+                note,
+                "product"
+            );
+        } else {
+            addToCart(product, quantity, selectedOptionsList, totalPrice, note, "product");
+        }
+
         setIsOpen(false);
     };
 
@@ -146,7 +155,7 @@ const ProductModal = ({ product, isOpen, setIsOpen, initialState }) => {
                         )}
                     </div>
 
-                   <DialogClose asChild>
+                    <DialogClose asChild>
                         <button
                             className="group bg-black/40 backdrop-blur-md p-2 rounded-full text-white hover:text-red-500 transition-all duration-300"
                         >
