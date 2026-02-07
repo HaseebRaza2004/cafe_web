@@ -47,26 +47,31 @@ const GlobalModalRenderer = () => {
 const LayoutContent = ({ children }) => {
   const pathname = usePathname();
   const isAdminPage = pathname.startsWith("/admin");
-  const { success: showToast } = useToast() || {};
+  const { info: showToast } = useToast() || {};
   const hasShownNote = useRef(false);
 
   useEffect(() => {
-    if (!isAdminPage && !hasShownNote.current && showToast) {
-      async function fetchNote() {
-        try {
-          const res = await fetch("/api/settings");
-          const json = await res.json();
-          if (json.success && json.data.generalNote && json.data.generalNote.trim() !== "") {
-            showToast(json.data.generalNote);
-            hasShownNote.current = true;
+    if (!isAdminPage && pathname === "/" && !hasShownNote.current && showToast) {
+      const hasSeenSession = typeof window !== 'undefined' ? sessionStorage.getItem("hasSeenGeneralNote") : null;
+      if (!hasSeenSession) {
+        async function fetchNote() {
+          try {
+            const res = await fetch("/api/settings");
+            const json = await res.json();
+
+            if (json.success && json.data.generalNote && json.data.generalNote.trim() !== "") {
+              showToast(json.data.generalNote);
+              hasShownNote.current = true;
+              sessionStorage.setItem("hasSeenGeneralNote", "true");
+            }
+          } catch (err) {
+            console.error("Failed to fetch notification", err);
           }
-        } catch (err) {
-          console.error("Failed to fetch notification", err);
         }
+        fetchNote();
       }
-      fetchNote();
     }
-  }, [isAdminPage, showToast]);
+  }, [isAdminPage, pathname, showToast]);
 
   return (
     <>

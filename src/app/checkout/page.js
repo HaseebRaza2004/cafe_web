@@ -69,7 +69,7 @@ const CheckoutPage = () => {
       `${formData.instructions ? `*Note:* ${formData.instructions}` : ""}`;
 
     const encodedMsg = encodeURIComponent(message);
-    window.open(`https://wa.me/923421461997?text=${encodedMsg}`, "_blank");
+    window.open(`https://wa.me/923212190661?text=${encodedMsg}`, "_blank");
   };
 
   if (!isLoaded) return null;
