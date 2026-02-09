@@ -30,11 +30,11 @@ export default function RootLayout({ children }) {
         {/* Global Background Image (Server Side Rendered for Speed) */}
         <div className="fixed inset-0 z-10">
           <Image
-            src="/marble.jpg"
+            src="/marbleImage.webp"
             alt="Marble luxury Background"
             fill
             quality={75}
-            priority={true} // Fast LCP
+            priority={true} 
             className="object-cover"
           />
           <div className="absolute inset-0 bg-black/40" />

@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { useModal } from "@/context/ModalContext";
+import cloudinaryLoader from "@/lib/cloudinary-loader";
 
 const Card = ({ deal, index }) => {
     const { openModal } = useModal();
@@ -14,8 +15,7 @@ const Card = ({ deal, index }) => {
     const handleOpen = () => {
         openModal(type, deal);
     };
-
-    return (
+   return (
         <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -28,9 +28,10 @@ const Card = ({ deal, index }) => {
             <div className="relative w-full aspect-square overflow-hidden">
                 <Image
                     src={deal.image || "/placeholder.jpg"}
-                    alt={deal.title}
+                    alt={deal.title || "Product image"}
+                    loader={cloudinaryLoader}
                     fill
-                    priority={index < 4}
+                    priority={index > 4}
                     sizes="(max-width: 768px) 50vw, 25vw"
                     className="object-cover transition-transform duration-700 group-hover:scale-110"
                 />

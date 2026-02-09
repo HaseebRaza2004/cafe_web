@@ -4,6 +4,7 @@ import Image from "next/image";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useModal } from "@/context/ModalContext";
+import cloudinaryLoader from "@/lib/cloudinary-loader";
 
 const CartItem = ({ item, updateQuantity, confirmRemoveItem }) => {
     const { openEditModal } = useModal();
@@ -27,8 +28,9 @@ const CartItem = ({ item, updateQuantity, confirmRemoveItem }) => {
                 <Image
                     src={item.image || "/placeholder.jpg"}
                     alt={item.title}
+                    loader={cloudinaryLoader}
                     sizes="64px"
-                    // priority={true}
+                    priority={false}
                     fill
                     className="object-cover"
                 />

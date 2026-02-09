@@ -12,7 +12,7 @@ const HeroSection = () => {
                 {/* Background Image with Overlay */}
                 <div className="absolute inset-0 z-0">
                     <Image
-                        src="/Burger.jpg"
+                        src="/heroSecImage.webp"
                         alt="Delicious Cafe Food"
                         fill
                         priority={true}

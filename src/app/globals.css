@@ -150,7 +150,7 @@
   /* --- UPDATED BODY WITH MARBLE BACKGROUND --- */
   body {
     /* Global Background Image setup */
-    background-image: url('/marble.jpg');
+    background-image: url('/marbleImage.webp');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;

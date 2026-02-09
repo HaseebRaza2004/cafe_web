@@ -1,13 +1,15 @@
 "use client";
 import React from "react";
 import Image from "next/image";
+import cloudinaryLoader from "@/lib/cloudinary-loader";
 
 const ProductImage = ({ image, title }) => {
     return (
         <div className="relative w-full md:w-[45%] h-40 md:h-auto shrink-0 bg-black/50">
             <Image
                 src={image || "/placeholder.jpg"}
-                alt={title}
+                alt={title || "Product detail"}
+                loader={cloudinaryLoader}
                 fill
                 sizes="(max-width: 768px) 100vw, 50vw"
                 className="object-cover"
