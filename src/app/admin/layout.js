@@ -11,6 +11,9 @@ import {
   LogOut,
   Menu,
   X,
+  HandPlatter,
+  LayoutGrid,
+  Puzzle,
 } from "lucide-react";
 
 export default function AdminLayout({ children }) {
@@ -61,6 +64,12 @@ export default function AdminLayout({ children }) {
             active={pathname === "/admin/dashboard"}
           />
           <NavLink
+            href="/admin/orders"
+            icon={ShoppingBag}
+            label="Live Orders"
+            active={pathname === "/admin/orders"}
+          />
+          <NavLink
             href="/admin/products"
             icon={UtensilsCrossed}
             label="Menu"
@@ -68,33 +77,27 @@ export default function AdminLayout({ children }) {
           />
           <NavLink
             href="/admin/deals"
-            icon={UtensilsCrossed}
+            icon={HandPlatter}
             label="Deals"
             active={pathname === "/admin/deals"}
           />
           <NavLink
             href="/admin/options"
-            icon={UtensilsCrossed}
+            icon={Puzzle}
             label="Add-ons & Options"
             active={pathname === "/admin/options"}
           />
           <NavLink
-            href="/admin/orders"
-            icon={ShoppingBag}
-            label="Live Orders"
-            active={pathname === "/admin/orders"}
+            href="/admin/categories"
+            icon={LayoutGrid}
+            label="categories"
+            active={pathname === "/admin/categories"}
           />
           <NavLink
             href="/admin/settings"
             icon={Settings}
             label="Settings"
             active={pathname === "/admin/settings"}
-          />
-          <NavLink
-            href="/admin/categories"
-            icon={Settings}
-            label="categories"
-            active={pathname === "/admin/categories"}
           />
         </nav>
 
