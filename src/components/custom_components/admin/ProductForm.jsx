@@ -152,7 +152,7 @@ export default function ProductForm({ initialData = null, isEdit = false }) {
                     />
 
                     {/* Action Card */}
-                    <div className="bg-black/40 border border-white/10 p-6 rounded-2xl backdrop-blur-md sticky top-24">
+                    <div className="bg-black/40 border border-white/10 p-6 lg:p-4 min-[1040px]:p-6 rounded-2xl backdrop-blur-md sticky top-24">
                         <h3 className="text-(--color-gold) font-bold uppercase text-xs tracking-wider mb-4">
                             Publish Action
                         </h3>

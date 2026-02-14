@@ -14,7 +14,7 @@ const AdminCard = ({ data, type = "product", onDelete }) => {
     // Edit Route Logic
     const editHref =
         type === "deal"
-            ? `/admin/deals/add?id=${data._id}`
+            ? `/admin/deals/${data._id}`
             : `/admin/products/${data._id}`;
 
     return (
@@ -99,7 +99,7 @@ const AdminCard = ({ data, type = "product", onDelete }) => {
                     asChild
                     variant="outline"
                     size="sm"
-                    className="flex-1 h-8 text-xs bg-white/5 border-white/10 text-gray-300 hover:text-white hover:bg-white/10 hover:border-(--color-gold)/30 transition-all"
+                    className="flex-1 h-8 text-xs bg-white/5 border-white/10 text-gray-300 hover:text-white hover:bg-white/10 hover:border-gold/30 transition-all cursor-pointer"
                 >
                     <Link href={editHref} className="flex items-center justify-center gap-1.5">
                         <Edit className="w-3 h-3" /> <span className="hidden sm:inline">Edit</span>
@@ -111,7 +111,7 @@ const AdminCard = ({ data, type = "product", onDelete }) => {
                     variant="ghost"
                     size="sm"
                     onClick={() => onDelete(data._id)}
-                    className="h-8 w-8 px-0 sm:w-auto sm:px-3 sm:flex-1 bg-red-500/10 text-red-500 hover:bg-red-500/20 hover:text-red-400 border border-transparent hover:border-red-500/20 transition-all"
+                    className="h-8 w-8 px-0 sm:w-auto sm:px-3 sm:flex-1 bg-red-500/10 text-red-500 hover:bg-red-500/20 hover:text-red-400 border border-transparent hover:border-red-500/20 transition-all cursor-pointer"
                 >
                     <Trash2 className="w-3.5 h-3.5 sm:mr-1.5" />
                     <span className="hidden sm:inline text-xs font-bold">Delete</span>

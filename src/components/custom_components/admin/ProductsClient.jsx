@@ -6,6 +6,7 @@ import { Plus, Search } from "lucide-react";
 import AdminCard from "./AdminCard";
 import ConfirmModal from "@/components/custom_components/ConfirmModal";
 import { useToast } from "@/context/ToastContext";
+import { Input } from "@/components/ui/input";
 
 export default function ProductsClient({ initialProducts }) {
     const [products, setProducts] = useState(initialProducts);
@@ -74,15 +75,15 @@ export default function ProductsClient({ initialProducts }) {
             </div>
 
             {/* Search Bar */}
-            <div className="bg-black/40 border border-white/10 p-4 rounded-xl mb-10 flex gap-4 backdrop-blur-md sticky top-4 z-20">
+            <div className="bg-black/40 border border-white/10 p-4 rounded-xl mb-10 flex gap-4 backdrop-blur-md sticky top-20 md:top-4 z-20 shadow-lg">
                 <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 w-5 h-5" />
-                    <input
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 w-5 h-5 z-10" />
+                    <Input
                         type="text"
                         placeholder="Search by name or category..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full bg-black/50 border border-white/10 rounded-lg pl-10 pr-4 py-2 text-white focus:border-(--color-gold) outline-none transition-colors"
+                        className="w-full bg-black/50 border-white/10 pl-10 text-white placeholder:text-gray-500 h-12! focus-visible:ring-1 focus-visible:ring-(--color-gold) focus-visible:ring-offset-0 focus-visible:border-(--color-gold) transition-colors outline-none rounded-lg"
                     />
                 </div>
             </div>

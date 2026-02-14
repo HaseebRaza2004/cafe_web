@@ -25,7 +25,7 @@ const ConfirmModal = ({ isOpen, onClose, onConfirm, title, description, confirmT
                     <Button
                         variant="ghost"
                         onClick={onClose}
-                        className="hover:bg-white/10 hover:text-white text-gray-400"
+                        className="hover:bg-white/10 hover:text-white text-gray-400 cursor-pointer"
                     >
                         {cancelText}
                     </Button>
@@ -36,7 +36,7 @@ const ConfirmModal = ({ isOpen, onClose, onConfirm, title, description, confirmT
                         }}
                         className={`
                 ${variant === "destructive" ? "bg-red-500/20 text-red-500 hover:bg-red-500 hover:text-white" : "bg-(--color-gold) text-black hover:bg-[#b89445]"}
-                font-bold tracking-wide transition-all
+                font-bold tracking-wide transition-all cursor-pointer
             `}
                     >
                         {confirmText}
