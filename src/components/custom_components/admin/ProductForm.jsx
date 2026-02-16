@@ -6,10 +6,10 @@ import { Loader2, Save, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/context/ToastContext";
 import ConfirmModal from "@/components/custom_components/ConfirmModal";
-import BasicInfo from "./product-form/BasicInfo";
-import Variations from "./product-form/Variations";
-import Addons from "./product-form/Addons";
-import ImageUploader from "./product-form/ImageUploader";
+import BasicInfo from "./productFormComponents/BasicInfo";
+import Variations from "./productFormComponents/Variations";
+import Addons from "./productFormComponents/Addons";
+import ImageUploader from "./productFormComponents/ImageUploader";
 
 export default function ProductForm({ initialData = null, isEdit = false }) {
     const router = useRouter();

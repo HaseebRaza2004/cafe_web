@@ -82,7 +82,7 @@ export default function DealSteps({ itemGroups, setFormData, allProducts, catego
                     <h3 className="text-xl font-bold text-white">Configuration</h3>
                     <p className="text-xs text-gray-400">Define selection steps (e.g. &quot;Choose Burger&quot;).</p>
                 </div>
-                <Button onClick={addGroup} type="button" variant="secondary" className="bg-white/10 text-white hover:bg-white/20">
+                <Button onClick={addGroup} type="button" variant="secondary" className="bg-white/10 text-white hover:bg-white/20 cursor-pointer">
                     <Plus className="w-4 h-4 mr-2" /> Add Step
                 </Button>
             </div>
@@ -130,7 +130,7 @@ export default function DealSteps({ itemGroups, setFormData, allProducts, catego
                                 type="number"
                                 value={group.minSelection}
                                 onChange={(e) => updateGroup(index, "minSelection", Number(e.target.value))}
-                                className="bg-black/50 border-white/10 h-10 text-sm focus-visible:ring-1 focus-visible:ring-(--color-gold) focus-visible:ring-offset-0"
+                                className="bg-black/50 border-white/10 h-10 text-sm focus-visible:ring-1 focus-visible:ring-(--color-gold) focus-visible:ring-offset-0 focus-visible:border-(--color-gold)"
                             />
                         </div>
                         <div className="space-y-1">
@@ -139,7 +139,7 @@ export default function DealSteps({ itemGroups, setFormData, allProducts, catego
                                 type="number"
                                 value={group.maxSelection}
                                 onChange={(e) => updateGroup(index, "maxSelection", Number(e.target.value))}
-                                className="bg-black/50 border-white/10 h-10 text-sm focus-visible:ring-1 focus-visible:ring-(--color-gold) focus-visible:ring-offset-0"
+                                className="bg-black/50 border-white/10 h-10 text-sm focus-visible:ring-1 focus-visible:ring-(--color-gold) focus-visible:ring-offset-0 focus-visible:border-(--color-gold)"
                             />
                         </div>
                     </div>
@@ -154,60 +154,83 @@ export default function DealSteps({ itemGroups, setFormData, allProducts, catego
                                     placeholder="Search items to add..."
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
-                                    className="bg-black/50 border-white/10 pl-9 h-10 text-sm focus-visible:ring-1 focus-visible:ring-(--color-gold) focus-visible:ring-offset-0"
+                                    className="bg-black/50 border-white/10 pl-9 h-10 text-sm focus-visible:ring-1 focus-visible:ring-(--color-gold) focus-visible:ring-offset-0 focus-visible:border-(--color-gold)"
                                 />
                             </div>
+
+                            {/* Category */}
                             <Select value={filterCategory} onValueChange={setFilterCategory}>
-                                <SelectTrigger className="w-full sm:w-35 bg-black/50 border-white/10 h-10 text-sm focus:ring-offset-0 focus:ring-(--color-gold)">
+                                <SelectTrigger
+                                    className="w-full sm:w-35 bg-black/50 border-white/10 h-10! text-sm focus-visible:ring-1 focus-visible:ring-(--color-gold) focus-visible:ring-offset-0 focus-visible:border-(--color-gold)"
+                                >
                                     <SelectValue placeholder="Category" />
                                 </SelectTrigger>
-                                <SelectContent className="bg-black border-white/10 text-white">
-                                    <SelectItem value="all">All Cats</SelectItem>
+                                <SelectContent className="bg-black border-white/10 text-white z-9999">
+                                    <SelectItem
+                                        value="all"
+                                        className="focus:bg-(--color-gold) focus:text-black cursor-pointer"
+                                    >
+                                        All Cats
+                                    </SelectItem>
                                     {categories.map((c) => (
-                                        <SelectItem key={c._id} value={c.name}>{c.name}</SelectItem>
+                                        <SelectItem
+                                            key={c._id}
+                                            value={c.name}
+                                            className="focus:bg-(--color-gold) focus:text-black cursor-pointer"
+                                        >
+                                            {c.name}
+                                        </SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>
                         </div>
 
                         {/* List */}
-                        <div className="max-h-60 overflow-y-auto space-y-1 pr-1 custom-scrollbar">
+                        <div className="max-h-60 overflow-y-auto space-y-2 pr-1 no-scrollbar">
                             {filteredProducts.map((prod) => {
                                 const selectedItem = group.specificProducts?.find(
-                                    (p) => (p.product === prod._id || p.product?._id === prod._id)
+                                    (p) => (typeof p.product === 'object' ? p.product._id : p.product) === prod._id
                                 );
                                 const isChecked = !!selectedItem;
 
                                 return (
                                     <div
                                         key={prod._id}
-                                        className={`flex items-center gap-3 p-2 rounded border transition-colors cursor-pointer ${isChecked
-                                            ? "bg-gold/10 border-gold/30"
+                                        onClick={() => toggleProductInGroup(index, prod._id)}
+                                        className={`flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 p-3 rounded border transition-colors cursor-pointer ${isChecked
+                                            ? "bg-(--color-gold)/10 border-gold/30"
                                             : "hover:bg-white/5 border-transparent"
                                             }`}
-                                        onClick={() => toggleProductInGroup(index, prod._id)}
                                     >
-                                        {/* Checkbox Visual */}
-                                        <div
-                                            className={`w-5 h-5 rounded border flex items-center justify-center shrink-0 transition-colors ${isChecked
-                                                ? "bg-(--color-gold) border-(--color-gold)"
-                                                : "border-gray-600"
-                                                }`}
-                                        >
-                                            {isChecked && <Check className="w-3 h-3 text-black" />}
-                                        </div>
+                                        {/* Checkbox & Name */}
+                                        <div className="flex items-center gap-3 w-full sm:flex-1">
+                                            <div
+                                                className={`w-5 h-5 rounded border flex items-center justify-center shrink-0 transition-colors ${isChecked
+                                                    ? "bg-(--color-gold) border-(--color-gold)"
+                                                    : "border-gray-600"
+                                                    }`}
+                                            >
+                                                {isChecked && <Check className="w-3 h-3 text-black" />}
+                                            </div>
 
-                                        <span className={`text-sm flex-1 ${isChecked ? "text-white" : "text-gray-400"}`}>
-                                            {prod.title}
-                                        </span>
+                                            <span className={`text-sm ${isChecked ? "text-white font-medium" : "text-gray-400"}`}>
+                                                {prod.title}
+                                            </span>
+                                        </div>
 
                                         {/* Extra Price Input */}
                                         {isChecked && (
-                                            <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
-                                                <span className="text-[10px] text-(--color-gold)">+Rs</span>
-                                                <input
+                                            <div
+                                                className="flex items-center gap-2 w-full sm:w-auto pl-8 sm:pl-0 animate-in fade-in slide-in-from-top-1 duration-200"
+                                                onClick={(e) => e.stopPropagation()}
+                                            >
+                                                <span className="text-[10px] text-(--color-gold) whitespace-nowrap font-bold uppercase tracking-wider">
+                                                    + (Rs)
+                                                </span>
+                                                <Input
                                                     type="number"
-                                                    className="w-14 bg-black/60 border border-white/10 rounded px-1 text-xs text-white text-center focus:border-(--color-gold) outline-none h-6"
+                                                    placeholder="0"
+                                                    className="h-8 w-full sm:w-20 bg-black/60 border-white/10 text-xs text-white text-center focus-visible:ring-1 focus-visible:ring-(--color-gold) focus-visible:border-(--color-gold) focus-visible:ring-offset-0"
                                                     value={selectedItem.extraPrice}
                                                     onChange={(e) => updateProductExtraPrice(index, prod._id, e.target.value)}
                                                 />

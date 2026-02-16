@@ -5,7 +5,6 @@ import OptionGroup from "@/models/OptionGroup";
 export async function GET() {
   try {
     await dbConnect();
-    // Fetch all groups sorted by newest
     const groups = await OptionGroup.find({})
       .populate("options.linkedProduct", "title isAvailable image") // Link check karne ke liye
       .sort({ createdAt: -1 })
@@ -33,7 +32,6 @@ export async function POST(req) {
     const newGroup = await OptionGroup.create({
       name: body.name,
       type: body.type || "single",
-      // Options array ab linkedProduct ID bhi accept karega
       options: body.options,
     });
 

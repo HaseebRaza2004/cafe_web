@@ -4,8 +4,9 @@ import Image from "next/image";
 import { UploadCloud, Loader2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/context/ToastContext";
+import cloudinaryLoader from "@/lib/cloudinary-loader";
 
-export default function ImageUploader({ image, setFormData }) {
+export default function DealImage({ image, setFormData }) {
     const [uploading, setUploading] = useState(false);
     const { error: showError } = useToast() || {};
 
@@ -32,23 +33,23 @@ export default function ImageUploader({ image, setFormData }) {
         }
     };
 
-    const removeImage = () => {
-        setFormData(prev => ({ ...prev, image: "" }));
-    };
+    const removeImage = () => setFormData(prev => ({ ...prev, image: "" }));
 
     return (
         <div className="bg-black/40 border border-white/10 p-6 rounded-2xl backdrop-blur-md">
             <h3 className="text-(--color-gold) font-bold uppercase text-xs tracking-wider mb-4">
-                Product Image <span className="text-red-500">*</span>
+                Deal Image <span className="text-red-500">*</span>
             </h3>
 
-            <div className="relative w-full aspect-square bg-black/50 border-2 border-dashed border-white/10 rounded-xl overflow-hidden flex flex-col items-center justify-center group hover:border-gold/50 transition-colors">
+            <div className="relative w-full aspect-video bg-black/50 border-2 border-dashed border-white/10 rounded-xl overflow-hidden flex flex-col items-center justify-center group hover:border-gold/50 transition-colors">
                 {image ? (
                     <>
                         <Image
                             src={image}
                             alt="Preview"
                             fill
+                            sizes="(max-width: 768px) 100vw, 50vw"
+                            loader={cloudinaryLoader}
                             className="object-cover transition-opacity duration-300 group-hover:opacity-80"
                         />
                         <Button

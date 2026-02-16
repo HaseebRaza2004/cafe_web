@@ -59,7 +59,7 @@ export default function Variations({ variations, setFormData }) {
                                 placeholder="Size (e.g. Small)"
                                 value={variant.title}
                                 onChange={(e) => updateVariation(index, "title", e.target.value)}
-                                className="bg-black/50 border-white/10 h-12 focus-visible:ring-(--color-gold) focus-visible:ring-offset-0"
+                                className="bg-black/50 border-white/10 h-12 focus-visible:ring-1 focus-visible:ring-(--color-gold) focus-visible:ring-offset-0 focus-visible:border-(--color-gold)"
                             />
                         </div>
 
@@ -74,7 +74,7 @@ export default function Variations({ variations, setFormData }) {
                                     onChange={(e) =>
                                         updateVariation(index, "price", Number(e.target.value))
                                     }
-                                    className="bg-black/50 border-white/10 h-12 focus-visible:ring-(--color-gold) focus-visible:ring-offset-0"
+                                    className="bg-black/50 border-white/10 h-12 focus-visible:ring-1 focus-visible:ring-(--color-gold) focus-visible:ring-offset-0 focus-visible:border-(--color-gold)"
                                 />
                             </div>
 

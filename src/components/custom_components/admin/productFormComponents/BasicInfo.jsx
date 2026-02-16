@@ -34,7 +34,7 @@ export default function BasicInfo({ formData, setFormData, categories }) {
                         placeholder="e.g. Zinger Burger"
                         value={formData.title}
                         onChange={handleChange}
-                        className="bg-black/50 border-white/10 h-12 text-base focus-visible:ring-(--color-gold) focus-visible:ring-offset-0 focus-visible:border-(--color-gold)"
+                        className="bg-black/50 border-white/10 h-12 text-base focus-visible:ring-1 focus-visible:ring-(--color-gold) focus-visible:ring-offset-0 focus-visible:border-(--color-gold)"
                     />
                 </div>
 
@@ -47,7 +47,7 @@ export default function BasicInfo({ formData, setFormData, categories }) {
                         rows={3}
                         value={formData.desc}
                         onChange={handleChange}
-                        className="bg-black/50 border-white/10 focus-visible:ring-(--color-gold) focus-visible:ring-offset-0 resize-none"
+                        className="bg-black/50 border-white/10 focus-visible:ring-1 focus-visible:ring-(--color-gold) focus-visible:ring-offset-0 focus-visible:border-(--color-gold) resize-none"
                     />
                 </div>
 
@@ -66,7 +66,7 @@ export default function BasicInfo({ formData, setFormData, categories }) {
                             onChange={(e) =>
                                 setFormData((prev) => ({ ...prev, price: Number(e.target.value) }))
                             }
-                            className="bg-black/50 border-white/10 h-12 text-base focus-visible:ring-(--color-gold) focus-visible:ring-offset-0"
+                            className="bg-black/50 border-white/10 h-12 text-base focus-visible:ring-1 focus-visible:ring-(--color-gold) focus-visible:ring-offset-0 focus-visible:border-(--color-gold)"
                         />
                     </div>
 
@@ -111,7 +111,7 @@ export default function BasicInfo({ formData, setFormData, categories }) {
                                 sortOrder: Number(e.target.value),
                             }))
                         }
-                        className="bg-black/50 border-white/10 h-12 text-base focus-visible:ring-(--color-gold) focus-visible:ring-offset-0"
+                        className="bg-black/50 border-white/10 h-12 text-base focus-visible:ring-1 focus-visible:ring-(--color-gold) focus-visible:ring-offset-0 focus-visible:border-(--color-gold)"
                     />
                 </div>
             </div>

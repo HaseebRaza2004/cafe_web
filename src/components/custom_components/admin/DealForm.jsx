@@ -6,9 +6,9 @@ import { Loader2, Save, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/context/ToastContext";
 import ConfirmModal from "@/components/custom_components/ConfirmModal";
-import DealBasicInfo from "./deal-form/DealBasicInfo";
-import DealImage from "./deal-form/DealImage";
-import DealSteps from "./deal-form/DealSteps";
+import DealBasicInfo from "./dealformComponents/DealBasicInfo";
+import DealImage from "./dealformComponents/DealImage";
+import DealSteps from "./dealformComponents/DealSteps";
 
 export default function DealForm({ initialData = null, isEdit = false }) {
     const router = useRouter();
@@ -137,7 +137,10 @@ export default function DealForm({ initialData = null, isEdit = false }) {
 
                 {/* RIGHT COLUMN: Image & Actions s */}
                 <div className="space-y-8">
-                    <DealImage image={formData.image} setFormData={setFormData} />
+                    <DealImage
+                        image={formData.image}
+                        setFormData={setFormData}
+                    />
 
                     {/* Action Card */}
                     <div className="bg-black/40 border border-white/10 p-6 lg:p-4 min-[1060px]:p-6 rounded-2xl backdrop-blur-md sticky top-24">
@@ -153,7 +156,7 @@ export default function DealForm({ initialData = null, isEdit = false }) {
                         <Button
                             type="submit"
                             disabled={loading || !isFormValid}
-                            className="w-full h-12 bg-(--color-gold) text-black font-bold hover:bg-[#b89445] text-base shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                            className="w-full h-12 bg-(--color-gold) text-black font-bold hover:bg-[#b89445] text-base shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
                         >
                             {loading ? <Loader2 className="animate-spin w-5 h-5" /> : (
                                 <div className="flex items-center gap-2">
