@@ -111,9 +111,9 @@ export default function DealForm({ initialData = null, isEdit = false }) {
                 <Button
                     variant="ghost"
                     onClick={() => router.back()}
-                    className="text-gray-400 hover:text-white pl-0 hover:bg-transparent self-start"
+                    className="text-gray-400 hover:text-white pl-0 hover:bg-transparent self-start cursor-pointer"
                 >
-                    <ArrowLeft className="w-4 h-4 mr-2" /> Back to Deals
+                    <ArrowLeft className="w-4 h-4 mr-1" /> Back
                 </Button>
 
                 <h1 className="text-3xl font-bold text-white tracking-wider font-display w-full text-center md:text-right md:w-auto">
