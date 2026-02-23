@@ -1,21 +1,19 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
 import Deal from "@/models/Deal";
-import "@/models/Category"; // Register models
+import "@/models/Category";
 import "@/models/Product";
 
-// 🔥 GET Single Deal (Fixed for Next.js 16)
+// GET Single Deal
 export async function GET(req, { params }) {
   try {
     await dbConnect();
-
-    // Fix: params ko await karna zaroori hai
     const { id } = await params;
-
     const deal = await Deal.findById(id)
       .populate({
         path: "itemGroups.specificProducts.product",
         model: "Product",
+        select: "title image isAvailable",
       })
       .lean();
 
@@ -26,23 +24,26 @@ export async function GET(req, { params }) {
       );
     }
 
-    return NextResponse.json({ success: true, data: deal });
+    return NextResponse.json({ success: true, data: deal }, { status: 200 });
   } catch (error) {
     return NextResponse.json(
       { success: false, error: error.message },
-      { status: 400 },
+      { status: 500 },
     );
   }
 }
 
-// 🔥 PUT Update Deal (Fixed)
+// Update Deal
 export async function PUT(req, { params }) {
   try {
     await dbConnect();
-    const { id } = await params; // Fix here too
+    const { id } = await params;
     const body = await req.json();
 
-    const updatedDeal = await Deal.findByIdAndUpdate(id, body, { new: true });
+    const updatedDeal = await Deal.findByIdAndUpdate(id, body, {
+      new: true,
+      runValidators: true,
+    }).lean();
 
     if (!updatedDeal) {
       return NextResponse.json(
@@ -51,28 +52,40 @@ export async function PUT(req, { params }) {
       );
     }
 
-    return NextResponse.json({ success: true, data: updatedDeal });
+    return NextResponse.json(
+      { success: true, data: updatedDeal },
+      { status: 200 },
+    );
   } catch (error) {
     return NextResponse.json(
       { success: false, error: error.message },
-      { status: 400 },
+      { status: 500 },
     );
   }
 }
 
-// 🔥 DELETE Deal (Fixed)
+// DELETE Deal
 export async function DELETE(req, { params }) {
   try {
     await dbConnect();
-    const { id } = await params; // Fix here too
+    const { id } = await params;
+    const deletedDeal = await Deal.findByIdAndDelete(id).lean();
 
-    await Deal.findByIdAndDelete(id);
+    if (!deletedDeal) {
+      return NextResponse.json(
+        { success: false, message: "Deal not found" },
+        { status: 404 },
+      );
+    }
 
-    return NextResponse.json({ success: true, message: "Deal Deleted" });
+    return NextResponse.json(
+      { success: true, message: "Deal Deleted" },
+      { status: 200 },
+    );
   } catch (error) {
     return NextResponse.json(
       { success: false, error: error.message },
-      { status: 400 },
+      { status: 500 },
     );
   }
 }

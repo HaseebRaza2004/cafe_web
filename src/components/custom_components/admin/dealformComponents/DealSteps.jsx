@@ -198,7 +198,7 @@ export default function DealSteps({ itemGroups, setFormData, allProducts, catego
                                         key={prod._id}
                                         onClick={() => toggleProductInGroup(index, prod._id)}
                                         className={`flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 p-3 rounded border transition-colors cursor-pointer ${isChecked
-                                            ? "bg-(--color-gold)/10 border-gold/30"
+                                            ? "bg-gold/10 border-gold/30"
                                             : "hover:bg-white/5 border-transparent"
                                             }`}
                                     >

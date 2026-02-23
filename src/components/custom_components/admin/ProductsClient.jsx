@@ -64,7 +64,7 @@ export default function ProductsClient({ initialProducts }) {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                 <div>
                     <h1 className="text-3xl font-bold text-white tracking-tight">Menu Items</h1>
-                    <p className="text-gray-400 text-sm mt-1">Manage food & deals</p>
+                    <p className="text-gray-400 text-sm mt-1">Manage food & drinks</p>
                 </div>
                 <Link
                     href="/admin/products/add"
