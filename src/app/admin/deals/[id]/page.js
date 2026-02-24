@@ -8,7 +8,6 @@ export async function generateMetadata({ params }) {
 
 async function getDeal(id) {
   await dbConnect();
-  // Populate products to show names in Edit mode
   const deal = await Deal.findById(id)
     .populate("itemGroups.specificProducts.product")
     .lean();
@@ -17,7 +16,7 @@ async function getDeal(id) {
 }
 
 export default async function EditDealPage({ params }) {
-  const { id } = await params; // Next.js 15 requires awaiting params
+  const { id } = await params; 
   const deal = await getDeal(id);
 
   if (!deal) {

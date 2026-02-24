@@ -9,7 +9,7 @@ export default function AddCategory({ newCatName, setNewCatName, onAdd, isAdding
             <Input
                 type="text"
                 placeholder="Add New Category (e.g. Pasta)"
-                className="flex-1 bg-black/50 border-white/10 h-12! text-white focus-visible:ring-1 focus-visible:ring-(--color-gold) focus-visible:ring-offset-0"
+                className="bg-black/50 border-white/10 h-12 text-base focus-visible:ring-1 focus-visible:ring-(--color-gold) focus-visible:ring-offset-0 focus-visible:border-(--color-gold)"
                 value={newCatName}
                 onChange={(e) => setNewCatName(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && newCatName.trim() && onAdd()}

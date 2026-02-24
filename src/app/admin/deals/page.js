@@ -99,7 +99,7 @@ export default function DealsListPage() {
         </div>
         <Link
           href="/admin/deals/add"
-          className="bg-(--color-gold) text-black px-6 py-3 rounded-xl font-bold hover:bg-[#d4af66] flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(197,160,89,0.3)] transition-all active:scale-95"
+          className="bg-(--color-gold) text-black px-6 py-3 text-lg rounded-xl font-bold hover:bg-[#d4af66] flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(197,160,89,0.3)] transition-all active:scale-95"
         >
           <Plus className="w-5 h-5" /> Create Deal
         </Link>

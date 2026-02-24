@@ -27,12 +27,12 @@ export default function CategoriesHeader({ onSaveOrder, isSavingOrder }) {
                 <Button
                     onClick={() => setIsModalOpen(true)}
                     disabled={isSavingOrder}
-                    className="w-full md:w-auto bg-(--color-gold) text-black font-bold rounded-xl hover:bg-[#d4af66] h-11 px-5 py-2  shadow-[0_0_15px_rgba(197,160,89,0.2)] cursor-pointer  transition-all active:scale-95"
+                    className="w-full md:w-auto bg-(--color-gold) text-black text-lg font-bold rounded-xl hover:bg-[#d4af66] h-12 px-6 py-3 shadow-[0_0_15px_rgba(197,160,89,0.2)] cursor-pointer  transition-all active:scale-95"
                 >
                     {isSavingOrder ? (
-                        <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                        <Loader2 className="w-5 h-5 mr-1 animate-spin" />
                     ) : (
-                        <Save className="w-4 h-4 mr-1" />
+                        <Save className="w-5 h-5 mr-1" />
                     )}
                     Save Order
                 </Button>

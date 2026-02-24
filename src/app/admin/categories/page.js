@@ -1,98 +1,3 @@
-
-//       {/* Add New Section */}
-//       <div className="bg-black/40 border border-white/10 p-4 rounded-xl mb-8 flex gap-4 backdrop-blur-md">
-//         <input
-//           type="text"
-//           placeholder="New Category Name (e.g. Pasta)"
-//           className="flex-1 bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-(--color-gold) outline-none"
-//           value={newCatName}
-//           onChange={(e) => setNewCatName(e.target.value)}
-//           onKeyDown={(e) => e.key === "Enter" && handleAdd()}
-//         />
-//         <button
-//           onClick={handleAdd}
-//           className="bg-white/10 hover:bg-white/20 text-white px-6 py-2 rounded-lg font-bold flex items-center gap-2 transition-colors"
-//         >
-//           <Plus className="w-5 h-5" /> Add
-//         </button>
-//       </div>
-
-//       {/* Categories List */}
-//       <div className="space-y-3">
-//         {categories.map((cat, index) => (
-//           <div
-//             key={cat._id}
-//             className="group bg-black/40 border border-white/10 p-4 rounded-xl flex items-center justify-between hover:border-gold/30 transition-all"
-//           >
-//             <div className="flex items-center gap-4 flex-1">
-//               <span className="text-gray-500 font-mono text-sm w-6">
-//                 #{index + 1}
-//               </span>
-
-//               {editingId === cat._id ? (
-//                 <div className="flex items-center gap-2">
-//                   <input
-//                     autoFocus
-//                     className="bg-black/80 border border-(--color-gold) text-white px-2 py-1 rounded text-sm outline-none"
-//                     value={editName}
-//                     onChange={(e) => setEditName(e.target.value)}
-//                   />
-//                   <button
-//                     onClick={() => saveRename(cat._id)}
-//                     className="text-green-400 hover:text-green-300"
-//                   >
-//                     <Check className="w-4 h-4" />
-//                   </button>
-//                 </div>
-//               ) : (
-//                 <h3 className="text-white font-bold text-lg">{cat.name}</h3>
-//               )}
-//             </div>
-
-//             <div className="flex items-center gap-2">
-//               {/* Edit Button */}
-//               {editingId !== cat._id && (
-//                 <button
-//                   onClick={() => startEditing(cat)}
-//                   className="p-2 text-gray-400 hover:text-white transition-colors"
-//                 >
-//                   <Edit2 className="w-4 h-4" />
-//                 </button>
-//               )}
-
-//               {/* Sort Buttons */}
-//               <div className="flex flex-col gap-1 mr-2">
-//                 <button
-//                   onClick={() => move(index, -1)}
-//                   disabled={index === 0}
-//                   className="p-1 text-gray-500 hover:text-(--color-gold) disabled:opacity-30 transition-colors"
-//                 >
-//                   <ArrowUp className="w-4 h-4" />
-//                 </button>
-//                 <button
-//                   onClick={() => move(index, 1)}
-//                   disabled={index === categories.length - 1}
-//                   className="p-1 text-gray-500 hover:text-(--color-gold) disabled:opacity-30 transition-colors"
-//                 >
-//                   <ArrowDown className="w-4 h-4" />
-//                 </button>
-//               </div>
-
-//               {/* Delete */}
-//               <button
-//                 onClick={() => handleDelete(cat._id)}
-//                 className="p-2 text-red-500/50 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
-//               >
-//                 <Trash2 className="w-4 h-4" />
-//               </button>
-//             </div>
-//           </div>
-//         ))}
-//       </div>
-//     </div>
-//   );
-// }
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -239,7 +144,7 @@ export default function CategoriesPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto animate-in fade-in zoom-in-95 duration-500 pb-20 p-4 sm:p-6">
+    <div className="max-w-4xl mx-auto animate-in fade-in zoom-in-95 duration-500 pb-20 p-4">
       <CategoriesHeader onSaveOrder={saveOrder} isSavingOrder={isSavingOrder} />
 
       <AddCategory
@@ -270,4 +175,4 @@ export default function CategoriesPage() {
       </div>
     </div>
   );
-}
+};
