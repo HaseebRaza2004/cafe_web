@@ -43,7 +43,7 @@ export default function DealSteps({ itemGroups, setFormData, allProducts, catego
         const updated = [...itemGroups];
         const currentProducts = updated[groupIndex].specificProducts || [];
 
-        // Check ID logic
+        // Check ID 
         const existsIndex = currentProducts.findIndex(p =>
             (typeof p.product === 'object' ? p.product._id : p.product) === productId
         );
@@ -101,7 +101,7 @@ export default function DealSteps({ itemGroups, setFormData, allProducts, catego
                         variant="ghost"
                         size="icon"
                         onClick={() => removeGroup(index)}
-                        className="absolute top-3 right-3 text-gray-500 hover:text-red-500 hover:bg-red-500/10"
+                        className="absolute top-3 right-3 text-gray-500 hover:text-red-500 hover:bg-red-500/10 cursor-pointer"
                     >
                         <Trash2 className="w-4 h-4" />
                     </Button>
@@ -161,7 +161,7 @@ export default function DealSteps({ itemGroups, setFormData, allProducts, catego
                             {/* Category */}
                             <Select value={filterCategory} onValueChange={setFilterCategory}>
                                 <SelectTrigger
-                                    className="w-full sm:w-35 bg-black/50 border-white/10 h-10! text-sm focus-visible:ring-1 focus-visible:ring-(--color-gold) focus-visible:ring-offset-0 focus-visible:border-(--color-gold)"
+                                    className="w-full sm:w-35 bg-black/50 border-white/10 h-10! text-sm focus-visible:ring-1 focus-visible:ring-(--color-gold) focus-visible:ring-offset-0 focus-visible:border-(--color-gold) cursor-pointer"
                                 >
                                     <SelectValue placeholder="Category" />
                                 </SelectTrigger>

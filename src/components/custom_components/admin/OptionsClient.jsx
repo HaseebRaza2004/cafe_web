@@ -49,7 +49,7 @@ export default function OptionsClient({ initialGroups }) {
     };
 
     return (
-        <div className="max-w-7xl mx-auto animate-in fade-in zoom-in-95 duration-500 pb-20 p-2 lg:p-4">
+        <div className="max-w-7xl mx-auto animate-in fade-in zoom-in-95 duration-500 pb-20">
 
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">

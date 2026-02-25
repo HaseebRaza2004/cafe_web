@@ -35,7 +35,7 @@ export default function GeneralSettings({ settings, setSettings }) {
                 <Textarea
                     rows={3}
                     placeholder="Enter message to display on website load..."
-                    className="w-full bg-black/50 border-white/10 text-white focus-visible:ring-1 focus-visible:ring-(--color-gold) focus-visible:ring-offset-0 resize-none"
+                    className="w-full bg-black/50 border-white/10 text-white focus-visible:ring-1 focus-visible:ring-(--color-gold) focus-visible:ring-offset-0 focus-visible:border-(--color-gold) resize-none"
                     value={settings.generalNote}
                     onChange={(e) => setSettings({ ...settings, generalNote: e.target.value })}
                 />

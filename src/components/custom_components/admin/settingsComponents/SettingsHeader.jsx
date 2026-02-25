@@ -11,8 +11,8 @@ export default function SettingsHeader({ currentStatus }) {
 
             <div
                 className={`border p-6 rounded-2xl backdrop-blur-md transition-all ${currentStatus
-                        ? "bg-green-500/10 border-green-500/20"
-                        : "bg-red-500/10 border-red-500/20"
+                    ? "bg-green-500/10 border-green-500/20"
+                    : "bg-red-500/10 border-red-500/20"
                     }`}
             >
                 <div className="flex items-center gap-4">

@@ -17,7 +17,7 @@ export default function OptionCard({ group, onDelete }) {
             {/* Header */}
             <div className="p-5 flex justify-between items-start">
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-(--color-gold)/10 flex items-center justify-center text-(--color-gold) border border-gold/20">
+                    <div className="w-10 h-10 rounded-lg bg-gold/10 flex items-center justify-center text-(--color-gold) border border-gold/20">
                         <Layers className="w-5 h-5" />
                     </div>
                     <div>
@@ -63,7 +63,7 @@ export default function OptionCard({ group, onDelete }) {
                 <Button
                     asChild
                     variant="ghost"
-                    className="flex-1 bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white h-9 px-2"
+                    className="flex-1 bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white h-9 px-2 cursor-pointer"
                 >
                     <Link href={`/admin/options/${group._id}`}>
                         <Edit className="w-4 h-4 mr-2 shrink-0" />
@@ -74,7 +74,7 @@ export default function OptionCard({ group, onDelete }) {
                 <Button
                     onClick={() => onDelete(group._id)}
                     variant="ghost"
-                    className="flex-1 bg-red-500/10 hover:bg-red-500/20 text-red-500 hover:text-red-400 h-9 px-2"
+                    className="flex-1 bg-red-500/10 hover:bg-red-500/20 text-red-500 hover:text-red-400 h-9 px-2 cursor-pointer"
                 >
                     <Trash2 className="w-4 h-4" />
                 </Button>

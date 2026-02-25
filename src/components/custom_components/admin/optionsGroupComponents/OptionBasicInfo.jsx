@@ -36,7 +36,7 @@ export default function OptionBasicInfo({ formData, setFormData }) {
                         value={formData.type}
                         onValueChange={(val) => setFormData({ ...formData, type: val })}
                     >
-                        <SelectTrigger className="w-full h-12! bg-black/50 border-white/10 text-white focus-visible:ring-1 focus-visible:ring-(--color-gold) focus-visible:ring-offset-0">
+                        <SelectTrigger className="w-full h-12! bg-black/50 border-white/10 text-white focus-visible:ring-1 focus-visible:ring-(--color-gold) focus-visible:ring-offset-0 focus-visible:border-(--color-gold) cursor-pointer">
                             <SelectValue placeholder="Select Type" />
                         </SelectTrigger>
                         <SelectContent className="bg-black border-white/10 text-white z-9999">

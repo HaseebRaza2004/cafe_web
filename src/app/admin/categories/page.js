@@ -144,7 +144,7 @@ export default function CategoriesPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto animate-in fade-in zoom-in-95 duration-500 pb-20 p-4">
+    <div className="max-w-4xl mx-auto animate-in fade-in zoom-in-95 duration-500 pb-20">
       <CategoriesHeader onSaveOrder={saveOrder} isSavingOrder={isSavingOrder} />
 
       <AddCategory
