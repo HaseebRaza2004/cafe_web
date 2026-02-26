@@ -37,7 +37,7 @@ export default function LogoutButton() {
                     variant="ghost"
                     onClick={() => setIsModalOpen(true)}
                     disabled={isLoggingOut}
-                    className="w-full justify-start text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all font-medium h-12"
+                    className="w-full justify-start text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all font-medium h-12 cursor-pointer"
                 >
                     {isLoggingOut ? (
                         <Loader2 className="w-5 h-5 mr-3 animate-spin" />
