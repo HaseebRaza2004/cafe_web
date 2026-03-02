@@ -5,8 +5,8 @@ const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 
 export async function proxy(req) {
   const { pathname } = req.nextUrl;
+  const method = req.method;
 
-  // 1. Instantly Allow Static Assets & Next.js Internals (Extreme Performance)
   if (
     pathname.startsWith("/_next") ||
     pathname.startsWith("/static") ||
@@ -15,63 +15,79 @@ export async function proxy(req) {
     return NextResponse.next();
   }
 
-  // Define paths we need to protect
   const isAdminPage = pathname.startsWith("/admin");
-  const isAdminApi = pathname.startsWith("/api/admin");
+  const isApiRoute = pathname.startsWith("/api");
 
-  if (isAdminPage || isAdminApi) {
-    const token = req.cookies.get("token")?.value;
+  if (!isAdminPage && !isApiRoute) {
+    return NextResponse.next();
+  }
 
-    // Helper: Handles scenarios where user is NOT authorized (No token or Expired token)
-    const handleUnauthorized = () => {
-      if (isAdminApi) {
-        return NextResponse.json(
-          { success: false, error: "Unauthorized: Invalid or missing token" },
-          { status: 401 }
-        );
-      }
-      
-      // Allow access if they are already heading to the login page
-      if (pathname === "/admin/login") {
-        return NextResponse.next();
-      }
+  let isProtectedApi = false;
 
-      // Otherwise, redirect to login & clear any stale cookies
-      const response = NextResponse.redirect(new URL("/admin/login", req.url));
-      response.cookies.delete("token"); 
-      return response;
-    };
-
-    // 2. If NO token is found -> trigger unauthorized flow
-    if (!token) {
-      return handleUnauthorized();
+  if (isApiRoute) {
+    if (
+      pathname.startsWith("/api/admin/register") ||
+      pathname.startsWith("/api/admin/login") ||
+      pathname.startsWith("/api/admin/logout")
+    ) {
+      return NextResponse.next();
     }
 
-    // 3. If Token EXISTS -> verify it securely using 'jose' (Edge Compatible)
-    try {
-      await jwtVerify(token, JWT_SECRET);
-      
-      // ✨ THE FIX: Token is VALID and user is trying to access Login page
-      if (pathname === "/admin/login") {
-        return NextResponse.redirect(new URL("/admin/dashboard", req.url));
+    if (method === "GET") {
+      if (
+        pathname.startsWith("/api/orders") ||
+        pathname.startsWith("/api/analytics")
+      ) {
+        isProtectedApi = true;
       }
-
-      // Token is VALID and user is accessing normal protected routes -> Allow
-      return NextResponse.next();
-
-    } catch (error) {
-      // Token verification failed (Expired or Tampered) -> trigger unauthorized flow
-      return handleUnauthorized();
+    } else {
+      if (method === "POST" && pathname === "/api/orders") {
+        isProtectedApi = false;
+      } else {
+        isProtectedApi = true;
+      }
     }
   }
 
-  return NextResponse.next();
+  if (!isAdminPage && !isProtectedApi) {
+    return NextResponse.next();
+  }
+
+  const token = req.cookies.get("token")?.value;
+
+  const handleUnauthorized = () => {
+    if (isProtectedApi) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized: Admin access required" },
+        { status: 401 },
+      );
+    }
+
+    if (pathname === "/admin/login") {
+      return NextResponse.next();
+    }
+
+    const response = NextResponse.redirect(new URL("/admin/login", req.url));
+    response.cookies.delete("token");
+    return response;
+  };
+
+  if (!token) {
+    return handleUnauthorized();
+  }
+
+  try {
+    await jwtVerify(token, JWT_SECRET);
+    if (pathname === "/admin/login") {
+      return NextResponse.redirect(new URL("/admin/dashboard", req.url));
+    }
+
+    return NextResponse.next();
+  } catch (error) {
+    return handleUnauthorized();
+  }
 }
 
-// Run Proxy ONLY on paths that strictly need security checks (Optimized Routing)
 export const config = {
-  matcher: [
-    "/admin/:path*", 
-    // "/api/admin/:path*"
-  ],
+  matcher: ["/admin/:path*", "/api/:path*"],
 };
