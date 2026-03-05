@@ -4,10 +4,12 @@ import React from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/context/CartContext";
+import { Loader2 } from "lucide-react";
 
 const OrderSummary = ({ handlePlaceOrder }) => {
-    const { cartItems, cartTotal, tax, deliveryFee, grandTotal, deliveryArea } = useCart();
-
+    const { cartItems, cartTotal, tax, deliveryFee, grandTotal, deliveryArea, storeStatus } = useCart();
+    const { isOpen, isForceClosed, loadingStatus } = storeStatus;
+    const isButtonDisabled = cartItems.length === 0 || loadingStatus || !isOpen;
     return (
         <div className="bg-black/60 backdrop-blur-md border border-(--color-gold) rounded-xl p-6 sticky top-28 shadow-[0_0_30px_rgba(197,160,89,0.1)]">
             <h3 className="text-2xl font-display font-bold text-white mb-6 tracking-wide">
@@ -68,13 +70,37 @@ const OrderSummary = ({ handlePlaceOrder }) => {
                 </div>
             </div>
 
+            {/* 🔥 Dynamic Messaging based on Store Status */}
+            {!loadingStatus && (
+                <div className="mt-6">
+                    {isOpen ? (
+                        <div className="p-3 rounded-lg bg-white/5 border border-white/10 text-gray-400 text-xs text-center leading-relaxed">
+                            NOTE: Delivery charges will be applied. Orders are accepted from 4pm to 2am. Any misinformation will result in order cancellation.
+                        </div>
+                    ) : (
+                        <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm text-center font-bold leading-relaxed animate-in fade-in">
+                            {isForceClosed
+                                ? "Due to scheduled maintenance, our system is temporarily paused. Please check back shortly for a premium experience."
+                                : "We are currently closed. Our regular ordering hours are from 4:00 PM to 2:00 AM PKT."
+                            }
+                        </div>
+                    )}
+                </div>
+            )}
+
             {/* Place Order Button */}
             <Button
                 onClick={handlePlaceOrder}
                 disabled={cartItems.length === 0}
                 className="w-full mt-8 h-14 bg-(--color-gold) hover:bg-[#a68545] text-black font-bold uppercase tracking-widest text-lg shadow-lg hover:shadow-[0_0_20px_rgba(197,160,89,0.4)] transition-all transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
             >
-                Place Order
+                {loadingStatus ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                ) : !isOpen ? (
+                    "Store Closed"
+                ) : (
+                    "Place Order"
+                )}
             </Button>
 
             <div className="mt-4 text-center">

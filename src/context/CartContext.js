@@ -18,6 +18,52 @@ export function CartProvider({ children }) {
   const [deliveryArea, setDeliveryArea] = useState("");
   const [isLoaded, setIsLoaded] = useState(false);
   const { success, info } = useToast() || {};
+  const [storeStatus, setStoreStatus] = useState({
+    isOpen: false,
+    isForceClosed: false,
+    isOpenByTime: false,
+    loadingStatus: true,
+  });
+  const hasShownToast = useRef(false);
+
+  // Fetch Store Status
+  useEffect(() => {
+    let isMounted = true;
+    const fetchStatus = async () => {
+      try {
+        const res = await fetch("/api/settings", { cache: "no-store" });
+        const json = await res.json();
+        if (isMounted && json.success) {
+          setStoreStatus({
+            isOpen: json.data.isOpen,
+            isForceClosed: json.data.isForceClosed,
+            isOpenByTime: json.data.isOpenByTime,
+            loadingStatus: false,
+          });
+          if (!hasShownToast.current) {
+            if (statusData.isForceClosed) {
+              warning(
+                "Due to scheduled maintenance, our system is temporarily paused. Please check back shortly for a premium experience.",
+              );
+            } else if (json.data.generalNote) {
+              info(json.data.generalNote);
+            }
+            hasShownToast.current = true;
+          }
+        }
+      } catch (err) {
+        if (isMounted)
+          setStoreStatus((prev) => ({ ...prev, loadingStatus: false }));
+      }
+    };
+
+    fetchStatus();
+    const interval = setInterval(fetchStatus, 60000);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, [info]);
 
   //  Hydration
   useEffect(() => {
@@ -218,7 +264,6 @@ export function CartProvider({ children }) {
     () => cartItems.reduce((acc, item) => acc + item.quantity, 0),
     [cartItems],
   );
-
   const TAX_RATE = 0.15;
   const taxAmount = cartTotal * TAX_RATE;
   const grandTotal = cartTotal + taxAmount + deliveryFee;
@@ -239,6 +284,7 @@ export function CartProvider({ children }) {
       setDeliveryInfo,
       tax: taxAmount,
       grandTotal,
+      storeStatus,
     }),
     [
       cartItems,
@@ -255,6 +301,7 @@ export function CartProvider({ children }) {
       setDeliveryInfo,
       taxAmount,
       grandTotal,
+      storeStatus,
     ],
   );
 
