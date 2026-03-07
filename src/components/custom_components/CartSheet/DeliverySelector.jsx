@@ -66,7 +66,7 @@ const DeliverySelector = ({ onSelect, selectedPrice }) => {
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
-                        className="absolute top-full left-0 w-full mt-2 bg-[#1a1a1a] border border-(--color-gold)/30 rounded-xl shadow-2xl z-50 overflow-hidden flex flex-col max-h-75"
+                        className="absolute top-full left-0 w-full mt-2 bg-[#1a1a1a] border border-gold/30 rounded-xl shadow-2xl z-50 overflow-hidden flex flex-col max-h-75"
                     >
                         <div className="p-2 border-b border-white/10 bg-[#0a0a0a] sticky top-0 z-10">
                             <div className="relative">
@@ -90,7 +90,7 @@ const DeliverySelector = ({ onSelect, selectedPrice }) => {
                                         className="w-full text-left flex justify-between items-center px-3 py-2.5 hover:bg-white/5 rounded-lg group transition-colors"
                                     >
                                         <span className="text-gray-300 text-xs group-hover:text-white transition-colors">{area.label}</span>
-                                        <span className="text-(--color-gold) text-[10px] font-mono bg-(--color-gold)/10 px-1.5 py-0.5 rounded">
+                                        <span className="text-(--color-gold) text-[10px] font-mono bg-gold/10 px-1.5 py-0.5 rounded">
                                             Rs {area.price}
                                         </span>
                                     </button>

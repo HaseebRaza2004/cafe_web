@@ -7,22 +7,35 @@ import {
   useState,
   useMemo,
   useCallback,
+  useRef,
 } from "react";
 import { useToast } from "@/context/ToastContext";
 
 const CartContext = createContext();
+
+// format 24h to 12h
+const formatTime = (time24) => {
+  if (!time24) return "";
+  const [h, m] = time24.split(":");
+  const hours = parseInt(h, 10);
+  const suffix = hours >= 12 ? "PM" : "AM";
+  const formattedHour = hours % 12 || 12;
+  return `${formattedHour}:${m} ${suffix}`;
+};
 
 export function CartProvider({ children }) {
   const [cartItems, setCartItems] = useState([]);
   const [deliveryFee, setDeliveryFee] = useState(0);
   const [deliveryArea, setDeliveryArea] = useState("");
   const [isLoaded, setIsLoaded] = useState(false);
-  const { success, info } = useToast() || {};
+  const { success, info, warning } = useToast() || {};
   const [storeStatus, setStoreStatus] = useState({
-    isOpen: false,
+    isOpen: true,
     isForceClosed: false,
-    isOpenByTime: false,
     loadingStatus: true,
+    generalNote: "",
+    openTimeMsg: "",
+    closeTimeMsg: "",
   });
   const hasShownToast = useRef(false);
 
@@ -34,19 +47,29 @@ export function CartProvider({ children }) {
         const res = await fetch("/api/settings", { cache: "no-store" });
         const json = await res.json();
         if (isMounted && json.success) {
+          const {
+            isOpen,
+            isForceClosed,
+            generalNote,
+            openingTime,
+            closingTime,
+          } = json.data;
+
           setStoreStatus({
-            isOpen: json.data.isOpen,
-            isForceClosed: json.data.isForceClosed,
-            isOpenByTime: json.data.isOpenByTime,
+            isOpen,
+            isForceClosed,
             loadingStatus: false,
+            generalNote,
+            openTimeMsg: formatTime(openingTime),
+            closeTimeMsg: formatTime(closingTime),
           });
           if (!hasShownToast.current) {
-            if (statusData.isForceClosed) {
+            if (isForceClosed) {
               warning(
                 "Due to scheduled maintenance, our system is temporarily paused. Please check back shortly for a premium experience.",
               );
-            } else if (json.data.generalNote) {
-              info(json.data.generalNote);
+            } else if (generalNote) {
+              info(generalNote);
             }
             hasShownToast.current = true;
           }
@@ -63,7 +86,7 @@ export function CartProvider({ children }) {
       isMounted = false;
       clearInterval(interval);
     };
-  }, [info]);
+  }, [info, warning]);
 
   //  Hydration
   useEffect(() => {
