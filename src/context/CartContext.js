@@ -23,12 +23,14 @@ const formatTime = (time24) => {
   return `${formattedHour}:${m} ${suffix}`;
 };
 
+let isGlobalToastFired = false;
+
 export function CartProvider({ children }) {
   const [cartItems, setCartItems] = useState([]);
   const [deliveryFee, setDeliveryFee] = useState(0);
   const [deliveryArea, setDeliveryArea] = useState("");
   const [isLoaded, setIsLoaded] = useState(false);
-  const { success, info, warning } = useToast() || {};
+  const { success, info, warning, error: showError } = useToast() || {};
   const [storeStatus, setStoreStatus] = useState({
     isOpen: true,
     isForceClosed: false,
@@ -37,7 +39,6 @@ export function CartProvider({ children }) {
     openTimeMsg: "",
     closeTimeMsg: "",
   });
-  const hasShownToast = useRef(false);
 
   // Fetch Store Status
   useEffect(() => {
@@ -63,15 +64,23 @@ export function CartProvider({ children }) {
             openTimeMsg: formatTime(openingTime),
             closeTimeMsg: formatTime(closingTime),
           });
-          if (!hasShownToast.current) {
-            if (isForceClosed) {
-              warning(
-                "Due to scheduled maintenance, our system is temporarily paused. Please check back shortly for a premium experience.",
-              );
-            } else if (generalNote) {
-              info(generalNote);
+          if (typeof window !== "undefined") {
+            const hasSeenToast = sessionStorage.getItem("cafe_welcome_toast");
+
+            if (!isGlobalToastFired && !hasSeenToast) {
+              isGlobalToastFired = true;
+              sessionStorage.setItem("cafe_welcome_toast", "true");
+
+              setTimeout(() => {
+                if (isForceClosed) {
+                  warning(
+                    "Due to scheduled maintenance, our system is temporarily paused. Please check back shortly for a premium experience.",
+                  );
+                } else if (generalNote && generalNote.trim() !== "") {
+                  info(generalNote);
+                }
+              }, 500);
             }
-            hasShownToast.current = true;
           }
         }
       } catch (err) {
@@ -106,14 +115,15 @@ export function CartProvider({ children }) {
           }
         }
       } catch (error) {
-        console.error("Cart parse error:", error);
+        if (showError) showError("Cart data was corrupted and has been reset.");
+        localStorage.removeItem("cafe_cart");
       } finally {
         setIsLoaded(true);
       }
     }, 0);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [showError]);
 
   useEffect(() => {
     if (isLoaded && typeof window !== "undefined") {
