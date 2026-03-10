@@ -4,31 +4,34 @@ const OrderSchema = new mongoose.Schema(
   {
     customerName: { type: String, required: true },
     phone: { type: String, required: true },
+    altPhone: { type: String, default: "" },
+    email: { type: String, default: "" },
     address: { type: String, required: true },
-    instruction: { type: String },
+    landmark: { type: String, default: "" },
+    deliveryArea: { type: String, required: true },
+    instruction: { type: String, default: "" },
+    changeRequest: { type: String, default: "" },
 
-    cartItems: [
-      {
-        productId: { type: String }, // Reference ke bajaye String rakha taake product delete hone par history na ure
-        title: String,
-        qty: Number,
-        price: Number,
-        selectedOptions: [String], // e.g. ["Chicken Tikka", "Coke"]
-      },
-    ],
+    cartItems: {
+      type: [mongoose.Schema.Types.Mixed],
+      default: [],
+      required: true,
+    },
 
+    subtotal: { type: Number, required: true },
+    tax: { type: Number, required: true },
+    deliveryFee: { type: Number, required: true },
     totalAmount: { type: Number, required: true },
 
     status: {
       type: String,
       enum: ["Pending", "Cooking", "Delivered", "Cancelled"],
       default: "Pending",
-      index: true, // Dashboard par "Pending" orders jaldi dikhane ke liye
+      index: true,
     },
-
-    orderDate: { type: Date, default: Date.now, index: true }, // Reporting ke liye fast
+    paymentMethod: { type: String, default: "COD" },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 export default mongoose.models.Order || mongoose.model("Order", OrderSchema);

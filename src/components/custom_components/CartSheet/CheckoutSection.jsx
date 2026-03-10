@@ -42,7 +42,7 @@ const CheckoutSection = ({ deliveryFee, handleCheckout }) => {
                 <Button
                     onClick={onCheckoutClick}
                     disabled={deliveryFee === 0 || loadingStatus}
-                    className="w-full bg-(--color-gold) text-black hover:bg-[#b89445] font-bold h-14 text-sm tracking-widest uppercase rounded-xl shadow-[0_0_20px_rgba(197,160,89,0.3)] transition-all hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full bg-(--color-gold) text-black hover:bg-[#b89445] font-bold h-14 text-sm tracking-widest uppercase rounded-xl shadow-[0_0_20px_rgba(197,160,89,0.3)] transition-all hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 >
                     {loadingStatus ? (
                         <Loader2 className="w-6 h-6 animate-spin" />

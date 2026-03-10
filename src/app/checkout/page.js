@@ -4,27 +4,29 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
+import { useToast } from "@/context/ToastContext";
 import { ArrowLeft } from "lucide-react";
 import CheckoutForm from "@/components/custom_components/checkout/CheckoutForm";
 import OrderSummary from "@/components/custom_components/checkout/OrderSummary";
-import ConfirmModal from "@/components/custom_components/ConfirmModal"; 
+import ConfirmModal from "@/components/custom_components/ConfirmModal";
 
 const CheckoutPage = () => {
   const router = useRouter();
-  const { cartItems, deliveryFee, deliveryArea, grandTotal, isLoaded } =
-    useCart();
+  const { error: showError, success: showSuccess } = useToast() || {};
+  const {
+    cartItems,
+    deliveryFee,
+    deliveryArea,
+    cartTotal,
+    tax,
+    grandTotal,
+    isLoaded,
+    clearCart,
+  } = useCart();
 
-  useEffect(() => {
-    if (isLoaded) {
-      if (cartItems.length === 0 || !deliveryArea) {
-        router.replace("/");
-      }
-    }
-  }, [isLoaded, cartItems, deliveryArea, router]);
-
-  // State
   const [changeRequest, setChangeRequest] = useState("");
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",
     mobile: "",
@@ -35,6 +37,14 @@ const CheckoutPage = () => {
     instructions: "",
   });
 
+  useEffect(() => {
+    if (isLoaded) {
+      if (cartItems.length === 0 || !deliveryArea) {
+        router.replace("/");
+      }
+    }
+  }, [isLoaded, cartItems, deliveryArea, router]);
+
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -42,34 +52,64 @@ const CheckoutPage = () => {
   const handleValidation = () => {
     if (cartItems.length === 0) return;
     if (!formData.fullName || !formData.mobile || !formData.address) {
-      alert("Please fill in all required fields (Name, Mobile, Address).");
+      if (showError)
+        showError(
+          "Please fill in all required fields (Name, Mobile, Address).",
+        );
       return;
     }
     setIsConfirmOpen(true);
   };
 
-  const handleFinalOrder = () => {
-    // WhatsApp Message Logic
-    const message =
-      `*New Order: ${formData.fullName}*\n\n` +
-      `*Items:*\n${cartItems
-        .map(
-          (item) =>
-            `- ${item.quantity}x ${item.title} (${item.selectedOptions?.map((opt) => opt.name).join(", ") || ""})`,
-        )
-        .join("\n")}\n\n` +
-      `*Total Bill:* Rs ${grandTotal.toLocaleString()}\n` +
-      `*Delivery Area:* ${deliveryArea.toUpperCase()}\n` +
-      `*Address:* ${formData.address} ${formData.landmark ? `(${formData.landmark})` : ""}\n` +
-      `*Payment:* Cash on Delivery (COD)\n` +
-      `${changeRequest ? `*Change Required For:* Rs ${changeRequest}\n` : ""}` +
-      `*Mobile:* ${formData.mobile}\n` +
-      `${formData.altMobile ? `*Alt Mobile:* ${formData.altMobile}\n` : ""}` +
-      `${formData.email ? `*Email:* ${formData.email}\n` : ""}` +
-      `${formData.instructions ? `*Note:* ${formData.instructions}` : ""}`;
+  // Confrim Order Handler
+  const handleFinalOrder = async () => {
+    setIsConfirmOpen(false);
+    setIsSubmitting(true);
 
-    const encodedMsg = encodeURIComponent(message);
-    window.open(`https://wa.me/923212190661?text=${encodedMsg}`, "_blank");
+    const payload = {
+      customerName: formData.fullName,
+      phone: formData.mobile,
+      altPhone: formData.altMobile,
+      email: formData.email,
+      address: formData.address,
+      landmark: formData.landmark,
+      deliveryArea: deliveryArea,
+      instruction: formData.instructions,
+      changeRequest: changeRequest,
+      cartItems: cartItems,
+      subtotal: cartTotal,
+      tax: tax,
+      deliveryFee: deliveryFee,
+      totalAmount: grandTotal,
+    };
+
+    try {
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        if (showSuccess) showSuccess("Order Secured! Processing...");
+
+        clearCart();
+
+        if (typeof window !== "undefined") {
+          localStorage.setItem("active_order", data.orderId);
+        }
+
+        router.push(`/order-success/${data.orderId}`);
+      } else {
+        throw new Error(data.error || "Failed to place order.");
+      }
+    } catch (err) {
+      if (showError)
+        showError(err.message || "Network Error. Please try again.");
+      setIsSubmitting(false);
+    }
   };
 
   if (!isLoaded) return null;
@@ -96,7 +136,6 @@ const CheckoutPage = () => {
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16">
-          {/* LEFT: FORM */}
           <div className="lg:col-span-8">
             <CheckoutForm
               formData={formData}
@@ -106,22 +145,22 @@ const CheckoutPage = () => {
               setChangeRequest={setChangeRequest}
             />
           </div>
-
-          {/* RIGHT: SUMMARY */}
           <div className="lg:col-span-4">
-            <OrderSummary handlePlaceOrder={handleValidation} />
+            <OrderSummary
+              handlePlaceOrder={handleValidation}
+              isSubmitting={isSubmitting}
+            />
           </div>
         </div>
       </div>
 
-      {/* CONFIRMATION MODAL */}
       <ConfirmModal
         isOpen={isConfirmOpen}
-        onClose={() => setIsConfirmOpen(false)}
+        onClose={() => !isSubmitting && setIsConfirmOpen(false)}
         onConfirm={handleFinalOrder}
-        title="Confirm Order details?"
-        description="Please ensure your address and items are correct. Orders cannot be cancelled once placed. Estimated delivery: 45-60 mins."
-        confirmText="Place Order on WhatsApp"
+        title="Confirm Order Details"
+        description="Please ensure your address and items are correct. Estimated delivery: 45-60 mins."
+        confirmText="Secure My Order"
         variant="default"
       />
     </div>

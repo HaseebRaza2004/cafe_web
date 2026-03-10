@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useCart } from "@/context/CartContext";
 import { Loader2 } from "lucide-react";
 
-const OrderSummary = ({ handlePlaceOrder }) => {
+const OrderSummary = ({ handlePlaceOrder, isSubmitting }) => {
     const { cartItems, cartTotal, tax, deliveryFee, grandTotal, deliveryArea, storeStatus } = useCart();
     const { isOpen, isForceClosed, loadingStatus, openTimeMsg, closeTimeMsg } = storeStatus;
     const isButtonDisabled = cartItems.length === 0 || loadingStatus || !isOpen;
@@ -34,9 +34,11 @@ const OrderSummary = ({ handlePlaceOrder }) => {
                                     {item?.title}
                                 </p>
                                 {item?.selectedOptions?.length > 0 && (
-                                    <p className="text-xs text-gray-400 mt-1 pl-6">
-                                        + {item?.selectedOptions.map(opt => opt.name).join(", ")}
-                                    </p>
+                                    <div className="text-xs text-gray-400 mt-1 pl-6 flex flex-col gap-1">
+                                        {item.selectedOptions.map((opt, i) => (
+                                            <span key={i}>+ {opt.name}</span>
+                                        ))}
+                                    </div>
                                 )}
                             </div>
                             <p className="text-base font-mono text-gray-300 font-medium">
@@ -83,7 +85,7 @@ const OrderSummary = ({ handlePlaceOrder }) => {
             {/* Place Order Button */}
             <Button
                 onClick={handlePlaceOrder}
-                disabled={isButtonDisabled}
+                disabled={isButtonDisabled || isSubmitting}
                 className="w-full mt-8 h-14 bg-(--color-gold) hover:bg-[#a68545] text-black font-bold uppercase tracking-widest text-lg shadow-lg hover:shadow-[0_0_20px_rgba(197,160,89,0.4)] transition-all transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
             >
                 {loadingStatus ? (

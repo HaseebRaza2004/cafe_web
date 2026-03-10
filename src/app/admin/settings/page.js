@@ -61,8 +61,8 @@ export default function SettingsPage() {
 
         if (json.success) {
           const data = {
-            openingTime: json.data.openingTime || "16:00",
-            closingTime: json.data.closingTime || "02:00",
+            openingTime: json.data.openingTime,
+            closingTime: json.data.closingTime,
             isForceClosed: json.data.isForceClosed || false,
             generalNote: json.data.generalNote || "",
           };
@@ -181,4 +181,4 @@ export default function SettingsPage() {
       />
     </div>
   );
-};
+}

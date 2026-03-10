@@ -47,7 +47,7 @@ export async function PUT(req, { params }) {
   }
 }
 
-// GET: Single Order Details (Optional - Agar future mein Invoice print karni ho)
+// GET: Single Order Details 
 export async function GET(req, { params }) {
   try {
     const { id } = await params;
