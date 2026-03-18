@@ -3,6 +3,49 @@ import { jwtVerify } from "jose";
 
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 
+const PUBLIC_API_RULES = [
+  { path: "/api/admin/login", methods: ["POST"] },
+  { path: "/api/admin/logout", methods: ["POST"] },
+  { path: "/api/admin/register", methods: ["POST"] },
+  { path: "/api/orders", methods: ["POST"] },
+  { path: "/api/orders/", methods: ["GET"], dynamic: true },
+  { path: "/api/settings", methods: ["GET"] },
+  { path: "/api/products", methods: ["GET"] },
+  { path: "/api/categories", methods: ["GET"] },
+  { path: "/api/deals", methods: ["GET"] },
+  { path: "/api/option-groups", methods: ["GET"] },
+  { path: "/api/products/", methods: ["GET"], dynamic: true },
+  { path: "/api/categories/", methods: ["GET"], dynamic: true },
+  { path: "/api/deals/", methods: ["GET"], dynamic: true },
+  { path: "/api/option-groups/", methods: ["GET"], dynamic: true },
+];
+
+function isPublicApiRequest(pathname, method) {
+  for (const rule of PUBLIC_API_RULES) {
+    let matches = false;
+
+    if (rule.dynamic) {
+      matches = pathname.startsWith(rule.path);
+    } else {
+      matches = pathname === rule.path;
+    }
+
+    if (matches && rule.methods.includes(method)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+async function verifyToken(token) {
+  try {
+    await jwtVerify(token, JWT_SECRET);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export async function proxy(req) {
   const { pathname } = req.nextUrl;
   const method = req.method;
@@ -22,70 +65,43 @@ export async function proxy(req) {
     return NextResponse.next();
   }
 
-  let isProtectedApi = false;
-
-  if (isApiRoute) {
-    if (
-      pathname.startsWith("/api/admin/register") ||
-      pathname.startsWith("/api/admin/login") ||
-      pathname.startsWith("/api/admin/logout")
-    ) {
-      return NextResponse.next();
-    }
-
-    if (method === "GET") {
-      if (
-        pathname.startsWith("/api/orders") ||
-        pathname.startsWith("/api/analytics")
-      ) {
-        isProtectedApi = true;
-      }
-    } else {
-      if (method === "POST" && pathname === "/api/orders") {
-        isProtectedApi = false;
-      } else {
-        isProtectedApi = true;
-      }
-    }
-  }
-
-  if (!isAdminPage && !isProtectedApi) {
+  if (isApiRoute && isPublicApiRequest(pathname, method)) {
     return NextResponse.next();
   }
 
   const token = req.cookies.get("token")?.value;
 
-  const handleUnauthorized = () => {
-    if (isProtectedApi) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized: Admin access required" },
-        { status: 401 },
-      );
-    }
-
-    if (pathname === "/admin/login") {
-      return NextResponse.next();
-    }
-
-    const response = NextResponse.redirect(new URL("/admin/login", req.url));
-    response.cookies.delete("token");
-    return response;
-  };
-
   if (!token) {
-    return handleUnauthorized();
+    return handleUnauthorized(req, isApiRoute, pathname);
   }
 
-  try {
-    await jwtVerify(token, JWT_SECRET);
-    if (pathname === "/admin/login") {
-      return NextResponse.redirect(new URL("/admin/dashboard", req.url));
-    }
+  const valid = await verifyToken(token);
+  if (!valid) {
+    return handleUnauthorized(req, isApiRoute, pathname);
+  }
 
+  if (pathname === "/admin/login") {
+    return NextResponse.redirect(new URL("/admin/dashboard", req.url));
+  }
+
+  return NextResponse.next();
+}
+
+function handleUnauthorized(req, isApiRoute, pathname) {
+  if (isApiRoute) {
+    return NextResponse.json(
+      { success: false, error: "Unauthorized: Admin access required" },
+      { status: 401 },
+    );
+  }
+
+  if (pathname === "/admin/login") {
     return NextResponse.next();
-  } catch (error) {
-    return handleUnauthorized();
   }
+
+  const response = NextResponse.redirect(new URL("/admin/login", req.url));
+  response.cookies.delete("token");
+  return response;
 }
 
 export const config = {

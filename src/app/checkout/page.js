@@ -37,14 +37,6 @@ const CheckoutPage = () => {
     instructions: "",
   });
 
-  useEffect(() => {
-    if (isLoaded) {
-      if (cartItems.length === 0 || !deliveryArea) {
-        router.replace("/");
-      }
-    }
-  }, [isLoaded, cartItems, deliveryArea, router]);
-
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
