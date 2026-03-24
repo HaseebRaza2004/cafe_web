@@ -27,7 +27,7 @@ const Header = () => {
       >
         <div className="container mx-auto px-4 h-full flex items-center justify-between relative">
 
-          {/* LEFT: Contact Number */}
+          {/* Contact Number */}
           <div className="flex-1 flex justify-start">
             <a
               href="tel:0300-1234567"
@@ -40,17 +40,17 @@ const Header = () => {
             </a>
           </div>
 
-          {/* CENTER: Hanging Logo */}
+          {/* Hanging Logo */}
           <div className={`absolute left-1/2 top-0 -translate-x-1/2 transition-all duration-500 z-50 ${isScrolled ? 'translate-y-2 scale-90' : 'translate-y-4 scale-100'
             }`}>
             <Link href="/">
-              <div className="rounded-full p-2 bg-black/20 backdrop-blur-sm border border-gold/30 shadow-2xl cursor-pointer">
+              <div className="rounded-full p-2 bg-black/20 backdrop-blur-sm border border-gold/30 shadow-2xl cursor-pointer scale-80 hover:scale-85 transition-transform duration-300">
                 <Logo />
               </div>
             </Link>
           </div>
 
-          {/* RIGHT: Cart Icon */}
+          {/* Cart Icon */}
           <div className="flex-1 flex justify-end">
             <CartSheet />
           </div>
