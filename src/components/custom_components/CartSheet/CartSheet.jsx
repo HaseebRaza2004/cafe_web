@@ -74,7 +74,7 @@ const CartSheet = () => {
                                             <SheetClose asChild>
                                                 <Button
                                                     variant="outline"
-                                                    className="bg-(--color-gold) border-none text-black hover:bg-(--color-gold-dark) px-8 py-6 text-lg rounded-md uppercase tracking-widest font-bold transition-all duration-400 hover:scale-105"
+                                                    className="bg-(--color-gold) border-none text-black hover:bg-(--color-gold-dark) px-8 py-6 text-lg rounded-md uppercase tracking-widest font-bold transition-all duration-400 hover:scale-105 cursor-pointer"
                                                 >
                                                     Browse Menu
                                                 </Button>

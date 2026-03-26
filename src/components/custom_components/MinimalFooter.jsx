@@ -29,7 +29,7 @@ export default function MinimalFooter() {
                     </Link>
                 </div>
 
-                <div className="w-full max-w-lg border-t border-white/10 mt-10 pt-6 flex flex-col items-center gap-2">
+                <div className="w-full border-t border-white/10 mt-10 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
                     <p className="text-gray-500 text-xs md:text-sm text-center">
                         © {new Date().getFullYear()} <span className="text-(--color-gold)">Cafe Online</span>. All Rights Reserved.
                     </p>

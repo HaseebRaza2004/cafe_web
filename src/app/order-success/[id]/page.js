@@ -15,26 +15,29 @@ export default function OrderSuccessPage() {
   const [loading, setLoading] = useState(true);
 
   // Background Polling Logic
-  const fetchOrder = useCallback(async (isBackground = false) => {
-    try {
-      const res = await fetch(`/api/orders/${id}`);
-      const json = await res.json();
-      if (json.success) {
-        setOrder(json.data);
-      } else {
-        if (!isBackground) router.push("/");
+  const fetchOrder = useCallback(
+    async (isBackground = false) => {
+      try {
+        const res = await fetch(`/api/orders/${id}`);
+        const json = await res.json();
+        if (json.success) {
+          setOrder(json.data);
+        } else {
+          if (!isBackground) router.push("/");
+        }
+      } catch (err) {
+        console.error("Fetch error");
+      } finally {
+        if (!isBackground) setLoading(false);
       }
-    } catch (err) {
-      console.error("Fetch error");
-    } finally {
-      if (!isBackground) setLoading(false);
-    }
-  }, [id, router]);
+    },
+    [id, router],
+  );
 
   useEffect(() => {
     if (id) {
       fetchOrder(false);
-      const interval = setInterval(() => fetchOrder(true), 15000); 
+      const interval = setInterval(() => fetchOrder(true), 15000);
       return () => clearInterval(interval);
     }
   }, [id, fetchOrder]);
@@ -53,17 +56,21 @@ export default function OrderSuccessPage() {
 
   return (
     <div className="min-h-screen text-white pt-24 pb-20 flex flex-col items-center print:pt-0 print:pb-0 print:bg-white print:block">
-      
       {/* HEADER SECTION */}
       <div className="text-center space-y-4 mb-8 mt-20 px-4 print:hidden animate-in fade-in slide-in-from-bottom-4 duration-700">
         <h1 className="text-3xl md:text-5xl font-display font-bold text-gold uppercase tracking-widest">
           {order.status === "Cancelled" ? "Order Cancelled" : "Order Secured"}
         </h1>
         <p className="text-gray-400 max-w-md mx-auto text-sm md:text-base">
-          {order.status === "Cancelled" 
-            ? "Your order has been cancelled." 
-            : <span>Thank you, <span className="text-gold font-bold">{order.customerName}</span>. Your meal is processing.</span>
-          }
+          {order.status === "Cancelled" ? (
+            "Your order has been cancelled."
+          ) : (
+            <span>
+              Thank you,{" "}
+              <span className="text-gold font-bold">{order.customerName}</span>.
+              Your meal is processing.
+            </span>
+          )}
         </p>
       </div>
 
@@ -73,23 +80,28 @@ export default function OrderSuccessPage() {
       {/* RECEIPT COMPONENT */}
       <OrderReceipt order={order} />
 
-      {/* ACTION BUTTONS (Hidden in print) */}
-      <div className="mt-10 flex flex-col sm:flex-row gap-4 px-4 w-full max-w-xl print:hidden animate-in fade-in slide-in-from-bottom-6 duration-700 delay-300">
+      {/* ACTION BUTTONS */}
+      <div className="mt-10 flex flex-col md:flex-row gap-4 px-4 w-full max-w-xl mx-auto print:hidden animate-in fade-in slide-in-from-bottom-6 duration-700 delay-300">
+        
         <Button 
           onClick={handlePrint}
           variant="outline"
           disabled={order.status === "Cancelled"}
-          className="flex-1 h-14 border-(--color-gold) text-(--color-gold) hover:bg-(--color-gold) hover:text-black uppercase tracking-widest font-bold disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          className="flex-1 min-h-14 bg-(--color-gold) text-black hover:bg-(--color-gold-dark) border-none   uppercase tracking-widest duration-400 hover:scale-105 font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
         >
-          <Printer className="w-5 h-5 mr-2" /> Download Receipt
+          <Printer className="w-5 h-5 mr-2 shrink-0" /> Download Receipt
         </Button>
-        <Link href="/" className="flex-1">
-          <Button className="w-full h-14 bg-white/10 hover:bg-white/20 text-white uppercase tracking-widest font-bold border-none transition-all">
-            <ArrowLeft className="w-5 h-5 mr-2" /> Return to Menu
-          </Button>
-        </Link>
-      </div>
 
+        <Button 
+          asChild
+          className="flex-1 min-h-14 bg-white/90 hover:bg-gold hover:text-black text-gold-dark uppercase tracking-widest font-bold border-none rounded-md text-lg duration-400 hover:scale-105 transition-all cursor-pointer"
+        >                             
+          <Link href="/">
+            <ArrowLeft className="w-5 h-5 mr-2 shrink-0" /> Return to Menu
+          </Link>
+        </Button>
+
+      </div>
     </div>
   );
 }

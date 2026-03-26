@@ -86,7 +86,7 @@ const OrderSummary = ({ handlePlaceOrder, isSubmitting }) => {
             <Button
                 onClick={handlePlaceOrder}
                 disabled={isButtonDisabled || isSubmitting}
-                className="w-full mt-8 h-14 bg-(--color-gold) hover:bg-[#a68545] text-black font-bold uppercase tracking-widest text-lg shadow-lg hover:shadow-[0_0_20px_rgba(197,160,89,0.4)] transition-all transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+                className="w-full mt-8 h-14 bg-(--color-gold) hover:bg-[#a68545] text-black font-bold uppercase tracking-widest text-lg shadow-lg hover:shadow-[0_0_20px_rgba(197,160,89,0.4)] transition-all transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 cursor-pointer"
             >
                 {loadingStatus ? (
                     <Loader2 className="w-5 h-5 animate-spin" />

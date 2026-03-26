@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { MapPin, Phone, Mail, Clock, Facebook, Instagram, Twitter, ArrowUp } from "lucide-react";
-import Logo from "./Logo"; // Logo component import kar rahe hain (agar file name same hai)
+import Logo from "./Logo"; 
 
 const Footer = () => {
 
@@ -132,7 +132,7 @@ const Footer = () => {
 
             </div>
 
-            {/* Scroll To Top Button (Optional Luxury Touch) */}
+            {/* Scroll To Top Button */}
             <button
                 onClick={scrollToTop}
                 className="absolute right-6 top-0 -translate-y-1/2 w-12 h-12 bg-black border border-(--color-gold) text-(--color-gold) rounded-full flex items-center justify-center hover:bg-(--color-gold) hover:text-black transition-all duration-500 shadow-[0_0_20px_rgba(197,160,89,0.3)] z-10"
