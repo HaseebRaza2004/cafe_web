@@ -5,7 +5,7 @@ import Order from "@/models/Order";
 // PUT: Update Order Status (Admin Side)
 export async function PUT(req, { params }) {
   try {
-    const { id } = await params; // Next.js 16.1 syntax (await params)
+    const { id } = await params; 
     const { status } = await req.json();
     await dbConnect();
 

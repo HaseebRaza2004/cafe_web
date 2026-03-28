@@ -2,18 +2,25 @@ import { NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
 import Order from "@/models/Order";
 import Settings from "@/models/Settings";
+import Pusher from "pusher";
+
+// Initialize Pusher
+const pusher = new Pusher({
+  appId: process.env.PUSHER_APP_ID,
+  key: process.env.NEXT_PUBLIC_PUSHER_APP_KEY,
+  secret: process.env.PUSHER_SECRET,
+  cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER,
+  useTLS: true,
+});
 
 // Double-Lock Timing Validation Helper
 function isShopOpen(openTime, closeTime) {
   if (!openTime || !closeTime) return false;
-
   const now = new Date().toLocaleString("en-US", { timeZone: "Asia/Karachi" });
   const currentDate = new Date(now);
   const currentMinutes = currentDate.getHours() * 60 + currentDate.getMinutes();
-
   const [openH, openM] = openTime.split(":").map(Number);
   const [closeH, closeM] = closeTime.split(":").map(Number);
-
   const openMinutes = openH * 60 + openM;
   const closeMinutes = closeH * 60 + closeM;
 
@@ -28,6 +35,7 @@ export async function POST(req) {
   try {
     await dbConnect();
 
+    // Check Settings
     const settings = await Settings.findOne().lean();
     if (settings) {
       const isOpenByTime = isShopOpen(
@@ -95,7 +103,10 @@ export async function POST(req) {
       paymentMethod: "COD",
     });
 
-    // TODO: Pusher Real-Time Notification Logic will go here in next step
+    // Trigger Pusher Event for Admin Dashboard 
+    await pusher.trigger("admin-channel", "new-order", {
+      order: newOrder,
+    });
 
     return NextResponse.json(
       {
@@ -106,8 +117,7 @@ export async function POST(req) {
       { status: 201 },
     );
   } catch (error) {
-    console.error("Order Creation Error: ", error); 
-
+    console.error("Order Creation Error: ", error);
     let errorMessage =
       "An unexpected error occurred while placing your order. Please try again.";
 
@@ -118,7 +128,6 @@ export async function POST(req) {
       errorMessage =
         "System encountered a data format issue. Please clear your cart and try again.";
     }
-
     return NextResponse.json(
       { success: false, error: errorMessage },
       { status: 500 },
