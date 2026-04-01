@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import Pusher from "pusher-js";
-import { Loader2, BellRing, BellOff, Download } from "lucide-react";
+import { BellRing, BellOff, Download } from "lucide-react";
 import { useToast } from "@/context/ToastContext";
 import { Button } from "@/components/ui/button";
 import OrderList from "@/components/custom_components/admin/ordersComponents/OrderList";
@@ -12,19 +12,28 @@ export default function AdminOrdersPage() {
   const { success, error: showError, info } = useToast() || {};
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  // Audio Alert State
   const [alertsEnabled, setAlertsEnabled] = useState(false);
   const [audio, setAudio] = useState(null);
-
-  // Filter States
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedDate, setSelectedDate] = useState(""); // YYYY-MM-DD
-  const [quickFilter, setQuickFilter] = useState("All"); // All, Today, Week, Month
+  const [selectedDate, setSelectedDate] = useState(""); 
+  const [quickFilter, setQuickFilter] = useState("All"); 
+  const alertsRef = useRef(alertsEnabled);
+  const audioRef = useRef(audio);
+  const successRef = useRef(success);
+
+  // Keep Refs updated silently
+  useEffect(() => {
+    alertsRef.current = alertsEnabled;
+  }, [alertsEnabled]);
+  useEffect(() => {
+    audioRef.current = audio;
+  }, [audio]);
+  useEffect(() => {
+    successRef.current = success;
+  }, [success]);
 
   // Initialize Audio
   useEffect(() => {
-    // You should put a simple 'bell.mp3' file in your public folder
     setAudio(new Audio("/bell.mp3"));
   }, []);
 
@@ -33,7 +42,7 @@ export default function AdminOrdersPage() {
       if (audio) {
         audio
           .play()
-          .catch((e) => console.log("Audio play failed on enable", e)); // Prime the audio context
+          .catch((e) => console.log("Audio play failed on enable", e));
       }
       if (success) success("Real-Time Audio Alerts Enabled!");
     } else {
@@ -72,26 +81,27 @@ export default function AdminOrdersPage() {
   // Initial Load & Pusher Setup
   useEffect(() => {
     fetchOrders(true);
+  }, [fetchOrders]);
 
-    // Initialize Pusher Client
+  useEffect(() => {
     const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_APP_KEY, {
       cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER,
     });
 
     const channel = pusher.subscribe("admin-channel");
 
-    // Listen for 'new-order' event
     channel.bind("new-order", (data) => {
       if (data && data.order) {
-        // Prepend new order to the top of the list instantly!
         setOrders((prevOrders) => [data.order, ...prevOrders]);
 
-        if (success)
-          success(`New Order Received from ${data.order.customerName}!`);
+        if (successRef.current)
+          successRef.current(
+            `New Order Received from ${data.order.customerName}!`,
+          );
 
-        // Play Sound if enabled
-        if (alertsEnabled && audio) {
-          audio
+        if (alertsRef.current && audioRef.current) {
+          audioRef.current.currentTime = 0;
+          audioRef.current
             .play()
             .catch((err) => console.log("Audio blocked by browser:", err));
         }
@@ -103,11 +113,10 @@ export default function AdminOrdersPage() {
       channel.unsubscribe();
       pusher.disconnect();
     };
-  }, [fetchOrders, success, alertsEnabled, audio]);
+  }, []);
 
   // Handle Status Update (Passed down to child)
   const handleStatusChange = async (orderId, newStatus) => {
-    // Optimistic UI Update locally first for speed
     const previousOrders = [...orders];
     setOrders(
       orders.map((o) => (o._id === orderId ? { ...o, status: newStatus } : o)),
@@ -124,17 +133,16 @@ export default function AdminOrdersPage() {
       if (!res.ok) throw new Error(data.error);
       if (success) success(`Order status changed to ${newStatus}`);
     } catch (err) {
-      // Revert if API fails
       setOrders(previousOrders);
       if (showError) showError(err.message || "Failed to update status");
     }
   };
 
-  // --- FILTERING LOGIC (useMemo for Extreme Performance) ---
+  // FILTERING LOGIC 
   const filteredOrders = useMemo(() => {
     let result = [...orders];
 
-    // 1. Text Search (Name, Phone, ID)
+    // Search By (Name, Phone, ID)
     if (searchQuery) {
       const lowerQuery = searchQuery.toLowerCase();
       result = result.filter(
@@ -146,7 +154,6 @@ export default function AdminOrdersPage() {
       );
     }
 
-    // 2. Specific Date Filter
     if (selectedDate) {
       result = result.filter((o) => {
         const orderDate = new Date(o.createdAt).toISOString().split("T")[0];
@@ -154,7 +161,7 @@ export default function AdminOrdersPage() {
       });
     }
 
-    // 3. Quick Filters (Today, Week, Month)
+    // Quick Filters (Today, Week, Month)
     if (quickFilter !== "All" && !selectedDate) {
       const now = new Date();
       result = result.filter((o) => {
@@ -179,7 +186,7 @@ export default function AdminOrdersPage() {
     return result;
   }, [orders, searchQuery, selectedDate, quickFilter]);
 
-  // --- EXPORT TO CSV LOGIC ---
+  // EXPORT TO CSV LOGIC
   const handleExportCSV = () => {
     if (filteredOrders.length === 0) {
       if (showError) showError("No data to export!");
@@ -205,7 +212,7 @@ export default function AdminOrdersPage() {
     const rows = filteredOrders.map((o) => [
       o._id,
       new Date(o.createdAt).toLocaleString(),
-      `"${o.customerName}"`, // Quotes to handle commas in names
+      `"${o.customerName}"`, 
       o.phone,
       o.deliveryArea,
       o.status,
