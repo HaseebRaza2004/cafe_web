@@ -41,15 +41,41 @@ const CheckoutPage = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  // Validation before showing confirmation modal
   const handleValidation = () => {
-    if (cartItems.length === 0) return;
-    if (!formData.fullName || !formData.mobile || !formData.address) {
+    if (cartItems.length === 0) {
+      if (showError) showError("Your cart is empty!");
+      return;
+    }
+
+    if (!formData.fullName || formData.fullName.trim().length < 3) {
+      if (showError) showError("Please enter a valid Full Name.");
+      return;
+    }
+
+    const phoneRegex = /^03\d{9}$/;
+    if (!formData.mobile || !phoneRegex.test(formData.mobile)) {
       if (showError)
         showError(
-          "Please fill in all required fields (Name, Mobile, Address).",
+          "Please enter a valid 11-digit mobile number (e.g., 03001234567).",
         );
       return;
     }
+
+    if (!formData.address || formData.address.trim().length < 8) {
+      if (showError) showError("Please enter a complete delivery address.");
+      return;
+    }
+
+    if (formData.email) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.email)) {
+        if (showError)
+          showError("Please enter a valid email address, or leave it blank.");
+        return;
+      }
+    }
+
     setIsConfirmOpen(true);
   };
 

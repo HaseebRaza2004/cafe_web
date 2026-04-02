@@ -87,7 +87,7 @@ export default function OrderSuccessPage() {
           onClick={handlePrint}
           variant="outline"
           disabled={order.status === "Cancelled"}
-          className="flex-1 min-h-14 bg-(--color-gold) text-black hover:bg-(--color-gold-dark) border-none   uppercase tracking-widest duration-400 hover:scale-105 font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
+          className="flex-1 min-h-14 bg-(--color-gold) text-black hover:bg-(--color-gold-dark) border-none uppercase tracking-widest duration-400 hover:scale-105 font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
         >
           <Printer className="w-5 h-5 mr-2 shrink-0" /> Download Receipt
         </Button>

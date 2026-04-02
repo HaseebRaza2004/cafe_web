@@ -8,7 +8,7 @@ import { MapPin } from "lucide-react";
 
 const CheckoutForm = ({ formData, handleInputChange, deliveryArea, changeRequest, setChangeRequest }) => {
     return (
-        <div className="space-y-8">
+        <form className="space-y-8">
             {/* 1. PERSONAL INFORMATION */}
             <div className="bg-black/60 backdrop-blur-md border border-white/10 p-6 md:p-8 rounded-xl space-y-6 shadow-lg">
                 <h2 className="text-xl md:text-2xl font-bold text-white border-b border-white/10 pb-4 font-display">
@@ -25,7 +25,7 @@ const CheckoutForm = ({ formData, handleInputChange, deliveryArea, changeRequest
                         <Input
                             name="fullName"
                             placeholder="Enter your full name"
-                            className="mt-2 bg-[#1a1a1a] border-white/10 text-white focus-visible:ring-(--color-gold) h-12 text-base placeholder:text-gray-600"
+                            className="mt-2 bg-[#1a1a1a] border-white/10 text-white focus-visible:ring-1 focus-visible:ring-(--color-gold) focus-visible:ring-offset-0 focus-visible:border-(--color-gold) transition-colors outline-none h-12 text-base placeholder:text-gray-600"
                             onChange={handleInputChange}
                         />
                     </div>
@@ -38,7 +38,7 @@ const CheckoutForm = ({ formData, handleInputChange, deliveryArea, changeRequest
                         <Input
                             name="email"
                             placeholder="your@email.com"
-                            className="mt-2 bg-[#1a1a1a] border-white/10 text-white focus-visible:ring-(--color-gold) h-12 text-base placeholder:text-gray-600"
+                            className="mt-2 bg-[#1a1a1a] border-white/10 text-white focus-visible:ring-1 focus-visible:ring-(--color-gold) focus-visible:ring-offset-0 focus-visible:border-(--color-gold) transition-colors outline-none h-12 text-base placeholder:text-gray-600"
                             onChange={handleInputChange}
                         />
                     </div>
@@ -53,7 +53,7 @@ const CheckoutForm = ({ formData, handleInputChange, deliveryArea, changeRequest
                         <Input
                             name="mobile"
                             placeholder="03xx-xxxxxxx"
-                            className="mt-2 bg-[#1a1a1a] border-white/10 text-white focus-visible:ring-(--color-gold) h-12 text-base placeholder:text-gray-600"
+                            className="mt-2 bg-[#1a1a1a] border-white/10 text-white focus-visible:ring-1 focus-visible:ring-(--color-gold) focus-visible:ring-offset-0 focus-visible:border-(--color-gold) transition-colors outline-none h-12 text-base placeholder:text-gray-600"
                             onChange={handleInputChange}
                         />
                     </div>
@@ -64,7 +64,7 @@ const CheckoutForm = ({ formData, handleInputChange, deliveryArea, changeRequest
                         <Input
                             name="altMobile"
                             placeholder="03xx-xxxxxxx"
-                            className="mt-2 bg-[#1a1a1a] border-white/10 text-white focus-visible:ring-(--color-gold) h-12 text-base placeholder:text-gray-600"
+                            className="mt-2 bg-[#1a1a1a] border-white/10 text-white focus-visible:ring-1 focus-visible:ring-(--color-gold) focus-visible:ring-offset-0 focus-visible:border-(--color-gold) transition-colors outline-none h-12 text-base placeholder:text-gray-600"
                             onChange={handleInputChange}
                         />
                     </div>
@@ -86,7 +86,7 @@ const CheckoutForm = ({ formData, handleInputChange, deliveryArea, changeRequest
                         <Input
                             name="address"
                             placeholder="House No, Street, Block..."
-                            className="bg-[#1a1a1a] border-white/10 text-white focus-visible:ring-(--color-gold) h-14 pr-32 text-base placeholder:text-gray-600"
+                            className="bg-[#1a1a1a] border-white/10 text-white focus-visible:ring-1 focus-visible:ring-(--color-gold) focus-visible:ring-offset-0 focus-visible:border-(--color-gold) transition-colors outline-none h-14 pr-32 text-base placeholder:text-gray-600"
                             onChange={handleInputChange}
                         />
                         <div className="absolute top-1/2 right-3 -translate-y-1/2 bg-(--color-gold) text-black px-3 py-1 text-xs font-bold rounded uppercase flex items-center gap-1 shadow-md">
@@ -104,7 +104,7 @@ const CheckoutForm = ({ formData, handleInputChange, deliveryArea, changeRequest
                     <Input
                         name="landmark"
                         placeholder="e.g. Near Masjid/Park"
-                        className="mt-2 bg-[#1a1a1a] border-white/10 text-white focus-visible:ring-(--color-gold) h-12 text-base placeholder:text-gray-600"
+                        className="mt-2 bg-[#1a1a1a] border-white/10 text-white focus-visible:ring-1 focus-visible:ring-(--color-gold) focus-visible:ring-offset-0 focus-visible:border-(--color-gold) transition-colors outline-none h-12 text-base placeholder:text-gray-600"
                         onChange={handleInputChange}
                     />
                 </div>
@@ -117,7 +117,7 @@ const CheckoutForm = ({ formData, handleInputChange, deliveryArea, changeRequest
                     <Textarea
                         name="instructions"
                         placeholder="e.g. Ring the bell, leave at gate..."
-                        className="mt-2 bg-[#1a1a1a] border-white/10 text-white focus-visible:ring-(--color-gold) min-h-25 text-base placeholder:text-gray-600"
+                        className="mt-2 bg-[#1a1a1a] border-white/10 text-white focus-visible:ring-1 focus-visible:ring-(--color-gold) focus-visible:ring-offset-0 focus-visible:border-(--color-gold) transition-colors outline-none min-h-25 text-base placeholder:text-gray-600"
                         onChange={handleInputChange}
                     />
                 </div>
@@ -133,7 +133,7 @@ const CheckoutForm = ({ formData, handleInputChange, deliveryArea, changeRequest
                         </span>
                         <Input
                             placeholder="e.g. 5000 (Bring change for)"
-                            className="bg-[#1a1a1a] border-white/10 text-white focus-visible:ring-(--color-gold) rounded-l-none h-12 text-base placeholder:text-gray-600"
+                            className="bg-[#1a1a1a] border-white/10 text-white focus-visible:ring-1 focus-visible:ring-(--color-gold) focus-visible:ring-offset-0 focus-visible:border-(--color-gold) transition-colors outline-none rounded-l-none h-12 text-base placeholder:text-gray-600"
                             value={changeRequest}
                             onChange={(e) => setChangeRequest(e.target.value)}
                         />
@@ -143,7 +143,7 @@ const CheckoutForm = ({ formData, handleInputChange, deliveryArea, changeRequest
                     </p>
                 </div>
             </div>
-        </div>
+        </form>
     );
 };
 

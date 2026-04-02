@@ -5,7 +5,6 @@ import { Clock, MapPin, Phone, Loader2, Mail } from "lucide-react";
 
 export default function OrderCard({ order, handleStatusChange }) {
     const [isUpdating, setIsUpdating] = useState(false);
-
     const changeStatus = async (newStatus) => {
         if (order.status === newStatus) return;
         setIsUpdating(true);
@@ -53,8 +52,8 @@ export default function OrderCard({ order, handleStatusChange }) {
                                 onClick={() => changeStatus(status)}
                                 disabled={isUpdating}
                                 className={`px-3 md:px-4 py-1.5 text-xs md:text-sm font-bold rounded-md transition-all whitespace-nowrap disabled:opacity-50 ${order.status === status
-                                        ? "bg-white/15 text-white shadow-md"
-                                        : "text-gray-500 hover:text-white"
+                                    ? "bg-white/15 text-white shadow-md"
+                                    : "text-gray-500 hover:text-white"
                                     }`}
                             >
                                 {status}

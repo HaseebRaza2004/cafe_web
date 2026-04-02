@@ -7,6 +7,7 @@ import { useToast } from "@/context/ToastContext";
 import { Button } from "@/components/ui/button";
 import OrderList from "@/components/custom_components/admin/ordersComponents/OrderList";
 import OrderFilters from "@/components/custom_components/admin/ordersComponents/OrderFilters";
+import AdminOrdersHeader from "@/components/custom_components/admin/ordersComponents/AdminOrdersHeader";
 
 export default function AdminOrdersPage() {
   const { success, error: showError, info } = useToast() || {};
@@ -15,8 +16,8 @@ export default function AdminOrdersPage() {
   const [alertsEnabled, setAlertsEnabled] = useState(false);
   const [audio, setAudio] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedDate, setSelectedDate] = useState(""); 
-  const [quickFilter, setQuickFilter] = useState("All"); 
+  const [selectedDate, setSelectedDate] = useState("");
+  const [quickFilter, setQuickFilter] = useState("All");
   const alertsRef = useRef(alertsEnabled);
   const audioRef = useRef(audio);
   const successRef = useRef(success);
@@ -138,7 +139,7 @@ export default function AdminOrdersPage() {
     }
   };
 
-  // FILTERING LOGIC 
+  // FILTERING LOGIC
   const filteredOrders = useMemo(() => {
     let result = [...orders];
 
@@ -212,7 +213,7 @@ export default function AdminOrdersPage() {
     const rows = filteredOrders.map((o) => [
       o._id,
       new Date(o.createdAt).toLocaleString(),
-      `"${o.customerName}"`, 
+      `"${o.customerName}"`,
       o.phone,
       o.deliveryArea,
       o.status,
@@ -245,43 +246,12 @@ export default function AdminOrdersPage() {
 
   return (
     <div className="animate-in fade-in zoom-in-95 duration-500 max-w-7xl mx-auto pb-20">
-      {/* Premium Header */}
-      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-8 bg-black/40 p-6 rounded-2xl border border-white/10 shadow-lg">
-        <div>
-          <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight font-display uppercase">
-            Order Command Center
-          </h1>
-          <p className="text-gray-400 text-sm md:text-base mt-2 flex items-center gap-2">
-            <span className="relative flex h-3 w-3">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
-            </span>
-            Real-time synchronization active
-          </p>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-3">
-          <Button
-            variant="outline"
-            onClick={toggleAlerts}
-            className={`h-12 border transition-all ${alertsEnabled ? "bg-green-500/10 border-green-500/50 text-green-400" : "border-white/20 text-gray-400 hover:text-white"}`}
-          >
-            {alertsEnabled ? (
-              <BellRing className="w-5 h-5 mr-2 animate-pulse" />
-            ) : (
-              <BellOff className="w-5 h-5 mr-2" />
-            )}
-            {alertsEnabled ? "Alerts ON" : "Enable Audio Alerts"}
-          </Button>
-
-          <Button
-            onClick={handleExportCSV}
-            className="h-12 bg-(--color-gold) hover:bg-[#a68545] text-black font-bold uppercase tracking-widest shadow-lg transition-all"
-          >
-            <Download className="w-5 h-5 mr-2" /> Export CSV
-          </Button>
-        </div>
-      </div>
+      {/* Header */}
+      <AdminOrdersHeader
+        alertsEnabled={alertsEnabled}
+        toggleAlerts={toggleAlerts}
+        handleExportCSV={handleExportCSV}
+      />
 
       {/* Advanced Filters Component */}
       <OrderFilters
