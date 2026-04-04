@@ -144,24 +144,12 @@
   }
 
   html {
-    font-family: var(--font-body), sans-serif;
+    font-family: var(--font-montserrat), sans-serif;
   }
 
-  /* --- UPDATED BODY WITH MARBLE BACKGROUND --- */
   body {
-    /* Global Background Image setup */
-    background-image: url('/marbleImage.webp');
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
-    background-repeat: no-repeat;
-
-    /* Text Color */
-    color: white;
-    /* Marble par white text zyada readable hai */
+    @apply bg-background text-foreground;
     min-height: 100vh;
-
-    /* Smooth Fonts */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -184,7 +172,7 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: var(--font-heading), serif;
+  font-family: var(--font-playfair), serif;
   font-weight: 700;
   letter-spacing: -0.02em;
 }
@@ -209,8 +197,8 @@ input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
 input:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0 30px #1a1a1a inset !important;
-  -webkit-text-fill-color: white !important;
+  -webkit-box-shadow: 0 0 0 30px var(--color-gold) inset !important;
+  -webkit-text-fill-color: #1a1a1a !important;
   transition: background-color 5000s ease-in-out 0s;
   caret-color: white;
 }
@@ -225,7 +213,21 @@ input:-webkit-autofill:active {
   scrollbar-width: none;
 }
 
-/* --- HIDE NUMBER INPUT ARROWS (Global Fix) --- */
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 2px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  @apply bg-gold rounded-full;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  @apply bg-gold-dark;
+}
+
+
+/* HIDE NUMBER INPUT ARROWS  */
 @layer utilities {
 
   .no-spin::-webkit-inner-spin-button,

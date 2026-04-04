@@ -184,7 +184,7 @@ const DealModal = ({ deal, isOpen, setIsOpen, initialState }) => {
                     <div className="relative">
                         <button
                             onClick={() => setShowShareMenu(!showShareMenu)}
-                            className="group bg-black/40 backdrop-blur-md p-2 rounded-full text-white hover:text-(--color-gold) transition-all duration-300"
+                            className="group bg-black/40 backdrop-blur-md p-2 rounded-full text-white hover:text-(--color-gold) transition-all duration-300 cursor-pointer"
                         >
                             <Share2 className="w-4 h-4 transition-transform duration-300 group-hover:scale-125" />
                         </button>
@@ -194,7 +194,7 @@ const DealModal = ({ deal, isOpen, setIsOpen, initialState }) => {
                     </div>
                     <DialogClose asChild>
                         <button
-                            className="group bg-black/40 backdrop-blur-md p-2 rounded-full text-white hover:text-red-500 transition-all duration-300"
+                            className="group bg-black/40 backdrop-blur-md p-2 rounded-full text-white hover:text-red-500 transition-all duration-300 cursor-pointer"
                         >
                             <X className="w-4 h-4 transition-transform duration-300 group-hover:scale-125" />
                         </button>

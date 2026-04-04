@@ -21,15 +21,25 @@ const DealFooter = ({
                     <div className="h-12 w-12 hidden md:block" />
                 ) : (
                     <div className="flex items-center bg-white/5 rounded-lg border border-white/10 h-12">
-                        <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="px-4 h-full hover:text-(--color-gold) hover:bg-white/5 transition-colors"><Minus className="w-4 h-4" /></button>
+                        <button 
+                        onClick={() => setQuantity(Math.max(1, quantity - 1))} 
+                        className="px-4 h-full hover:text-(--color-gold) hover:bg-white/5 transition-colors cursor-pointer"
+                        >
+                            <Minus className="w-4 h-4" />
+                            </button>
                         <span className="w-10 text-center font-bold text-lg font-mono">{quantity}</span>
-                        <button onClick={() => setQuantity(quantity + 1)} className="px-4 h-full hover:text-(--color-gold) hover:bg-white/5 transition-colors"><Plus className="w-4 h-4" /></button>
+                        <button 
+                        onClick={() => setQuantity(quantity + 1)} 
+                        className="px-4 h-full hover:text-(--color-gold) hover:bg-white/5 transition-colors cursor-pointer"
+                        >
+                            <Plus className="w-4 h-4" />
+                            </button>
                     </div>
                 )}
 
                 <Button
                     onClick={onAction}
-                    className="flex-1 h-12 bg-(--color-gold) text-black hover:bg-[#a68545] font-bold text-sm md:text-base uppercase tracking-widest transition-all hover:scale-[1.02] shadow-[0_0_15px_rgba(197,160,89,0.3)]"
+                    className="flex-1 h-12 bg-(--color-gold) text-black hover:bg-[#a68545] font-bold text-sm md:text-base uppercase tracking-widest transition-all hover:scale-[1.02] shadow-[0_0_15px_rgba(197,160,89,0.3)] cursor-pointer"
                 >
                     {(isFixedDeal || isLastStep)
                         ? (isEditing

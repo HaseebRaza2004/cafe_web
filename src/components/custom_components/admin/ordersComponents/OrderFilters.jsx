@@ -122,6 +122,7 @@ export default function OrderFilters({
                     ))}
                 </div>
 
+                {/* Results Count */}
                 <div className="text-sm text-gray-400 bg-white/5 px-4 py-2 rounded-md border border-white/5 font-medium shrink-0 w-full sm:w-auto text-center shadow-inner">
                     Found: <span className="text-(--color-gold) font-bold">{totalResults}</span> Orders
                 </div>

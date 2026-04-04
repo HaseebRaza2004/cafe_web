@@ -56,7 +56,7 @@ const StepSelector = ({ currentStep, groups, selections, onUpdateQuantity }) => 
                             key={prod._id}
                             onClick={() => isSingleSelect ? onUpdateQuantity(prod._id, 1) : null}
                             className={`
-                                flex items-center gap-4 p-3 rounded-xl border transition-all duration-200 select-none cursor-pointer
+                                flex items-center gap-4 p-3 rounded-xl border transition-all duration-200 select-none
                                 ${isSelected
                                     ? "border-(--color-gold) bg-gold/10 shadow-[0_0_10px_rgba(197,160,89,0.1)]"
                                     : "border-white/10 bg-white/5 hover:bg-white/10"
@@ -64,12 +64,12 @@ const StepSelector = ({ currentStep, groups, selections, onUpdateQuantity }) => 
                             `}
                         >
                             <div className="relative w-14 h-14 shrink-0 rounded-lg overflow-hidden bg-black border border-white/5">
-                                <Image 
-                                src={prod.image || "/placeholder.jpg"} 
-                                alt={prod.title} 
-                                fill 
-                                sizes="64px"
-                                className="object-cover" />
+                                <Image
+                                    src={prod.image || "/placeholder.jpg"}
+                                    alt={prod.title}
+                                    fill
+                                    sizes="64px"
+                                    className="object-cover" />
                             </div>
 
                             <div className="flex-1 min-w-0">
@@ -89,9 +89,23 @@ const StepSelector = ({ currentStep, groups, selections, onUpdateQuantity }) => 
                                 </div>
                             ) : (
                                 <div className="flex items-center gap-3 bg-black/40 rounded-lg p-1 border border-white/10" onClick={(e) => e.stopPropagation()}>
-                                    <button onClick={() => onUpdateQuantity(prod._id, -1)} className={`w-7 h-7 flex items-center justify-center rounded-md transition-colors ${qty > 0 ? "bg-white/10 hover:bg-red-500/20 text-white" : "text-gray-600 cursor-not-allowed"}`} disabled={qty === 0}><Minus className="w-3 h-3" /></button>
+                                    <button
+                                        onClick={() => onUpdateQuantity(prod._id, -1)}
+                                        className={`w-7 h-7 flex items-center justify-center rounded-md transition-colors  
+                                    ${qty > 0 ? "bg-white/10 hover:bg-red-500/20 text-white cursor-pointer" : "text-gray-600 cursor-not-allowed"}`}
+                                        disabled={qty === 0}
+                                    >
+                                        <Minus className="w-3 h-3" />
+                                    </button>
                                     <span className="text-sm font-bold w-4 text-center text-white">{qty}</span>
-                                    <button onClick={() => onUpdateQuantity(prod._id, 1)} className={`w-7 h-7 flex items-center justify-center rounded-md transition-colors ${totalSelectedInStep < maxSel ? "bg-white/10 hover:bg-green-500/20 text-white" : "text-gray-600 cursor-not-allowed"}`} disabled={totalSelectedInStep >= maxSel}><Plus className="w-3 h-3" /></button>
+                                    <button
+                                        onClick={() => onUpdateQuantity(prod._id, 1)}
+                                        className={`w-7 h-7 flex items-center justify-center rounded-md transition-colors  
+                                    ${totalSelectedInStep < maxSel ? "bg-white/10 hover:bg-green-500/20 text-white cursor-pointer" : "text-gray-600 cursor-not-allowed"}`}
+                                        disabled={totalSelectedInStep >= maxSel}
+                                    >
+                                        <Plus className="w-3 h-3" />
+                                    </button>
                                 </div>
                             )}
                         </div>

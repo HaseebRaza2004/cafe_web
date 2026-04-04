@@ -25,7 +25,7 @@ export default function OrderList({ orders, loading, handleStatusChange }) {
         </p>
       </div>
     );
-  }
+  };
 
   return (
     <div className="grid grid-cols-1 gap-6">

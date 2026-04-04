@@ -17,7 +17,7 @@ const OrderSummary = ({ handlePlaceOrder, isSubmitting }) => {
             </h3>
 
             {/* Items List */}
-            <div className="space-y-4 mb-6 max-h-100 overflow-y-auto pr-2 no-scrollbar">
+            <div className="space-y-4 mb-6 max-h-100 overflow-y-auto pr-2 custom-scrollbar">
                 {cartItems.length === 0 ? (
                     <div className="py-8 text-center border border-dashed border-white/20 rounded-lg">
                         <p className="text-gray-500 mb-2">Your cart is empty.</p>

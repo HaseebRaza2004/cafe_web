@@ -52,7 +52,7 @@ const DeliverySelector = ({ onSelect, selectedPrice }) => {
             </label>
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className={`w-full h-12 px-3 rounded-xl border flex items-center justify-between text-xs transition-all ${isOpen ? "border-(--color-gold) bg-black" : "border-white/10 bg-white/5 hover:border-white/30"}`}
+                className={`w-full h-12 px-3 rounded-xl border flex items-center justify-between text-xs transition-all cursor-pointer ${isOpen ? "border-(--color-gold) bg-black" : "border-white/10 bg-white/5 hover:border-white/30"}`}
             >
                 <span className={selectedLabel ? "text-white font-medium" : "text-gray-400"}>
                     {selectedLabel || "Search your area..."}
@@ -87,7 +87,7 @@ const DeliverySelector = ({ onSelect, selectedPrice }) => {
                                     <button
                                         key={area.id}
                                         onClick={() => handleSelect(area)}
-                                        className="w-full text-left flex justify-between items-center px-3 py-2.5 hover:bg-white/5 rounded-lg group transition-colors"
+                                        className="w-full text-left flex justify-between items-center px-3 py-2.5 hover:bg-white/5 rounded-lg group transition-colors cursor-pointer"
                                     >
                                         <span className="text-gray-300 text-xs group-hover:text-white transition-colors">{area.label}</span>
                                         <span className="text-(--color-gold) text-[10px] font-mono bg-gold/10 px-1.5 py-0.5 rounded">
