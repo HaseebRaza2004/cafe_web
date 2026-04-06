@@ -2,12 +2,13 @@
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import Pusher from "pusher-js";
-import { BellRing, BellOff, Download } from "lucide-react";
 import { useToast } from "@/context/ToastContext";
-import { Button } from "@/components/ui/button";
 import OrderList from "@/components/custom_components/admin/ordersComponents/OrderList";
 import OrderFilters from "@/components/custom_components/admin/ordersComponents/OrderFilters";
 import AdminOrdersHeader from "@/components/custom_components/admin/ordersComponents/AdminOrdersHeader";
+import { Button } from "@/components/ui/button"; // Shadcn button for pagination
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import OrderPagination from "@/components/custom_components/admin/ordersComponents/OrderPagination";
 
 export default function AdminOrdersPage() {
   const { success, error: showError, info } = useToast() || {};
@@ -17,12 +18,16 @@ export default function AdminOrdersPage() {
   const [audio, setAudio] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
-  const [quickFilter, setQuickFilter] = useState("All");
+  const [quickFilter, setQuickFilter] = useState("Today");
+  const [statusFilter, setStatusFilter] = useState("All");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 25;
+
+  // Refs for real-time callbacks
   const alertsRef = useRef(alertsEnabled);
   const audioRef = useRef(audio);
   const successRef = useRef(success);
 
-  // Keep Refs updated silently
   useEffect(() => {
     alertsRef.current = alertsEnabled;
   }, [alertsEnabled]);
@@ -32,6 +37,11 @@ export default function AdminOrdersPage() {
   useEffect(() => {
     successRef.current = success;
   }, [success]);
+
+  // Reset to page 1 whenever ANY filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedDate, quickFilter, statusFilter]);
 
   // Initialize Audio
   useEffect(() => {
@@ -69,7 +79,7 @@ export default function AdminOrdersPage() {
     [showError],
   );
 
-  // Offline Sync (When internet comes back)
+  // Offline Sync
   useEffect(() => {
     const handleOnline = () => {
       if (info) info("Internet restored. Syncing missed orders...");
@@ -82,9 +92,7 @@ export default function AdminOrdersPage() {
   // Initial Load & Pusher Setup
   useEffect(() => {
     fetchOrders(true);
-  }, [fetchOrders]);
 
-  useEffect(() => {
     const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_APP_KEY, {
       cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER,
     });
@@ -95,10 +103,11 @@ export default function AdminOrdersPage() {
       if (data && data.order) {
         setOrders((prevOrders) => [data.order, ...prevOrders]);
 
-        if (successRef.current)
+        if (successRef.current) {
           successRef.current(
             `New Order Received from ${data.order.customerName}!`,
           );
+        }
 
         if (alertsRef.current && audioRef.current) {
           audioRef.current.currentTime = 0;
@@ -114,9 +123,9 @@ export default function AdminOrdersPage() {
       channel.unsubscribe();
       pusher.disconnect();
     };
-  }, []);
+  }, [fetchOrders]);
 
-  // Handle Status Update (Passed down to child)
+  // Handle Status Update
   const handleStatusChange = async (orderId, newStatus) => {
     const previousOrders = [...orders];
     setOrders(
@@ -139,11 +148,16 @@ export default function AdminOrdersPage() {
     }
   };
 
-  // FILTERING LOGIC
+  // ADVANCED FILTERING LOGIC
   const filteredOrders = useMemo(() => {
     let result = [...orders];
 
-    // Search By (Name, Phone, ID)
+    // Status Filter (All, Pending, Cooking, Delivered, Cancelled)
+    if (statusFilter !== "All") {
+      result = result.filter((o) => o.status === statusFilter);
+    }
+
+    // Search Filter
     if (searchQuery) {
       const lowerQuery = searchQuery.toLowerCase();
       result = result.filter(
@@ -155,6 +169,7 @@ export default function AdminOrdersPage() {
       );
     }
 
+    // Date Filter
     if (selectedDate) {
       result = result.filter((o) => {
         const orderDate = new Date(o.createdAt).toISOString().split("T")[0];
@@ -185,16 +200,23 @@ export default function AdminOrdersPage() {
     }
 
     return result;
-  }, [orders, searchQuery, selectedDate, quickFilter]);
+  }, [orders, searchQuery, selectedDate, quickFilter, statusFilter]);
 
-  // EXPORT TO CSV LOGIC
+  // PAGINATION LOGIC
+  const totalItems = filteredOrders.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+  const paginatedOrders = filteredOrders.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage,
+  );
+
+  // EXPORT TO CSV
   const handleExportCSV = () => {
     if (filteredOrders.length === 0) {
       if (showError) showError("No data to export!");
       return;
     }
 
-    // Prepare Headers
     const headers = [
       "Order ID",
       "Date",
@@ -209,7 +231,6 @@ export default function AdminOrdersPage() {
       "Total Amount",
     ];
 
-    // Prepare Rows
     const rows = filteredOrders.map((o) => [
       o._id,
       new Date(o.createdAt).toLocaleString(),
@@ -246,14 +267,12 @@ export default function AdminOrdersPage() {
 
   return (
     <div className="animate-in fade-in zoom-in-95 duration-500 max-w-7xl mx-auto pb-20">
-      {/* Header */}
       <AdminOrdersHeader
         alertsEnabled={alertsEnabled}
         toggleAlerts={toggleAlerts}
         handleExportCSV={handleExportCSV}
       />
 
-      {/* Advanced Filters Component */}
       <OrderFilters
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
@@ -261,15 +280,26 @@ export default function AdminOrdersPage() {
         setSelectedDate={setSelectedDate}
         quickFilter={quickFilter}
         setQuickFilter={setQuickFilter}
-        totalResults={filteredOrders.length}
+        statusFilter={statusFilter}
+        setStatusFilter={setStatusFilter}
+        totalResults={totalItems}
       />
 
-      {/* Orders List Component */}
+      {/* Passed Paginated Orders instead of all filtered orders */}
       <OrderList
-        orders={filteredOrders}
+        orders={paginatedOrders}
         loading={loading}
         handleStatusChange={handleStatusChange}
       />
+
+      {/* Simple & Clean Pagination UI */}
+      <OrderPagination
+        currentPage={currentPage}
+        setCurrentPage={setCurrentPage}
+        totalPages={totalPages}
+        totalItems={totalItems}
+        itemsPerPage={itemsPerPage}
+      />
     </div>
   );
-}
+};

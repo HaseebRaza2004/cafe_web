@@ -157,7 +157,7 @@
 
 /* --- UTILITIES --- */
 
-/* Glass Panel Utility (Admin & Modals ke liye) */
+/* Glass Panel Utility (Admin & Modals) */
 .glass-panel {
   background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(12px);
@@ -175,21 +175,6 @@ h6 {
   font-family: var(--font-playfair), serif;
   font-weight: 700;
   letter-spacing: -0.02em;
-}
-
-/* Swiper Fixes */
-.swiper-pagination-bullet {
-  width: 10px !important;
-  height: 10px !important;
-  background-color: rgba(255, 255, 255, 0.5) !important;
-  opacity: 1 !important;
-  transition: all 0.4s ease !important;
-}
-
-.swiper-pagination-bullet-active {
-  background-color: var(--color-gold) !important;
-  width: 30px !important;
-  border-radius: 5px !important;
 }
 
 /* Autofill Fix (Dark Theme) */
