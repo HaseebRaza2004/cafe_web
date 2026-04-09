@@ -26,7 +26,7 @@ export default function AdminClientWrapper({ children }) {
             {/* Sidebar */}
             <aside
                 className=
-                {`fixed md:sticky top-0 left-0 h-screen w-64 bg-black/50 backdrop-blur-xl border-r border-white/10 z-50 transition-transform duration-300 ease-in-out flex flex-col
+                {`fixed md:sticky shrink-0 top-0 left-0 h-screen w-64 bg-black/50 backdrop-blur-xl border-r border-white/10 z-50 transition-transform duration-300 ease-in-out flex flex-col
                  ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
                 md:translate-x-0 rounded-r-xl md:rounded-none`}
             >
@@ -41,7 +41,7 @@ export default function AdminClientWrapper({ children }) {
             </aside>
 
             {/* Main Content Area */}
-            <main className="flex-1 w-full pt-20 md:pt-4 p-2 md:p-4 lg:p-6">
+            <main className="flex-1 min-w-0 w-full pt-20 md:pt-4 p-2 md:p-4 lg:p-6">
                 <div className="min-h-[calc(100vh-2rem)] rounded-2xl bg-black/20 backdrop-blur-md border border-white/10 p-2 md:p-6 lg:p-8 shadow-2xl relative">
                     {children}
                 </div>

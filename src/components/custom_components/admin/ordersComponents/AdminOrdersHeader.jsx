@@ -24,28 +24,28 @@ export default function AdminOrdersHeader({
                 </p>
             </div>
 
-            <div className="flex flex-col md:flex-row lg:flex-col gap-3 w-full lg:w-56 shrink-0">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-4 w-full lg:w-64 shrink-0">
                 <Button
                     variant=""
                     onClick={toggleAlerts}
-                    className={`flex-1 w-full min-h-12 uppercase tracking-widest duration-400 hover:scale-105 font-bold text-lg transition-all cursor-pointer ${alertsEnabled
+                    className={`w-full min-h-12 uppercase tracking-widest duration-400 hover:scale-105 font-bold text-lg transition-all cursor-pointer ${alertsEnabled
                         ? "bg-green-500/10 border-green-500/50 text-green-400 border"
                         : "bg-(--color-gold) text-black hover:bg-(--color-gold-dark) border-none"
                         }`}
                 >
                     {alertsEnabled ? (
-                        <BellRing className="w-5 h-5 mr-2 animate-pulse shrink-0" />
+                        <BellRing className="w-5 h-5 mr-2 md:mr-0.5 animate-pulse shrink-0" />
                     ) : (
-                        <BellOff className="w-5 h-5 mr-2 shrink-0" />
+                        <BellOff className="w-5 h-5 mr-2 md:mr-0.5 shrink-0" />
                     )}
                     {alertsEnabled ? "Alerts ON" : "Enable Alerts"}
                 </Button>
 
                 <Button
                     onClick={handleExportCSV}
-                    className="flex-1 w-full min-h-12 bg-white/90 hover:bg-gold hover:text-black text-gold-dark uppercase tracking-widest font-bold border-none rounded-md text-lg duration-400 hover:scale-105 transition-all cursor-pointer"
+                    className="w-full min-h-12 bg-white/90 hover:bg-gold hover:text-black text-gold-dark uppercase tracking-widest font-bold border-none rounded-md text-lg duration-400 hover:scale-105 transition-all cursor-pointer"
                 >
-                    <Download className="w-5 h-5 mr-2 shrink-0" /> Export CSV
+                    <Download className="w-5 h-5 mr-2 md:mr-0.5 shrink-0" /> Export CSV
                 </Button>
             </div>
 

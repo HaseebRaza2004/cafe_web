@@ -148,7 +148,8 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    /* @apply bg-background text-foreground; */
+    color: white;
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
