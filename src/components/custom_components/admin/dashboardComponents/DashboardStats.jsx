@@ -5,16 +5,14 @@ import { TrendingUp, ShoppingBag, UtensilsCrossed, Target } from "lucide-react";
 import StatCard from "@/components/custom_components/admin/StatCard";
 
 export default function DashboardStats({ stats }) {
-    // Safe calculation to prevent extra renders
+
     const calculatedStats = useMemo(() => {
         const revenue = stats?.totalRevenue || 0;
         const orders = stats?.totalOrders || 0;
         const items = stats?.totalProducts || 0;
 
-        // AOV (Average Order Value)
         const aov = orders > 0 ? (revenue / orders).toFixed(0) : 0;
 
-        // Fake Completion Rate for now (Will come from DB later)
         const completionRate = orders > 0 ? "92%" : "0%";
 
         return { revenue, orders, items, aov, completionRate };
@@ -52,4 +50,4 @@ export default function DashboardStats({ stats }) {
             />
         </div>
     );
-}
+};

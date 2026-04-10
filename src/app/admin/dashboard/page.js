@@ -31,7 +31,7 @@ export default function AdminDashboard() {
     fetchStats();
 
     return () => {
-      isMounted = false; // Memory leak fix for React 19
+      isMounted = false;
     };
   }, []);
 
@@ -58,7 +58,7 @@ export default function AdminDashboard() {
             Real-time insights and performance metrics.
           </p>
         </div>
-        <div className="px-4 py-2 bg-(--color-gold)/10 border border-(--color-gold)/20 rounded-full">
+        <div className="px-4 py-2 bg-gold/10 border border-gold/20 rounded-full">
           <p className="text-(--color-gold) text-sm font-bold tracking-wider uppercase flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-(--color-gold) animate-pulse"></span>
             Live Data
@@ -69,25 +69,25 @@ export default function AdminDashboard() {
       {/* KPI Cards Row */}
       <DashboardStats stats={stats} />
 
-      {/* Charts Row - Grid Layout */}
+      {/* Charts Row  */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
-        {/* Revenue Chart (Takes 2 columns on large screens) */}
+        {/* Revenue Chart */}
         <div className="lg:col-span-2">
           <RevenueChart />
         </div>
 
-        {/* Order Status Donut (Takes 1 column) */}
+        {/* Order Status */}
         <div className="lg:col-span-1">
           <OrderStatusChart pending={stats?.pendingOrders} />
         </div>
       </div>
 
-      {/* Bottom Row - Top Sellers & Traffic */}
+      {/* Top Sellers & Traffic */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
         <TopSellersList />
 
         {/* Placeholder for GA4 Traffic Chart (To be implemented) */}
-        <div className="bg-black/40 backdrop-blur-xl border border-white/10 rounded-2xl p-6 shadow-2xl flex flex-col items-center justify-center min-h-[350px]">
+        <div className="bg-black/40 backdrop-blur-xl border border-white/10 rounded-2xl p-6 shadow-2xl flex flex-col items-center justify-center min-h-87.5">
           <h3 className="text-gray-400 font-display text-xl uppercase tracking-widest mb-2">
             Live Traffic
           </h3>
@@ -98,4 +98,4 @@ export default function AdminDashboard() {
       </div>
     </div>
   );
-}
+};

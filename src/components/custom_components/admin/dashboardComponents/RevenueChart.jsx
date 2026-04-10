@@ -1,9 +1,11 @@
 "use client";
 
-import { useMemo } from "react";
+import { useState } from "react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import DashboardDropdown from "./DashboardDropdown";
+import DashboardTooltip from "./DashboardToolTip";
 
-// Temporary Mock Data (Until Aggregation API is ready)
+// Mock Data
 const mockData = [
     { name: "Mon", revenue: 12000 },
     { name: "Tue", revenue: 19000 },
@@ -15,20 +17,7 @@ const mockData = [
 ];
 
 export default function RevenueChart({ data = mockData }) {
-    // Custom Tooltip for Glassmorphism
-    const CustomTooltip = ({ active, payload, label }) => {
-        if (active && payload && payload.length) {
-            return (
-                <div className="bg-black/80 backdrop-blur-md border border-white/10 p-4 rounded-xl shadow-2xl">
-                    <p className="text-gray-400 mb-1 text-sm">{label}</p>
-                    <p className="text-(--color-gold) font-bold text-lg">
-                        Rs {payload[0].value.toLocaleString()}
-                    </p>
-                </div>
-            );
-        }
-        return null;
-    };
+    const [timeRange, setTimeRange] = useState("This Week");
 
     return (
         <div className="bg-black/40 backdrop-blur-xl border border-white/10 rounded-2xl p-6 shadow-2xl h-full flex flex-col">
@@ -36,15 +25,16 @@ export default function RevenueChart({ data = mockData }) {
                 <h3 className="text-white font-bold text-lg tracking-wider font-display uppercase">
                     Revenue Trend
                 </h3>
-                <select className="bg-black/50 text-xs text-gray-400 border border-white/10 rounded-md px-3 py-1 outline-none cursor-pointer">
-                    <option>This Week</option>
-                    <option>This Month</option>
-                    <option>This Year</option>
-                </select>
+
+                <DashboardDropdown
+                    options={["This Week", "This Month", "This Year"]}
+                    value={timeRange}
+                    onChange={setTimeRange}
+                />
             </div>
 
-            <div className="flex-1 w-full min-h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
+            <div className="flex-1 w-full h-75 min-h-75 [&_*:focus]:outline-none [&_.recharts-surface]:outline-none">
+                <ResponsiveContainer width="100%" height={300} minWidth={1}>
                     <AreaChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                         <defs>
                             <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
@@ -55,7 +45,7 @@ export default function RevenueChart({ data = mockData }) {
                         <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
                         <XAxis dataKey="name" stroke="#666" fontSize={12} tickLine={false} axisLine={false} />
                         <YAxis stroke="#666" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(val) => `Rs ${val / 1000}k`} />
-                        <Tooltip content={<CustomTooltip />} />
+                        <Tooltip content={<DashboardTooltip />} cursor={{ stroke: 'rgba(255,255,255,0.1)', strokeWidth: 1 }} />
                         <Area
                             type="monotone"
                             dataKey="revenue"
@@ -63,11 +53,12 @@ export default function RevenueChart({ data = mockData }) {
                             strokeWidth={3}
                             fillOpacity={1}
                             fill="url(#colorRevenue)"
-                            activeDot={{ r: 6, fill: "var(--color-gold)", stroke: "#000", strokeWidth: 2 }}
+                            activeDot={{ r: 6, fill: "var(--color-gold)", stroke: "#000", strokeWidth: 2, outline: "none" }}
+                            style={{ outline: "none" }}
                         />
                     </AreaChart>
                 </ResponsiveContainer>
             </div>
         </div>
     );
-}
+};
