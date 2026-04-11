@@ -13,7 +13,13 @@ export default function DashboardStats({ stats }) {
 
         const aov = orders > 0 ? (revenue / orders).toFixed(0) : 0;
 
-        const completionRate = orders > 0 ? "92%" : "0%";
+        let completionRate = "0%";
+        if (orders > 0 && stats?.orderStatus?.["This Month"]) {
+            const deliveredObj = stats.orderStatus["This Month"].find(s => s.name === "Delivered");
+            const deliveredCount = deliveredObj ? deliveredObj.value : 0;
+            const rate = ((deliveredCount / orders) * 100).toFixed(1);
+            completionRate = `${rate}%`;
+        }
 
         return { revenue, orders, items, aov, completionRate };
     }, [stats]);

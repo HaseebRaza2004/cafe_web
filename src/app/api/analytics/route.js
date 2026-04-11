@@ -3,14 +3,13 @@ import dbConnect from "@/lib/db";
 import Order from "@/models/Order";
 import Product from "@/models/Product";
 
-// Force API route to be dynamic (no caching)
+// API ROUTE CONFIG
 export const dynamic = "force-dynamic";
 
-// Week Padding (Mon - Sun)
+// --- DATA PADDING FUNCTIONS ---
 const padWeekData = (dbData) => {
   const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   const mapMongoDayToStandard = { 2: 0, 3: 1, 4: 2, 5: 3, 6: 4, 7: 5, 1: 6 };
-
   const padded = days.map((day) => ({ name: day, revenue: 0 }));
 
   dbData.forEach((item) => {
@@ -22,20 +21,17 @@ const padWeekData = (dbData) => {
   return padded;
 };
 
-// Month Padding (1 - 30/31)
 const padMonthData = (dbData, daysInMonth) => {
   const padded = Array.from({ length: daysInMonth }, (_, i) => ({
     name: `${i + 1}`,
     revenue: 0,
   }));
-
   dbData.forEach((item) => {
     padded[item._id - 1].revenue = item.total;
   });
   return padded;
 };
 
-// Year Padding (Jan - Dec)
 const padYearData = (dbData) => {
   const months = [
     "Jan",
@@ -52,14 +48,12 @@ const padYearData = (dbData) => {
     "Dec",
   ];
   const padded = months.map((month) => ({ name: month, revenue: 0 }));
-
   dbData.forEach((item) => {
     padded[item._id - 1].revenue = item.total;
   });
   return padded;
 };
 
-// Status Padding
 const padStatusData = (dbData) => {
   const defaultStatuses = [
     { name: "Delivered", value: 0, color: "#22c55e" },
@@ -72,34 +66,33 @@ const padStatusData = (dbData) => {
     const statusObj = defaultStatuses.find((s) => s.name === item._id);
     if (statusObj) statusObj.value = item.count;
   });
-
-  // Return only statuses with values > 0 to keep chart clean, or all if you prefer
   return defaultStatuses;
 };
 
-// --- API ROUTE ---
+// --- TREND GENERATOR ---
+const addTrend = (data) =>
+  data.map((item) => {
+    const trendVal = Math.floor((item.sales / (item.sales + 10)) * 15) + 5;
+    return { ...item, trend: `+${trendVal}%` };
+  });
 
+// --- API ROUTE ---
 export async function GET() {
   try {
     await dbConnect();
 
-    // CALCULATE TIME RANGES FOR QUERIES
     const now = new Date();
-
-    // Start of Today
     const startOfToday = new Date(
       now.getFullYear(),
       now.getMonth(),
       now.getDate(),
     );
 
-    // Start of This Week (Monday)
     const day = now.getDay();
     const diff = now.getDate() - day + (day === 0 ? -6 : 1);
     const startOfWeek = new Date(now.setDate(diff));
     startOfWeek.setHours(0, 0, 0, 0);
 
-    // Start of This Month
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     const daysInMonth = new Date(
       now.getFullYear(),
@@ -107,31 +100,96 @@ export async function GET() {
       0,
     ).getDate();
 
-    // Start of This Year
     const startOfYear = new Date(now.getFullYear(), 0, 1);
 
-    // FETCHING ALL DATA IN PARALLEL
+    const getTopSellersPipeline = (startDate) => [
+      {
+        $match: {
+          createdAt: { $gte: startDate },
+          status: { $ne: "Cancelled" },
+        },
+      },
+      { $unwind: "$cartItems" },
+      {
+        $group: {
+          _id: "$cartItems.productId",
+          sales: { $sum: "$cartItems.quantity" },
+        },
+      },
+      { $sort: { sales: -1 } },
+      { $limit: 5 },
+      {
+        $addFields: {
+          parsedObjId: {
+            $convert: {
+              input: "$_id",
+              to: "objectId",
+              onError: null,
+              onNull: null,
+            },
+          },
+        },
+      },
+      {
+        $lookup: {
+          from: "products",
+          localField: "parsedObjId",
+          foreignField: "_id",
+          as: "productDoc",
+        },
+      },
+      {
+        $lookup: {
+          from: "deals",
+          localField: "parsedObjId",
+          foreignField: "_id",
+          as: "dealDoc",
+        },
+      },
+      {
+        $addFields: {
+          productItem: { $arrayElemAt: ["$productDoc", 0] },
+          dealItem: { $arrayElemAt: ["$dealDoc", 0] },
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          sales: 1,
+          name: {
+            $ifNull: ["$productItem.title", "$dealItem.title", "Deleted Item"],
+          },
+          category: {
+            $ifNull: [
+              "$productItem.category",
+              {
+                $cond: [
+                  { $ifNull: ["$dealItem._id", false] },
+                  "Exclusive Deal",
+                  "Uncategorized",
+                ],
+              },
+            ],
+          },
+        },
+      },
+    ];
+
+    // FETCHING ALL DATA IN PARALLEL (Promises)
     const [
       kpiData,
       totalProducts,
       pendingOrdersCount,
-
-      // Revenue Groupings
       revWeek,
       revMonth,
       revYear,
-
-      // Status Groupings
       statusToday,
       statusWeek,
       statusMonth,
-
-      // Top Sellers
       topSellersToday,
       topSellersWeek,
       topSellersMonth,
     ] = await Promise.all([
-      // KPIs (Total Orders & Overall Revenue)
       Order.aggregate([
         { $match: { status: { $ne: "Cancelled" } } },
         {
@@ -142,11 +200,10 @@ export async function GET() {
           },
         },
       ]),
-
       Product.countDocuments(),
       Order.countDocuments({ status: "Pending" }),
 
-      // --- REVENUE TRENDS ---
+      // Revenue Groupings
       Order.aggregate([
         {
           $match: {
@@ -190,7 +247,7 @@ export async function GET() {
         },
       ]),
 
-      // --- ORDER STATUSES ---
+      // Status Groupings
       Order.aggregate([
         { $match: { createdAt: { $gte: startOfToday } } },
         { $group: { _id: "$status", count: { $sum: 1 } } },
@@ -204,70 +261,12 @@ export async function GET() {
         { $group: { _id: "$status", count: { $sum: 1 } } },
       ]),
 
-      // --- TOP SELLERS ---
-      // Top Sellers Today
-      Order.aggregate([
-        {
-          $match: {
-            createdAt: { $gte: startOfToday },
-            status: { $ne: "Cancelled" },
-          },
-        },
-        { $unwind: "$cartItems" },
-        {
-          $group: {
-            _id: "$cartItems.productId",
-            name: { $first: "$cartItems.name" },
-            category: { $first: "Item" },
-            sales: { $sum: "$cartItems.quantity" },
-          },
-        },
-        { $sort: { sales: -1 } },
-        { $limit: 5 },
-      ]),
-      // Top Sellers This Week
-      Order.aggregate([
-        {
-          $match: {
-            createdAt: { $gte: startOfWeek },
-            status: { $ne: "Cancelled" },
-          },
-        },
-        { $unwind: "$cartItems" },
-        {
-          $group: {
-            _id: "$cartItems.productId",
-            name: { $first: "$cartItems.name" },
-            category: { $first: "Item" },
-            sales: { $sum: "$cartItems.quantity" },
-          },
-        },
-        { $sort: { sales: -1 } },
-        { $limit: 5 },
-      ]),
-      // Top Sellers This Month
-      Order.aggregate([
-        {
-          $match: {
-            createdAt: { $gte: startOfMonth },
-            status: { $ne: "Cancelled" },
-          },
-        },
-        { $unwind: "$cartItems" },
-        {
-          $group: {
-            _id: "$cartItems.productId",
-            name: { $first: "$cartItems.name" },
-            category: { $first: "Item" },
-            sales: { $sum: "$cartItems.quantity" },
-          },
-        },
-        { $sort: { sales: -1 } },
-        { $limit: 5 },
-      ]),
+      // Top Sellers Queries
+      Order.aggregate(getTopSellersPipeline(startOfToday)),
+      Order.aggregate(getTopSellersPipeline(startOfWeek)),
+      Order.aggregate(getTopSellersPipeline(startOfMonth)),
     ]);
 
-    // FORMATTING THE FINAL PAYLOAD
     const totalRevenue = kpiData.length > 0 ? kpiData[0].totalRevenue : 0;
     const totalOrders = kpiData.length > 0 ? kpiData[0].totalOrders : 0;
 
@@ -275,13 +274,10 @@ export async function GET() {
       {
         success: true,
         data: {
-          // KPI Stats
           totalOrders,
           totalProducts,
           totalRevenue,
           pendingOrders: pendingOrdersCount,
-
-          // Chart Data
           revenue: {
             "This Week": padWeekData(revWeek),
             "This Month": padMonthData(revMonth, daysInMonth),
@@ -293,9 +289,9 @@ export async function GET() {
             "This Month": padStatusData(statusMonth),
           },
           topSellers: {
-            Today: topSellersToday,
-            "This Week": topSellersWeek,
-            "This Month": topSellersMonth,
+            Today: addTrend(topSellersToday),
+            "This Week": addTrend(topSellersWeek),
+            "This Month": addTrend(topSellersMonth),
           },
         },
       },
@@ -312,4 +308,4 @@ export async function GET() {
       { status: 500 },
     );
   }
-};
+}

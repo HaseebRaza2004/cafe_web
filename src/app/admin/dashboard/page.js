@@ -1,41 +1,49 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import DashboardStats from "@/components/custom_components/admin/dashboardComponents/DashboardStats";
 import RevenueChart from "@/components/custom_components/admin/dashboardComponents/RevenueChart";
 import OrderStatusChart from "@/components/custom_components/admin/dashboardComponents/OrderStatusChart";
 import TopSellersList from "@/components/custom_components/admin/dashboardComponents/TopSellersList";
+import { useToast } from "@/context/ToastContext";
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const { error: showError, success: showSuccess } = useToast();
 
-  useEffect(() => {
-    let isMounted = true;
+  // Fetch analytics data from the API
+  const fetchStats = useCallback(
+    async (isManual = false) => {
+      if (isManual) setLoading(true);
 
-    async function fetchStats() {
       try {
         const res = await fetch("/api/analytics", { cache: "no-store" });
         const json = await res.json();
-        if (isMounted && json.success) {
-          setStats(json.data);
+
+        if (!res.ok || !json.success) {
+          throw new Error(json.error || "Failed to load analytics data.");
         }
+
+        setStats(json.data);
+        if (isManual) showSuccess("Dashboard synced successfully!");
       } catch (err) {
-        console.error("Dashboard Sync Failed:", err);
+        showError(
+          err.message || "Network error. Please check your connection.",
+        );
       } finally {
-        if (isMounted) setLoading(false);
+        setLoading(false);
       }
-    }
+    },
+    [showError, showSuccess],
+  );
 
+  useEffect(() => {
     fetchStats();
+  }, [fetchStats]);
 
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  if (loading) {
+  if (loading && !stats) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh]">
         <Loader2 className="w-12 h-12 text-(--color-gold) animate-spin mb-4" />
@@ -58,7 +66,7 @@ export default function AdminDashboard() {
             Real-time insights and performance metrics.
           </p>
         </div>
-        <div className="px-4 py-2 bg-gold/10 border border-gold/20 rounded-full">
+        <div className="px-4 py-2 bg-(--color-gold)/10 border border-(--color-gold)/30 rounded-full">
           <p className="text-(--color-gold) text-sm font-bold tracking-wider uppercase flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-(--color-gold) animate-pulse"></span>
             Live Data
@@ -69,25 +77,26 @@ export default function AdminDashboard() {
       {/* KPI Cards Row */}
       <DashboardStats stats={stats} />
 
-      {/* Charts Row  */}
+      {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
         {/* Revenue Chart */}
         <div className="lg:col-span-2">
-          <RevenueChart />
+          <RevenueChart revenueData={stats?.revenue} />
         </div>
 
         {/* Order Status */}
         <div className="lg:col-span-1">
-          <OrderStatusChart pending={stats?.pendingOrders} />
+          <OrderStatusChart statusData={stats?.orderStatus} />
         </div>
       </div>
 
       {/* Top Sellers & Traffic */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-        <TopSellersList />
+        {/* Top Sellers */}
+        <TopSellersList topSellersData={stats?.topSellers} />
 
-        {/* Placeholder for GA4 Traffic Chart (To be implemented) */}
-        <div className="bg-black/40 backdrop-blur-xl border border-white/10 rounded-2xl p-6 shadow-2xl flex flex-col items-center justify-center min-h-87.5">
+        {/* Placeholder for GA4 Traffic Chart */}
+        <div className="bg-black/40 backdrop-blur-xl border border-white/10 rounded-2xl p-6 shadow-2xl flex flex-col items-center justify-center min-h-[250px]">
           <h3 className="text-gray-400 font-display text-xl uppercase tracking-widest mb-2">
             Live Traffic
           </h3>
@@ -98,4 +107,4 @@ export default function AdminDashboard() {
       </div>
     </div>
   );
-};
+}

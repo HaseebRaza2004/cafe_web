@@ -27,7 +27,7 @@ export default function RootLayout({ children }) {
       <body
         className={`${playfair.variable} ${montserrat.variable} antialiased`}
       >
-        {/* Global Background Image (Server Side Rendered for Speed) */}
+        {/* Global Background Image */}
         <div className="fixed inset-0 z-10">
           <Image
             src="/marbleImage.webp"
