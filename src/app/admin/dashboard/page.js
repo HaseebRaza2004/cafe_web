@@ -6,6 +6,7 @@ import DashboardStats from "@/components/custom_components/admin/dashboardCompon
 import RevenueChart from "@/components/custom_components/admin/dashboardComponents/RevenueChart";
 import OrderStatusChart from "@/components/custom_components/admin/dashboardComponents/OrderStatusChart";
 import TopSellersList from "@/components/custom_components/admin/dashboardComponents/TopSellersList";
+import TrafficChart from "@/components/custom_components/admin/dashboardComponents/TrafficChart";
 import { useToast } from "@/context/ToastContext";
 
 export default function AdminDashboard() {
@@ -96,14 +97,7 @@ export default function AdminDashboard() {
         <TopSellersList topSellersData={stats?.topSellers} />
 
         {/* Placeholder for GA4 Traffic Chart */}
-        <div className="bg-black/40 backdrop-blur-xl border border-white/10 rounded-2xl p-6 shadow-2xl flex flex-col items-center justify-center min-h-[250px]">
-          <h3 className="text-gray-400 font-display text-xl uppercase tracking-widest mb-2">
-            Live Traffic
-          </h3>
-          <p className="text-gray-600 text-sm text-center">
-            Google Analytics (GA4) Integration Pending...
-          </p>
-        </div>
+        <TrafficChart />
       </div>
     </div>
   );
