@@ -54,7 +54,7 @@ export default function RevenueChart({ revenueData }) {
 
             <div className="flex-1 w-full h-75 min-h-75 [&_*:focus]:outline-none [&_.recharts-surface]:outline-none">
                 <ResponsiveContainer width="100%" height={300} minWidth={1}>
-                    <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }} >
                         <defs>
                             <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
                                 <stop offset="5%" stopColor="var(--color-gold)" stopOpacity={0.4} />
@@ -63,7 +63,7 @@ export default function RevenueChart({ revenueData }) {
                         </defs>
                         <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
                         <XAxis dataKey="name" stroke="#666" fontSize={12} tickLine={false} axisLine={false} />
-                        <YAxis stroke="#666" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(val) => `Rs ${val / 1000}k`} />
+                        <YAxis stroke="#666" fontSize={12} tickLine={false} axisLine={false} allowDecimals={false} tickFormatter={(val) => val >= 1000 ? `Rs ${Math.round(val / 1000)}k` : `Rs ${val}`}  domain={[0, dataMax => Math.max(dataMax, 10000)]}/>
                         <Tooltip content={<DashboardTooltip />} cursor={{ stroke: 'rgba(255,255,255,0.1)', strokeWidth: 1 }} />
                         <Area
                             type="monotone"

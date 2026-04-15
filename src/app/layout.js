@@ -2,6 +2,7 @@ import { Montserrat, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import Image from "next/image";
 import ClientLayout from "@/components/layout/ClientLayout";
+import { GoogleAnalytics } from "@next/third-parties/google";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -34,18 +35,18 @@ export default function RootLayout({ children }) {
             alt="Marble luxury Background"
             fill
             quality={75}
-            priority={true} 
+            priority={true}
             className="object-cover"
           />
           <div className="absolute inset-0 bg-black/40" />
         </div>
 
         {/* Client Logic Wrapper */}
-        <ClientLayout>
-          {children}
-        </ClientLayout>
-        
+        <ClientLayout>{children}</ClientLayout>
       </body>
+
+      {/* Google Analytics */}
+      <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />
     </html>
   );
 }
