@@ -2,24 +2,26 @@ import Image from 'next/image';
 import React from 'react'
 import { Button } from '../ui/button';
 import { ArrowRight } from 'lucide-react';
+import Link from 'next/link';
 
 const HeroSection = () => {
     return (
         <>
-            {/* Hero Section */}
             <main className="relative flex items-center justify-center min-h-screen w-full overflow-hidden">
 
-                {/* Background Image with Overlay */}
+                {/* Background Image */}
                 <div className="absolute inset-0 z-0">
                     <Image
                         src="/heroSecImage.webp"
                         alt="Delicious Cafe Food"
                         fill
-                        priority={true}
+                        quality={75}
+                        preload={true}
+                        fetchPriority="high" 
+                        loading="eager"
                         sizes="100vw"
                         className="object-cover opacity-60"
                     />
-                    {/* Gradient Overlay for Luxury Feel */}
                     <div className="absolute inset-0 bg-linear-to-t from-black via-black/50 to-transparent" />
                 </div>
 
@@ -31,7 +33,7 @@ const HeroSection = () => {
                         • Welcome to Cafe Online •
                     </h2>
 
-                    {/* Main Headline [cite: 40] */}
+                    {/* Main Headline */}
                     <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white mb-4 drop-shadow-xl">
                         EXPERIENCE <br />
                         <span className="text-transparent bg-clip-text bg-linear-to-r from-(--color-gold) to-(--color-gold-dark)">
@@ -47,18 +49,26 @@ const HeroSection = () => {
                     {/* CTA Buttons  */}
                     <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
                         <Button
+                            aria-label="Explore Menu"
+                            asChild
                             size="lg"
-                            className="bg-(--color-gold) text-black hover:bg-(--color-gold-dark) px-8 py-6 text-lg rounded-md uppercase tracking-widest font-bold transition-all duration-400 hover:scale-105 cursor-pointer"
+                            className="w-64 h-14! bg-(--color-gold) text-black hover:bg-(--color-gold-dark) text-lg rounded-md uppercase tracking-widest font-bold transition-all duration-400 hover:scale-105 cursor-pointer"
                         >
-                            Order Now
+                            <a href="#menu">
+                                Explore Menu
+                            </a>
                         </Button>
 
                         <Button
+                            aria-label="View Hot Deals"
+                            asChild
                             variant="outline"
                             size="lg"
-                            className="border-(--color-gold) text-(--color-gold) hover:bg-(--color-gold) hover:text-black px-8 py-6 text-lg rounded-md uppercase tracking-widest font-bold transition-all duration-400 hover:scale-105 cursor-pointer"
+                            className="w-64 h-14! border-2 border-(--color-gold) text-(--color-gold) hover:bg-(--color-gold) hover:text-black text-lg rounded-md uppercase tracking-widest font-bold transition-all duration-400 hover:scale-105 cursor-pointer"
                         >
-                            View Menu <ArrowRight className="ml-2 w-5 h-5" />
+                            <Link href="/deals">
+                                View Hot Deals <ArrowRight className="ml-2 w-6 h-6" />
+                            </Link>
                         </Button>
                     </div>
                 </div>

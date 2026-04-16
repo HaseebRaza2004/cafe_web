@@ -29,6 +29,7 @@ const HotDeals = ({ deals, allProducts = [] }) => {
                         </p>
                         <Link
                             href="/deals"
+                            aria-label="View All Deals"
                             className="group flex items-center gap-3 px-6 py-2 border border-gold/30 rounded-full hover:bg-gold/10 transition-all duration-300"
                         >
                             <span className="text-(--color-gold) font-bold uppercase tracking-[0.2em] text-xs">

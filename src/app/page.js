@@ -67,7 +67,7 @@ async function getHomePageData() {
     console.error("Error fetching data:", error);
     return { hotDeals: [], menuData: [] };
   }
-}
+};
 
 export default async function Home() {
   const { hotDeals, menuData } = await getHomePageData();

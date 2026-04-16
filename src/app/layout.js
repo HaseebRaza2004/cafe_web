@@ -20,6 +20,21 @@ export const metadata = {
   title: "Cafe Online | Luxury Dining Experience",
   description: "Experience the best luxury dining with our premium cafe menu.",
   keywords: ["cafe", "luxury dining", "coffee", "restaurant"],
+  openGraph: {
+    title: "Cafe Online | Premium Menu",
+    description: "Order fresh and hot meals directly to your door.",
+    url: "https://cafe-web-p93y.vercel.app/",
+    siteName: "Cafe Online",
+    images: [
+      {
+        url: "https://cafe-web-p93y.vercel.app/heroSecImage.webp",
+        width: 1200,
+        height: 630,
+      },
+    ],
+    locale: "en_PK",
+    type: "website",
+  },
 };
 
 export default function RootLayout({ children }) {
@@ -35,7 +50,6 @@ export default function RootLayout({ children }) {
             alt="Marble luxury Background"
             fill
             quality={75}
-            priority={true}
             className="object-cover"
           />
           <div className="absolute inset-0 bg-black/40" />

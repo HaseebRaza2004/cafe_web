@@ -183,6 +183,7 @@ const DealModal = ({ deal, isOpen, setIsOpen, initialState }) => {
                 <div className="absolute top-4 right-4 z-50 flex gap-2">
                     <div className="relative">
                         <button
+                            aria-label="Share Deal"
                             onClick={() => setShowShareMenu(!showShareMenu)}
                             className="group bg-black/40 backdrop-blur-md p-2 rounded-full text-white hover:text-(--color-gold) transition-all duration-300 cursor-pointer"
                         >
@@ -194,6 +195,7 @@ const DealModal = ({ deal, isOpen, setIsOpen, initialState }) => {
                     </div>
                     <DialogClose asChild>
                         <button
+                            aria-label="Close"
                             className="group bg-black/40 backdrop-blur-md p-2 rounded-full text-white hover:text-red-500 transition-all duration-300 cursor-pointer"
                         >
                             <X className="w-4 h-4 transition-transform duration-300 group-hover:scale-125" />

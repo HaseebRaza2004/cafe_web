@@ -9,6 +9,7 @@ const ShareMenu = ({ onShare, onCopy, copied }) => {
             <div className="flex justify-between items-center gap-2">
                 {/* WhatsApp */}
                 <button
+                    aria-label="Share on WhatsApp"
                     onClick={() => onShare("whatsapp")}
                     className="p-2 bg-[#25D366]/20 text-[#25D366] rounded-full hover:bg-[#25D366] hover:text-white transition-all"
                 >
@@ -16,6 +17,7 @@ const ShareMenu = ({ onShare, onCopy, copied }) => {
                 </button>
                 {/* Facebook */}
                 <button
+                    aria-label="Share on Facebook"
                     onClick={() => onShare("facebook")}
                     className="p-2 bg-[#1877F2]/20 text-[#1877F2] rounded-full hover:bg-[#1877F2] hover:text-white transition-all"
                 >
@@ -23,6 +25,7 @@ const ShareMenu = ({ onShare, onCopy, copied }) => {
                 </button>
                 {/* Copy Link */}
                 <button
+                    aria-label="Copy Link"
                     onClick={onCopy}
                     className="p-2 bg-white/10 text-white rounded-full hover:bg-white hover:text-black transition-all"
                 >

@@ -18,13 +18,13 @@ export default function MinimalFooter() {
 
                 {/* Social Icons */}
                 <div className="flex gap-4 mt-8">
-                    <Link href="#" className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-(--color-gold) hover:border-(--color-gold) hover:text-black transition-all duration-300 shadow-md">
+                    <Link href="#" aria-label="Visit Our Facebook Page" className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-(--color-gold) hover:border-(--color-gold) hover:text-black transition-all duration-300 shadow-md">
                         <Facebook className="w-4 h-4" />
                     </Link>
-                    <Link href="#" className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-(--color-gold) hover:border-(--color-gold) hover:text-black transition-all duration-300 shadow-md">
+                    <Link href="#" aria-label="Visit Our Instagram Page" className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-(--color-gold) hover:border-(--color-gold) hover:text-black transition-all duration-300 shadow-md">
                         <Instagram className="w-4 h-4" />
                     </Link>
-                    <Link href="#" className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-(--color-gold) hover:border-(--color-gold) hover:text-black transition-all duration-300 shadow-md">
+                    <Link href="#" aria-label="Visit Our Twitter Page" className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-(--color-gold) hover:border-(--color-gold) hover:text-black transition-all duration-300 shadow-md">
                         <Twitter className="w-4 h-4" />
                     </Link>
                 </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { ShoppingBag } from "lucide-react";
 import { AnimatePresence } from "framer-motion";
@@ -9,14 +10,16 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useCart } from "@/context/CartContext";
-import ConfirmModal from "../ConfirmModal";
-import CartHeader from "./CartHeader";
-import CartItem from "./CartItem";
-import DeliverySelector from "./DeliverySelector";
-import CheckoutSection from "./CheckoutSection";
 import CartSkeleton from "@/components/custom_components/skeletons/CartSkeleton";
+import CartHeader from "./CartHeader";
+import DeliverySelector from "./DeliverySelector";
+import CartItem from "./CartItem";
+
+const CheckoutSection = dynamic(() => import("./CheckoutSection"), { ssr: false });
+const ConfirmModal = dynamic(() => import("../ConfirmModal"), { ssr: false });
 
 const CartSheet = () => {
+    const [isOpen, setIsOpen] = useState(false);
     const { cartItems, removeFromCart, updateQuantity, cartTotal, cartCount, isLoaded, deliveryFee, setDeliveryInfo } = useCart();
     const router = useRouter();
 
@@ -37,9 +40,9 @@ const CartSheet = () => {
 
     return (
         <>
-            <Sheet>
+            <Sheet open={isOpen} onOpenChange={setIsOpen}>
                 <SheetTrigger asChild>
-                    <button className="relative p-2 hover:bg-white/10 rounded-full transition-colors group">
+                    <button aria-label="Open Cart" onClick={() => setIsOpen(true)} className="relative p-2 hover:bg-white/10 rounded-full transition-colors group">
                         <ShoppingBag className="w-6 h-6 text-white group-hover:text-(--color-gold) transition-colors cursor-pointer" />
                         {isLoaded && cartCount > 0 && (
                             <span className="absolute -top-1 -right-1 bg-(--color-gold) text-black text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full animate-in zoom-in">
@@ -128,15 +131,17 @@ const CartSheet = () => {
                 </SheetContent>
             </Sheet>
 
-            <ConfirmModal
-                isOpen={isDeleteModalOpen}
-                onClose={() => setIsDeleteModalOpen(false)}
-                onConfirm={() => removeFromCart(itemToDelete)}
-                title="Remove Item?"
-                description="Are you sure you want to remove this item?"
-                confirmText="Remove"
-                variant="destructive"
-            />
+            {isDeleteModalOpen && (
+                <ConfirmModal
+                    isOpen={isDeleteModalOpen}
+                    onClose={() => setIsDeleteModalOpen(false)}
+                    onConfirm={() => removeFromCart(itemToDelete)}
+                    title="Remove Item?"
+                    description="Are you sure you want to remove this item?"
+                    confirmText="Remove"
+                    variant="destructive"
+                />
+            )}
         </>
     );
 };

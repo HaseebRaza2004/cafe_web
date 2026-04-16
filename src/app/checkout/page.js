@@ -81,6 +81,12 @@ const CheckoutPage = () => {
 
   // Confrim Order Handler
   const handleFinalOrder = async () => {
+    if (!navigator.onLine) {
+      if (showError)
+        showError("No internet connection. Please check your network.");
+      return;
+    };
+
     setIsConfirmOpen(false);
     setIsSubmitting(true);
 

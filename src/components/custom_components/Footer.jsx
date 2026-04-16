@@ -7,7 +7,7 @@ import Logo from "./Logo";
 
 const Footer = () => {
 
-    // Function to scroll to top smoothly
+    // scroll to top 
     const scrollToTop = () => {
         window.scrollTo({ top: 0, behavior: "smooth" });
     };
@@ -32,13 +32,13 @@ const Footer = () => {
                             Experience the art of premium dining. We serve passion on a plate with the finest ingredients and luxury ambiance.
                         </p>
                         <div className="flex gap-4">
-                            <Link href="#" className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-(--color-gold) hover:border-(--color-gold) hover:text-black transition-all duration-300">
+                            <Link href="#" aria-label="Visit Our Facebook Page" className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-(--color-gold) hover:border-(--color-gold) hover:text-black transition-all duration-300">
                                 <Facebook className="w-4 h-4" />
                             </Link>
-                            <Link href="#" className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-(--color-gold) hover:border-(--color-gold) hover:text-black transition-all duration-300">
+                            <Link href="#" aria-label="Visit Our Instagram Page" className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-(--color-gold) hover:border-(--color-gold) hover:text-black transition-all duration-300">
                                 <Instagram className="w-4 h-4" />
                             </Link>
-                            <Link href="#" className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-(--color-gold) hover:border-(--color-gold) hover:text-black transition-all duration-300">
+                            <Link href="#" aria-label="Visit Our Twitter Page" className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-(--color-gold) hover:border-(--color-gold) hover:text-black transition-all duration-300">
                                 <Twitter className="w-4 h-4" />
                             </Link>
                         </div>
@@ -51,17 +51,17 @@ const Footer = () => {
                         </h3>
                         <ul className="space-y-4">
                             <li>
-                                <Link href="/" className="text-gray-400 hover:text-(--color-gold) hover:pl-2 transition-all duration-300 text-sm">
+                                <Link href="/" aria-label="Go to Home Page" className="text-gray-400 hover:text-(--color-gold) hover:pl-2 transition-all duration-300 text-sm">
                                     Home
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/deals" className="text-gray-400 hover:text-(--color-gold) hover:pl-2 transition-all duration-300 text-sm">
+                                <Link href="/deals" aria-label="View Our Deals" className="text-gray-400 hover:text-(--color-gold) hover:pl-2 transition-all duration-300 text-sm">
                                     Hot Deals
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/checkout" className="text-gray-400 hover:text-(--color-gold) hover:pl-2 transition-all duration-300 text-sm">
+                                <Link href="/checkout" aria-label="Go to Checkout" className="text-gray-400 hover:text-(--color-gold) hover:pl-2 transition-all duration-300 text-sm">
                                     Checkout
                                 </Link>
                             </li>
@@ -134,6 +134,7 @@ const Footer = () => {
 
             {/* Scroll To Top Button */}
             <button
+                aria-label="Scroll To Top"
                 onClick={scrollToTop}
                 className="absolute right-6 top-0 -translate-y-1/2 w-12 h-12 bg-black border border-(--color-gold) text-(--color-gold) rounded-full flex items-center justify-center hover:bg-(--color-gold) hover:text-black transition-all duration-500 shadow-[0_0_20px_rgba(197,160,89,0.3)] z-10"
             >

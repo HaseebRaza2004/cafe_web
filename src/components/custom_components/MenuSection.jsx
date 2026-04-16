@@ -22,7 +22,7 @@ const MenuSection = ({ initialMenuData = [] }) => {
     }
 
     return (
-        <section className="min-h-screen text-white py-16 md:py-24 relative">
+        <section id="menu" className="min-h-screen text-white py-16 md:py-24 relative">
             <div className="container mx-auto px-4">
 
                 {/* --- SEARCH BAR --- */}

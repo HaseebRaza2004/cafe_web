@@ -70,9 +70,9 @@ const ReviewsSection = () => {
                             />
                         </div>
                         <div>
-                            <h4 className="font-bold text-white group-hover:text-(--color-gold) transition-colors">
+                            <h3 className="font-bold text-white group-hover:text-(--color-gold) transition-colors">
                                 {review.author_name}
-                            </h4>
+                            </h3>
                             <p className="text-xs text-gray-500">{review.relative_time_description}</p>
                         </div>
                     </div>
