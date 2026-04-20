@@ -31,7 +31,7 @@ const MenuSection = ({ initialMenuData = [] }) => {
                         Our <span className="text-(--color-gold)">Menu</span>
                     </h2>
 
-                    <div className="relative w-full max-w-2xl">
+                    <div className="relative w-full sm:w-100 md:w-150 lg:w-200 shrink-0">
                         <input
                             type="text"
                             placeholder="Search for pizza, burger..."
