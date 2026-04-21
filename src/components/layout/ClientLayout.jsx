@@ -22,4 +22,4 @@ export default function ClientLayout({ children }) {
       </CartProvider>
     </ToastProvider>
   );
-}
+};

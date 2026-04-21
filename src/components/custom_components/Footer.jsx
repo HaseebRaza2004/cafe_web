@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { MapPin, Phone, Mail, Clock, Facebook, Instagram, Twitter, ArrowUp } from "lucide-react";
-import Logo from "./Logo"; 
+import Logo from "./Logo";
 
 const Footer = () => {
 
@@ -47,7 +47,7 @@ const Footer = () => {
                     {/* COLUMN 2: Quick Links */}
                     <div>
                         <h3 className="text-lg font-bold text-(--color-gold) uppercase tracking-widest mb-6 font-display">
-                            Quick Links
+                            ExploreS
                         </h3>
                         <ul className="space-y-4">
                             <li>
@@ -56,18 +56,23 @@ const Footer = () => {
                                 </Link>
                             </li>
                             <li>
+                                <Link href="/#menu" aria-label="Go to Menu" className="text-gray-400 hover:text-(--color-gold) hover:pl-2 transition-all duration-300 text-sm">
+                                    Menu
+                                </Link>
+                            </li>
+                            <li>
                                 <Link href="/deals" aria-label="View Our Deals" className="text-gray-400 hover:text-(--color-gold) hover:pl-2 transition-all duration-300 text-sm">
                                     Hot Deals
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/checkout" aria-label="Go to Checkout" className="text-gray-400 hover:text-(--color-gold) hover:pl-2 transition-all duration-300 text-sm">
-                                    Checkout
+                                <Link href="/faqs" aria-label="Go to FAQs" className="text-gray-400 hover:text-(--color-gold) hover:pl-2 transition-all duration-300 text-sm">
+                                    FAQs
                                 </Link>
                             </li>
                             <li>
-                                <Link href="#" className="text-gray-400 hover:text-(--color-gold) hover:pl-2 transition-all duration-300 text-sm">
-                                    Reservations (Coming Soon)
+                                <Link href="/privacy-policy" aria-label="GO To Privacy Policy" className="text-gray-400 hover:text-(--color-gold) hover:pl-2 transition-all duration-300 text-sm">
+                                    Privacy Policy
                                 </Link>
                             </li>
                         </ul>
@@ -79,10 +84,6 @@ const Footer = () => {
                             Contact Us
                         </h3>
                         <ul className="space-y-4">
-                            <li className="flex items-start gap-3 text-gray-400 text-sm">
-                                <MapPin className="w-5 h-5 text-(--color-gold) shrink-0 mt-0.5" />
-                                <span>Shop #4, Luxury Street, DHA Phase 6, Karachi.</span>
-                            </li>
                             <li className="flex items-center gap-3 text-gray-400 text-sm">
                                 <Phone className="w-5 h-5 text-(--color-gold) shrink-0" />
                                 <span>0300-1234567</span>
@@ -90,6 +91,10 @@ const Footer = () => {
                             <li className="flex items-center gap-3 text-gray-400 text-sm">
                                 <Mail className="w-5 h-5 text-(--color-gold) shrink-0" />
                                 <span>info@cafeonline.pk</span>
+                            </li>
+                            <li className="flex items-start gap-3 text-gray-400 text-sm">
+                                <MapPin className="w-5 h-5 text-(--color-gold) shrink-0 mt-0.5" />
+                                <span>Shop #4, Luxury Street, DHA Phase 6, Karachi.</span>
                             </li>
                         </ul>
                     </div>
@@ -122,7 +127,7 @@ const Footer = () => {
                 {/* --- BOTTOM BAR --- */}
                 <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
                     <p className="text-gray-500 text-xs md:text-sm text-center md:text-left">
-                        © {new Date().getFullYear()} <span className="text-(--color-gold)">Cafe Online</span>. All Rights Reserved.
+                        © {new Date().getFullYear()} <Link href="/admin/login" className="text-(--color-gold) cursor-default">Cafe Online</Link>. All Rights Reserved.
                     </p>
 
                     <p className="text-gray-600 text-xs flex items-center gap-1">
