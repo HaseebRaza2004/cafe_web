@@ -69,7 +69,6 @@ export const ToastProvider = ({ children }) => {
         {toasts.map((toast) => (
           <div
             key={toast.id}
-            // Dynamic Classes for Animation & Styling
             className={`
               pointer-events-auto flex items-start gap-3 p-4 rounded-xl border backdrop-blur-md shadow-2xl
               transition-all duration-300 ease-in-out
@@ -102,6 +101,7 @@ export const ToastProvider = ({ children }) => {
 
             {/* Close Button */}
             <button
+              aria-label="Close message"
               onClick={() => removeToast(toast.id)}
               className="shrink-0 text-white/50 hover:text-white transition-colors"
             >

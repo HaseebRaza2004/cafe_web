@@ -127,7 +127,7 @@ const Footer = () => {
                 {/* --- BOTTOM BAR --- */}
                 <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
                     <p className="text-gray-500 text-xs md:text-sm text-center md:text-left">
-                        © {new Date().getFullYear()} <Link href="/admin/login" className="text-(--color-gold) cursor-default">Cafe Online</Link>. All Rights Reserved.
+                        © {new Date().getFullYear()} <Link aria-label="Go To Admin Panel" href="/admin/login" className="text-(--color-gold) cursor-default">Cafe Online</Link>. All Rights Reserved.
                     </p>
 
                     <p className="text-gray-600 text-xs flex items-center gap-1">
